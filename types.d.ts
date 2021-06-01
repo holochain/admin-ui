@@ -1,3 +1,4 @@
 import { Plugin } from "vue";
 
-export default Plugin;
+declare const HcAdminPlugin: Plugin;
+export default HcAdminPlugin;
