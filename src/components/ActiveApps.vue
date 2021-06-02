@@ -12,10 +12,6 @@ export default defineComponent({
   props: {
     msg: String,
   },
-  inject: {
-    adminWebsocket: "adminWebsocket",
-    appWebsocket: "appWebsocket",
-  },
   created() {
     this.$store.dispatch(Actions.fetchActiveHapps);
   },
