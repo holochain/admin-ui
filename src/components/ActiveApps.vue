@@ -1,14 +1,6 @@
 <template>
   <span v-if="$store.state.admin.activeApps.loading">Loading...</span>
   <div v-else>
-    <input
-      type="file"
-      name="Install App"
-      @change="installApp($event.target.name, $event.target.files[0])"
-      accept=".happ"
-      class="input-file"
-    />
-
     <div
       v-for="activeApp in $store.getters[`${VUEX_MODULE}/allActiveApps`]"
       :key="activeApp.installed_app_id"
@@ -19,7 +11,7 @@
       <div
         class="cell-row"
         v-for="cellData in activeApp.cell_data"
-        :key="cellData[0] + cellData[1]"
+        :key="deserializeHash(cellData[0]) + deserializeHash(cellData[1])"
       >
         <span>{{ cellData.cell_nick }}</span>
       </div>
@@ -30,8 +22,8 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { Actions } from "@/store/actions";
-import { fileToHappBundle } from "@/processors/happ-bundle";
 import { VUEX_MODULE } from "@/constants";
+import { deserializeHash } from "@holochain-open-dev/core-types";
 
 export default defineComponent({
   name: "ActiveApps",
@@ -43,12 +35,7 @@ export default defineComponent({
   created() {
     this.$store.dispatch(`${VUEX_MODULE}/${Actions.fetchActiveApps}`);
   },
-  methods: {
-    async installApp(name: string, app: File) {
-      const appBundle = await fileToHappBundle(app);
-      this.$store.dispatch(`${VUEX_MODULE}/${Actions.installApp}`, appBundle);
-    },
-  },
+  methods: { deserializeHash },
 });
 </script>
 

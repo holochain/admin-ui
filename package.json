@@ -12,6 +12,7 @@
     "publish-to-branch": "npm run build && gh-pages -d ./ -b build"
   },
   "dependencies": {
+    "@holochain-open-dev/core-types": "git+https://github.com/holochain-open-dev/core-types.git#build",
     "@holochain/conductor-api": "0.0.4",
     "@msgpack/msgpack": "^2.7.0",
     "core-js": "^3.6.5",
