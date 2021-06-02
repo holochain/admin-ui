@@ -1,18 +1,22 @@
 {
-  "name": "admin-ui",
+  "name": "@holochain/admin-ui",
   "version": "0.1.0",
-  "private": true,
+  "main": "dist/hc-admin-ui.umd.js",
+  "types": "./types.d.ts",
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build --target lib --name hc-admin-ui ./src/main.ts",
+    "build": "vue-cli-service build --target lib --name hc-admin-ui ./src/lib.ts",
     "test:unit": "vue-cli-service test:unit",
     "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint",
-    "publish-to-branch": "npm run build && gh-pages -d dist -b build"
+    "publish-to-branch": "npm run build && gh-pages -d ./ -b build"
   },
   "dependencies": {
+    "@holochain-open-dev/core-types": "git+https://github.com/holochain-open-dev/core-types.git#build",
     "@holochain/conductor-api": "0.0.4",
+    "@msgpack/msgpack": "^2.7.0",
     "core-js": "^3.6.5",
+    "fflate": "^0.7.0",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0-0",
     "vuex": "^4.0.0-0"

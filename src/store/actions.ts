@@ -1,3 +1,4 @@
 export const Actions = {
-  fetchActiveHapps: "fetchActiveHapps",
+  fetchActiveApps: "fetchActiveApps",
+  installApp: "installApp",
 };
