@@ -56,7 +56,6 @@ export function hcAdminVuexModule(
         for (const app of activeApps) {
           apps[app.installed_app_id] = app;
         }
-        console.log(apps, activeAppsIds);
 
         commit("setAppsInfo", apps);
       },

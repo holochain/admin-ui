@@ -11,10 +11,7 @@
       <div
         class="cell-row"
         v-for="cellData in activeApp.cell_data"
-        :key="
-          deserializeHash(cellData.cell_id[0]) +
-          deserializeHash(cellData.cell_id[1])
-        "
+        :key="[...cellData.cell_id[0], ...cellData.cell_id[0]]"
       >
         <span>{{ cellData.cell_nick }}</span>
       </div>
