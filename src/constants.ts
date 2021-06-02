@@ -1,1 +1,1 @@
-export const ADMIN_WS_URL = "ws://localhost:8889";
+export const VUEX_MODULE = "admin";
