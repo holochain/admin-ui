@@ -10567,6 +10567,7 @@ function decodeMulti(buffer, options) {
 
 
  // Converts the given *.happ file to an AppBundle object
+// Reference: https://github.com/holochain/holochain/blob/develop/crates/mr_bundle/src/encoding.rs
 
 function fileToHappBundle(_x) {
   return _fileToHappBundle.apply(this, arguments);
@@ -10868,7 +10869,7 @@ function hcAdminVuexModule(adminWebsocket, appWebsocket) {
       },
       installApp: function installApp(context, appBundle) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
-          var agentPubKey;
+          var agentPubKey, installed_app_id;
           return regeneratorRuntime.wrap(function _callee2$(_context2) {
             while (1) {
               switch (_context2.prev = _context2.next) {
@@ -10878,19 +10879,25 @@ function hcAdminVuexModule(adminWebsocket, appWebsocket) {
 
                 case 2:
                   agentPubKey = _context2.sent;
-                  console.log(appBundle);
+                  installed_app_id = appBundle.manifest.name;
                   _context2.next = 6;
                   return adminWebsocket.installAppBundle({
                     bundle: appBundle,
-                    installed_app_id: appBundle.manifest.name,
+                    installed_app_id: installed_app_id,
                     membrane_proofs: {},
                     agent_key: agentPubKey
                   });
 
                 case 6:
+                  _context2.next = 8;
+                  return adminWebsocket.activateApp({
+                    installed_app_id: installed_app_id
+                  });
+
+                case 8:
                   context.dispatch("".concat(Actions.fetchActiveApps));
 
-                case 7:
+                case 9:
                 case "end":
                   return _context2.stop();
               }
