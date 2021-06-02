@@ -1,7 +1,11 @@
 <template>
   <span v-if="$store.state.admin.activeApps.loading">Loading...</span>
   <div v-else>
+    <span v-if="$store.getters[`${VUEX_MODULE}/allActiveApps`].length === 0"
+      >You don't have any apps installed yet</span
+    >
     <div
+      v-else
       v-for="activeApp in $store.getters[`${VUEX_MODULE}/allActiveApps`]"
       :key="activeApp.installed_app_id"
       class="app-row"
