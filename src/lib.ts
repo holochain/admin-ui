@@ -6,6 +6,7 @@ import { hcAdminVuexModule } from "./store";
 import { ADMIN_UI_MODULE } from "./constants";
 
 export { ActionTypes } from "./store/actions";
+export * from "./processors/happ-bundle";
 export { ADMIN_UI_MODULE };
 
 export default {
