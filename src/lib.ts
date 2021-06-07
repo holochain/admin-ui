@@ -4,12 +4,13 @@ import { Store } from "vuex";
 import ActiveApps from "@/components/ActiveApps.vue"; // @ is an alias to /src
 import { hcAdminVuexModule } from "./store";
 import { ADMIN_UI_MODULE } from "./constants";
-
-export { ActionTypes } from "./store/actions";
-export * from "./processors/happ-bundle";
-export { ADMIN_UI_MODULE };
+import { ActionTypes } from "./store/actions";
+import { fileToHappBundle } from "./processors/happ-bundle";
 
 export default {
+  ActionTypes: ActionTypes,
+  processors: { fileToHappBundle },
+  ADMIN_UI_MODULE,
   install(
     app: App,
     options: {

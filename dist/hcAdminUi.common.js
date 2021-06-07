@@ -6557,11 +6557,6 @@ module.exports = function (it) {
 // ESM COMPAT FLAG
 __webpack_require__.r(__webpack_exports__);
 
-// EXPORTS
-__webpack_require__.d(__webpack_exports__, "ActionTypes", function() { return /* reexport */ ActionTypes; });
-__webpack_require__.d(__webpack_exports__, "fileToHappBundle", function() { return /* reexport */ fileToHappBundle; });
-__webpack_require__.d(__webpack_exports__, "ADMIN_UI_MODULE", function() { return /* reexport */ ADMIN_UI_MODULE; });
-
 // CONCATENATED MODULE: ./node_modules/@vue/cli-service/lib/commands/build/setPublicPath.js
 // This file is imported into lib/wc client bundles.
 
@@ -11462,8 +11457,12 @@ function _fileToHappBundle() {
 
 
 
-
 /* harmony default export */ var lib = ({
+  ActionTypes: ActionTypes,
+  processors: {
+    fileToHappBundle: fileToHappBundle
+  },
+  ADMIN_UI_MODULE: ADMIN_UI_MODULE,
   install: function install(app, options) {
     if (!options.adminWebsocket) throw new Error("Failed to load the plugin: no \"adminWebsocket\" was provided in the plugin options");
     if (!options.appWebsocket) throw new Error("Failed to load the plugin: no \"appWebsocket\" was provided in the plugin options");
