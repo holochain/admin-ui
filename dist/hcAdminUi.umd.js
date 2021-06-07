@@ -4,9 +4,9 @@
 	else if(typeof define === 'function' && define.amd)
 		define([], factory);
 	else if(typeof exports === 'object')
-		exports["hc-admin-ui"] = factory(require("vue"));
+		exports["hcAdminUi"] = factory(require("vue"));
 	else
-		root["hc-admin-ui"] = factory(root["Vue"]);
+		root["hcAdminUi"] = factory(root["Vue"]);
 })((typeof self !== 'undefined' ? self : this), function(__WEBPACK_EXTERNAL_MODULE__8bbf__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -11626,4 +11626,4 @@ module.exports = global.Promise;
 
 /******/ })["default"];
 });
-//# sourceMappingURL=hc-admin-ui.umd.js.map
+//# sourceMappingURL=hcAdminUi.umd.js.map

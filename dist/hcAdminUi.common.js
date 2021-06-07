@@ -11616,4 +11616,4 @@ module.exports = global.Promise;
 /***/ })
 
 /******/ })["default"];
-//# sourceMappingURL=hc-admin-ui.common.js.map
+//# sourceMappingURL=hcAdminUi.common.js.map
