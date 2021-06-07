@@ -1,5 +1,4 @@
 <template>
-  <InstallApp></InstallApp>
   <ActiveApps></ActiveApps>
 </template>
 

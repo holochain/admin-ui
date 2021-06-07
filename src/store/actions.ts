@@ -1,4 +1,4 @@
-export const Actions = {
+export const ActionTypes = {
   fetchActiveApps: "fetchActiveApps",
   installApp: "installApp",
 };

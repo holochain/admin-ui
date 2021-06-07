@@ -1,14 +1,16 @@
 import { AdminWebsocket, AppWebsocket } from "@holochain/conductor-api";
-import { App, createApp } from "vue";
+import { App } from "vue";
 import { Store } from "vuex";
 import ActiveApps from "@/components/ActiveApps.vue"; // @ is an alias to /src
-import InstallApp from "@/components/InstallApp.vue"; // @ is an alias to /src
 import { hcAdminVuexModule } from "./store";
-import { VUEX_MODULE } from "./constants";
-
-//createApp(App).use(store).use(router).mount("#app");
+import { ADMIN_UI_MODULE } from "./constants";
+import { ActionTypes } from "./store/actions";
+import { fileToHappBundle } from "./processors/happ-bundle";
 
 export default {
+  ActionTypes: ActionTypes,
+  processors: { fileToHappBundle },
+  ADMIN_UI_MODULE,
   install(
     app: App,
     options: {
@@ -31,11 +33,10 @@ export default {
       );
 
     options.store.registerModule(
-      VUEX_MODULE,
+      ADMIN_UI_MODULE,
       hcAdminVuexModule(options.adminWebsocket, options.appWebsocket)
     );
 
     app.component("ActiveApps", ActiveApps);
-    app.component("InstallApp", InstallApp);
   },
 };

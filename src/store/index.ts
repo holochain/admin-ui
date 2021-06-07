@@ -6,8 +6,7 @@ import {
   InstalledAppInfo,
 } from "@holochain/conductor-api";
 import { Dictionary } from "@/types";
-import { Actions } from "./actions";
-import { VUEX_MODULE } from "@/constants";
+import { ActionTypes } from "./actions";
 
 export interface HcAdminState {
   activeApps: { loading: boolean; appsInfo: Dictionary<InstalledAppInfo> };
@@ -71,7 +70,7 @@ export function hcAdminVuexModule(
 
         await adminWebsocket.activateApp({ installed_app_id });
 
-        context.dispatch(`${Actions.fetchActiveApps}`);
+        context.dispatch(ActionTypes.fetchActiveApps);
       },
     },
   };
