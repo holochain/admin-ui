@@ -8,9 +8,12 @@
       v-else
       v-for="activeApp in $store.getters[`${ADMIN_UI_MODULE}/allActiveApps`]"
       :key="activeApp.installed_app_id"
-      class="app-row"
+      class="app-row column"
     >
-      <span class="app-title">{{ activeApp.installed_app_id }}</span>
+      <div class="row">
+        <span class="app-title">{{ activeApp.installed_app_id }}</span>
+        <a :href="appUrls[activeApp.installed_app_id]">Go To App</a>
+      </div>
 
       <div
         class="cell-row"
@@ -36,6 +39,9 @@ export default defineComponent({
       ADMIN_UI_MODULE,
     };
   },
+  props: {
+    appUrls: Object,
+  },
   created() {
     this.$store.dispatch(`${ADMIN_UI_MODULE}/${ActionTypes.fetchActiveApps}`);
   },
@@ -55,5 +61,15 @@ export default defineComponent({
 
 .cell-row {
   margin-top: 8px;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
 }
 </style>
