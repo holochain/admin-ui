@@ -49,7 +49,7 @@ export default defineComponent({
       ADMIN_UI_MODULE,
     };
   },
-  emits: ["launchApp"],
+  emits: ["openApp"],
   created() {
     this.$store.dispatch(`${ADMIN_UI_MODULE}/${ActionTypes.fetchActiveApps}`);
   },
