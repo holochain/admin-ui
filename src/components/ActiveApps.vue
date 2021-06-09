@@ -12,7 +12,7 @@
     >
       <div class="row">
         <span class="app-title">{{ activeApp.installed_app_id }}</span>
-        <button @click="this.$emit('launchApp', activeApp.installed_app_id)">
+        <button @click="$emit('launchApp', activeApp.installed_app_id)">
           Launch
         </button>
       </div>
