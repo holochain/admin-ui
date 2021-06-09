@@ -12,7 +12,9 @@
     >
       <div class="row">
         <span class="app-title">{{ activeApp.installed_app_id }}</span>
-        <a :href="appUrls[activeApp.installed_app_id]">Go To App</a>
+        <button @click="this.$emit('launchApp', activeApp.installed_app_id)">
+          Launch
+        </button>
       </div>
 
       <div
@@ -39,9 +41,7 @@ export default defineComponent({
       ADMIN_UI_MODULE,
     };
   },
-  props: {
-    appUrls: Object,
-  },
+  emits: ["launchApp"],
   created() {
     this.$store.dispatch(`${ADMIN_UI_MODULE}/${ActionTypes.fetchActiveApps}`);
   },
