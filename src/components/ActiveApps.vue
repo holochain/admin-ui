@@ -16,8 +16,11 @@
       >
         <div class="row">
           <span class="app-title">{{ activeApp.installed_app_id }}</span>
-          <button @click="$emit('launchApp', activeApp.installed_app_id)">
-            Launch
+          <button
+            @click="$emit('openApp', activeApp.installed_app_id)"
+            style="margin-left: 8px"
+          >
+            Open
           </button>
         </div>
 
