@@ -5,7 +5,7 @@
     <span v-if="$store.state.admin.installedApps.loading">Loading...</span>
     <div v-else>
       <span
-        v-if="$store.getters[`${ADMIN_UI_MODULE}/allActiveApps`].length === 0"
+        v-if="$store.getters[`${ADMIN_UI_MODULE}/allApps`].length === 0"
         >You don't have any apps installed yet</span
       >
       <div
