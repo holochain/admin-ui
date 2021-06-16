@@ -66,7 +66,7 @@ export function hcAdminVuexModule(
       },
       async deactivateApp(context, appId: string) {
         await adminWebsocket.deactivateApp({ installed_app_id: appId });
-        context.dispatch(ActionTypes.fetchInstalledApps);
+        await context.dispatch(ActionTypes.fetchInstalledApps);
       },
       async installApp(context, appBundle: AppBundle) {
         const agentPubKey = await adminWebsocket.generateAgentPubKey();

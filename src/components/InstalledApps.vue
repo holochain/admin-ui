@@ -17,6 +17,7 @@
         <div class="row">
           <span class="app-title">{{ app.installed_app_id }}</span>
           <button
+            :disabled="!isAppActive(app)"
             @click="$emit('openApp', app.installed_app_id)"
             style="margin-left: 8px"
           >
@@ -43,7 +44,7 @@
         </div>
 
         <div
-          class="cell-row"
+          class="cell-row row"
           v-for="cellData in app.cell_data"
           :key="[...cellData.cell_id[0], ...cellData.cell_id[0]]"
         >
@@ -68,7 +69,7 @@ export default defineComponent({
       ADMIN_UI_MODULE,
     };
   },
-  emits: ["openApp"],
+  emits: ["openApp", "appDeactivated"],
   created() {
     this.$store.dispatch(
       `${ADMIN_UI_MODULE}/${ActionTypes.fetchInstalledApps}`
@@ -110,11 +111,13 @@ export default defineComponent({
         appId
       );
     },
-    deactivateApp(appId: string) {
-      this.$store.dispatch(
+    async deactivateApp(appId: string) {
+      await this.$store.dispatch(
         `${ADMIN_UI_MODULE}/${ActionTypes.deactivateApp}`,
         appId
       );
+
+      this.$emit("appDeactivated", appId);
     },
   },
 });
