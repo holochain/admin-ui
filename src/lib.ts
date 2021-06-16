@@ -1,7 +1,7 @@
 import { AdminWebsocket, AppWebsocket } from "@holochain/conductor-api";
 import { App } from "vue";
 import { Store } from "vuex";
-import ActiveApps from "@/components/ActiveApps.vue"; // @ is an alias to /src
+import InstalledApps from "@/components/InstalledApps.vue"; // @ is an alias to /src
 import { hcAdminVuexModule } from "./store";
 import { ADMIN_UI_MODULE } from "./constants";
 import { ActionTypes } from "./store/actions";
@@ -37,6 +37,6 @@ export default {
       hcAdminVuexModule(options.adminWebsocket, options.appWebsocket)
     );
 
-    app.component("ActiveApps", ActiveApps);
+    app.component("InstalledApps", InstalledApps);
   },
 };

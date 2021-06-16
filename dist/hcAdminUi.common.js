@@ -756,6 +756,28 @@ function toComment(sourceMap) {
 
 /***/ }),
 
+/***/ "2532":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var $ = __webpack_require__("23e7");
+var notARegExp = __webpack_require__("5a34");
+var requireObjectCoercible = __webpack_require__("1d80");
+var correctIsRegExpLogic = __webpack_require__("ab13");
+
+// `String.prototype.includes` method
+// https://tc39.es/ecma262/#sec-string.prototype.includes
+$({ target: 'String', proto: true, forced: !correctIsRegExpLogic('includes') }, {
+  includes: function includes(searchString /* , position = 0 */) {
+    return !!~String(requireObjectCoercible(this))
+      .indexOf(notARegExp(searchString), arguments.length > 1 ? arguments[1] : undefined);
+  }
+});
+
+
+/***/ }),
+
 /***/ "25a1":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1024,6 +1046,22 @@ module.exports = getBuiltIn('navigator', 'userAgent') || '';
 
 /***/ }),
 
+/***/ "347a":
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__("c4f9");
+if(content.__esModule) content = content.default;
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__("499e").default
+var update = add("737ad705", content, true, {"sourceMap":false,"shadowMode":false});
+
+/***/ }),
+
 /***/ "35a1":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1038,20 +1076,6 @@ module.exports = function (it) {
     || it['@@iterator']
     || Iterators[classof(it)];
 };
-
-
-/***/ }),
-
-/***/ "3778":
-/***/ (function(module, exports, __webpack_require__) {
-
-// Imports
-var ___CSS_LOADER_API_IMPORT___ = __webpack_require__("24fb");
-exports = ___CSS_LOADER_API_IMPORT___(false);
-// Module
-exports.push([module.i, ".app-row[data-v-12525811]{margin-bottom:16px}.app-title[data-v-12525811]{font-size:1.3em}.cell-row[data-v-12525811]{margin-top:8px}.column[data-v-12525811]{display:flex;flex-direction:column}.title[data-v-12525811]{font-size:1.5em}.row[data-v-12525811]{display:flex;flex-direction:row}", ""]);
-// Exports
-module.exports = exports;
 
 
 /***/ }),
@@ -1285,6 +1309,25 @@ module.exports = function (a, b) {
   if (console && console.error) {
     arguments.length === 1 ? console.error(a) : console.error(a, b);
   }
+};
+
+
+/***/ }),
+
+/***/ "44e7":
+/***/ (function(module, exports, __webpack_require__) {
+
+var isObject = __webpack_require__("861d");
+var classof = __webpack_require__("c6b6");
+var wellKnownSymbol = __webpack_require__("b622");
+
+var MATCH = wellKnownSymbol('match');
+
+// `IsRegExp` abstract operation
+// https://tc39.es/ecma262/#sec-isregexp
+module.exports = function (it) {
+  var isRegExp;
+  return isObject(it) && ((isRegExp = it[MATCH]) !== undefined ? !!isRegExp : classof(it) == 'RegExp');
 };
 
 
@@ -1744,6 +1787,20 @@ module.exports = getBuiltIn('Reflect', 'ownKeys') || function ownKeys(it) {
   var keys = getOwnPropertyNamesModule.f(anObject(it));
   var getOwnPropertySymbols = getOwnPropertySymbolsModule.f;
   return getOwnPropertySymbols ? keys.concat(getOwnPropertySymbols(it)) : keys;
+};
+
+
+/***/ }),
+
+/***/ "5a34":
+/***/ (function(module, exports, __webpack_require__) {
+
+var isRegExp = __webpack_require__("44e7");
+
+module.exports = function (it) {
+  if (isRegExp(it)) {
+    throw TypeError("The method doesn't accept regular expressions");
+  } return it;
 };
 
 
@@ -2253,17 +2310,6 @@ module.exports = {
   enforce: enforce,
   getterFor: getterFor
 };
-
-
-/***/ }),
-
-/***/ "6c05":
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var _node_modules_vue_style_loader_index_js_ref_6_oneOf_1_0_node_modules_css_loader_dist_cjs_js_ref_6_oneOf_1_1_node_modules_vue_loader_v16_dist_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_2_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_node_modules_cache_loader_dist_cjs_js_ref_0_0_node_modules_vue_loader_v16_dist_index_js_ref_0_1_ActiveApps_vue_vue_type_style_index_0_id_12525811_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__("7d2e");
-/* harmony import */ var _node_modules_vue_style_loader_index_js_ref_6_oneOf_1_0_node_modules_css_loader_dist_cjs_js_ref_6_oneOf_1_1_node_modules_vue_loader_v16_dist_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_2_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_node_modules_cache_loader_dist_cjs_js_ref_0_0_node_modules_vue_loader_v16_dist_index_js_ref_0_1_ActiveApps_vue_vue_type_style_index_0_id_12525811_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_vue_style_loader_index_js_ref_6_oneOf_1_0_node_modules_css_loader_dist_cjs_js_ref_6_oneOf_1_1_node_modules_vue_loader_v16_dist_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_2_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_node_modules_cache_loader_dist_cjs_js_ref_0_0_node_modules_vue_loader_v16_dist_index_js_ref_0_1_ActiveApps_vue_vue_type_style_index_0_id_12525811_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_0__);
-/* unused harmony reexport * */
 
 
 /***/ }),
@@ -2899,22 +2945,6 @@ module.exports = Object.create || function create(O, Properties) {
   return Properties === undefined ? result : defineProperties(result, Properties);
 };
 
-
-/***/ }),
-
-/***/ "7d2e":
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__("3778");
-if(content.__esModule) content = content.default;
-if(typeof content === 'string') content = [[module.i, content, '']];
-if(content.locals) module.exports = content.locals;
-// add the styles to the DOM
-var add = __webpack_require__("499e").default
-var update = add("5866d527", content, true, {"sourceMap":false,"shadowMode":false});
 
 /***/ }),
 
@@ -4282,6 +4312,17 @@ module.exports = function from(source /* , mapfn, thisArg */) {
 
 /***/ }),
 
+/***/ "a40c":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var _node_modules_vue_style_loader_index_js_ref_6_oneOf_1_0_node_modules_css_loader_dist_cjs_js_ref_6_oneOf_1_1_node_modules_vue_loader_v16_dist_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_2_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_node_modules_cache_loader_dist_cjs_js_ref_0_0_node_modules_vue_loader_v16_dist_index_js_ref_0_1_InstalledApps_vue_vue_type_style_index_0_id_e1bc2598_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__("347a");
+/* harmony import */ var _node_modules_vue_style_loader_index_js_ref_6_oneOf_1_0_node_modules_css_loader_dist_cjs_js_ref_6_oneOf_1_1_node_modules_vue_loader_v16_dist_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_2_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_node_modules_cache_loader_dist_cjs_js_ref_0_0_node_modules_vue_loader_v16_dist_index_js_ref_0_1_InstalledApps_vue_vue_type_style_index_0_id_e1bc2598_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_vue_style_loader_index_js_ref_6_oneOf_1_0_node_modules_css_loader_dist_cjs_js_ref_6_oneOf_1_1_node_modules_vue_loader_v16_dist_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_2_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_node_modules_cache_loader_dist_cjs_js_ref_0_0_node_modules_vue_loader_v16_dist_index_js_ref_0_1_InstalledApps_vue_vue_type_style_index_0_id_e1bc2598_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_0__);
+/* unused harmony reexport * */
+
+
+/***/ }),
+
 /***/ "a4b4":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -4694,6 +4735,28 @@ module.exports = typeof ArrayBuffer !== 'undefined' && typeof DataView !== 'unde
 
 /***/ }),
 
+/***/ "ab13":
+/***/ (function(module, exports, __webpack_require__) {
+
+var wellKnownSymbol = __webpack_require__("b622");
+
+var MATCH = wellKnownSymbol('match');
+
+module.exports = function (METHOD_NAME) {
+  var regexp = /./;
+  try {
+    '/./'[METHOD_NAME](regexp);
+  } catch (error1) {
+    try {
+      regexp[MATCH] = false;
+      return '/./'[METHOD_NAME](regexp);
+    } catch (error2) { /* empty */ }
+  } return false;
+};
+
+
+/***/ }),
+
 /***/ "ae93":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -4945,6 +5008,27 @@ module.exports = function (name) {
 
 /***/ }),
 
+/***/ "b64b":
+/***/ (function(module, exports, __webpack_require__) {
+
+var $ = __webpack_require__("23e7");
+var toObject = __webpack_require__("7b0b");
+var nativeKeys = __webpack_require__("df75");
+var fails = __webpack_require__("d039");
+
+var FAILS_ON_PRIMITIVES = fails(function () { nativeKeys(1); });
+
+// `Object.keys` method
+// https://tc39.es/ecma262/#sec-object.keys
+$({ target: 'Object', stat: true, forced: FAILS_ON_PRIMITIVES }, {
+  keys: function keys(it) {
+    return nativeKeys(toObject(it));
+  }
+});
+
+
+/***/ }),
+
 /***/ "b727":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -5075,6 +5159,20 @@ module.exports = false;
 
 /***/ }),
 
+/***/ "c4f9":
+/***/ (function(module, exports, __webpack_require__) {
+
+// Imports
+var ___CSS_LOADER_API_IMPORT___ = __webpack_require__("24fb");
+exports = ___CSS_LOADER_API_IMPORT___(false);
+// Module
+exports.push([module.i, ".app-row[data-v-e1bc2598]{margin-bottom:16px}.app-title[data-v-e1bc2598]{font-size:1.3em;flex:1}.cell-row[data-v-e1bc2598]{margin-top:8px}.column[data-v-e1bc2598]{display:flex;flex-direction:column}.title[data-v-e1bc2598]{font-size:1.5em}.row[data-v-e1bc2598]{display:flex;flex-direction:row}", ""]);
+// Exports
+module.exports = exports;
+
+
+/***/ }),
+
 /***/ "c6b6":
 /***/ (function(module, exports) {
 
@@ -5168,6 +5266,29 @@ var exportTypedArrayMethod = ArrayBufferViewCore.exportTypedArrayMethod;
 exportTypedArrayMethod('reduce', function reduce(callbackfn /* , initialValue */) {
   return $reduce(aTypedArray(this), callbackfn, arguments.length, arguments.length > 1 ? arguments[1] : undefined);
 });
+
+
+/***/ }),
+
+/***/ "caad":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var $ = __webpack_require__("23e7");
+var $includes = __webpack_require__("4d64").includes;
+var addToUnscopables = __webpack_require__("44d2");
+
+// `Array.prototype.includes` method
+// https://tc39.es/ecma262/#sec-array.prototype.includes
+$({ target: 'Array', proto: true }, {
+  includes: function includes(el /* , fromIndex = 0 */) {
+    return $includes(this, el, arguments.length > 1 ? arguments[1] : undefined);
+  }
+});
+
+// https://tc39.es/ecma262/#sec-array.prototype-@@unscopables
+addToUnscopables('includes');
 
 
 /***/ }),
@@ -6671,14 +6792,14 @@ var es_array_concat = __webpack_require__("99af");
 // EXTERNAL MODULE: external {"commonjs":"vue","commonjs2":"vue","root":"Vue"}
 var external_commonjs_vue_commonjs2_vue_root_Vue_ = __webpack_require__("8bbf");
 
-// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js??ref--12-0!./node_modules/thread-loader/dist/cjs.js!./node_modules/babel-loader/lib!./node_modules/vue-loader-v16/dist/templateLoader.js??ref--6!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader-v16/dist??ref--0-1!./src/components/ActiveApps.vue?vue&type=template&id=12525811&scoped=true
+// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js??ref--12-0!./node_modules/thread-loader/dist/cjs.js!./node_modules/babel-loader/lib!./node_modules/vue-loader-v16/dist/templateLoader.js??ref--6!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader-v16/dist??ref--0-1!./src/components/InstalledApps.vue?vue&type=template&id=e1bc2598&scoped=true
 
 
 
 
-var _withId = /*#__PURE__*/Object(external_commonjs_vue_commonjs2_vue_root_Vue_["withScopeId"])("data-v-12525811");
+var _withId = /*#__PURE__*/Object(external_commonjs_vue_commonjs2_vue_root_Vue_["withScopeId"])("data-v-e1bc2598");
 
-Object(external_commonjs_vue_commonjs2_vue_root_Vue_["pushScopeId"])("data-v-12525811");
+Object(external_commonjs_vue_commonjs2_vue_root_Vue_["pushScopeId"])("data-v-e1bc2598");
 
 var _hoisted_1 = {
   class: "column"
@@ -6706,24 +6827,48 @@ var _hoisted_6 = {
 var _hoisted_7 = {
   class: "app-title"
 };
+var _hoisted_8 = {
+  key: 1,
+  class: "row"
+};
+var _hoisted_9 = {
+  style: {
+    "margin-left": "8px"
+  }
+};
 
 Object(external_commonjs_vue_commonjs2_vue_root_Vue_["popScopeId"])();
 
 var render = /*#__PURE__*/_withId(function (_ctx, _cache, $props, $setup, $data, $options) {
-  return Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("div", _hoisted_1, [_hoisted_2, _ctx.$store.state.admin.activeApps.loading ? (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("span", _hoisted_3, "Loading...")) : (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("div", _hoisted_4, [_ctx.$store.getters["".concat(_ctx.ADMIN_UI_MODULE, "/allActiveApps")].length === 0 ? (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("span", _hoisted_5, "You don't have any apps installed yet")) : (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(true), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])(external_commonjs_vue_commonjs2_vue_root_Vue_["Fragment"], {
+  return Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("div", _hoisted_1, [_hoisted_2, _ctx.$store.state.admin.installedApps.loading ? (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("span", _hoisted_3, "Loading...")) : (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("div", _hoisted_4, [_ctx.$store.getters["".concat(_ctx.ADMIN_UI_MODULE, "/allActiveApps")].length === 0 ? (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("span", _hoisted_5, "You don't have any apps installed yet")) : (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(true), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])(external_commonjs_vue_commonjs2_vue_root_Vue_["Fragment"], {
     key: 1
-  }, Object(external_commonjs_vue_commonjs2_vue_root_Vue_["renderList"])(_ctx.$store.getters["".concat(_ctx.ADMIN_UI_MODULE, "/allActiveApps")], function (activeApp) {
+  }, Object(external_commonjs_vue_commonjs2_vue_root_Vue_["renderList"])(_ctx.$store.getters["".concat(_ctx.ADMIN_UI_MODULE, "/allApps")], function (app) {
     return Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("div", {
-      key: activeApp.installed_app_id,
+      key: app.installed_app_id,
       class: "app-row column"
-    }, [Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createVNode"])("div", _hoisted_6, [Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createVNode"])("span", _hoisted_7, Object(external_commonjs_vue_commonjs2_vue_root_Vue_["toDisplayString"])(activeApp.installed_app_id), 1), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createVNode"])("button", {
+    }, [Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createVNode"])("div", _hoisted_6, [Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createVNode"])("span", _hoisted_7, Object(external_commonjs_vue_commonjs2_vue_root_Vue_["toDisplayString"])(app.installed_app_id), 1), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createVNode"])("button", {
       onClick: function onClick($event) {
-        return _ctx.$emit('openApp', activeApp.installed_app_id);
+        return _ctx.$emit('openApp', app.installed_app_id);
       },
       style: {
         "margin-left": "8px"
       }
-    }, " Open ", 8, ["onClick"])]), (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(true), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])(external_commonjs_vue_commonjs2_vue_root_Vue_["Fragment"], null, Object(external_commonjs_vue_commonjs2_vue_root_Vue_["renderList"])(activeApp.cell_data, function (cellData) {
+    }, " Open ", 8, ["onClick"]), _ctx.isAppActive(app) ? (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("button", {
+      key: 0,
+      onClick: function onClick($event) {
+        return _ctx.deactivateApp(app.installed_app_id);
+      },
+      style: {
+        "margin-left": "8px"
+      }
+    }, " Deactivate ", 8, ["onClick"])) : (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("div", _hoisted_8, [Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createVNode"])("button", {
+      onClick: function onClick($event) {
+        return _ctx.activateApp(app.installed_app_id);
+      },
+      style: {
+        "margin-left": "8px"
+      }
+    }, " Activate ", 8, ["onClick"]), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createVNode"])("span", _hoisted_9, Object(external_commonjs_vue_commonjs2_vue_root_Vue_["toDisplayString"])(_ctx.getDeactivationReason(app)), 1)]))]), (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(true), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])(external_commonjs_vue_commonjs2_vue_root_Vue_["Fragment"], null, Object(external_commonjs_vue_commonjs2_vue_root_Vue_["renderList"])(app.cell_data, function (cellData) {
       return Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("div", {
         class: "cell-row",
         key: [].concat(_toConsumableArray(cellData.cell_id[0]), _toConsumableArray(cellData.cell_id[0]))
@@ -6731,11 +6876,22 @@ var render = /*#__PURE__*/_withId(function (_ctx, _cache, $props, $setup, $data,
     }), 128))]);
   }), 128))]))]);
 });
-// CONCATENATED MODULE: ./src/components/ActiveApps.vue?vue&type=template&id=12525811&scoped=true
+// CONCATENATED MODULE: ./src/components/InstalledApps.vue?vue&type=template&id=e1bc2598&scoped=true
+
+// EXTERNAL MODULE: ./node_modules/core-js/modules/es.array.includes.js
+var es_array_includes = __webpack_require__("caad");
+
+// EXTERNAL MODULE: ./node_modules/core-js/modules/es.string.includes.js
+var es_string_includes = __webpack_require__("2532");
+
+// EXTERNAL MODULE: ./node_modules/core-js/modules/es.object.keys.js
+var es_object_keys = __webpack_require__("b64b");
 
 // CONCATENATED MODULE: ./src/store/actions.ts
 var ActionTypes = {
-  fetchActiveApps: "fetchActiveApps",
+  fetchInstalledApps: "fetchInstalledApps",
+  activateApp: "activateApp",
+  deactivateApp: "deactivateApp",
   installApp: "installApp"
 };
 // CONCATENATED MODULE: ./src/constants.ts
@@ -7268,14 +7424,17 @@ var ValidationStatus;
 
 
 //# sourceMappingURL=index.js.map
-// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js??ref--13-0!./node_modules/thread-loader/dist/cjs.js!./node_modules/babel-loader/lib!./node_modules/ts-loader??ref--13-3!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader-v16/dist??ref--0-1!./src/components/ActiveApps.vue?vue&type=script&lang=ts
+// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js??ref--13-0!./node_modules/thread-loader/dist/cjs.js!./node_modules/babel-loader/lib!./node_modules/ts-loader??ref--13-3!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader-v16/dist??ref--0-1!./src/components/InstalledApps.vue?vue&type=script&lang=ts
 
 
 
 
 
-/* harmony default export */ var ActiveAppsvue_type_script_lang_ts = (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["defineComponent"])({
-  name: "ActiveApps",
+
+
+
+/* harmony default export */ var InstalledAppsvue_type_script_lang_ts = (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["defineComponent"])({
+  name: "InstalledApps",
   data: function data() {
     return {
       ADMIN_UI_MODULE: ADMIN_UI_MODULE
@@ -7283,27 +7442,47 @@ var ValidationStatus;
   },
   emits: ["openApp"],
   created: function created() {
-    this.$store.dispatch("".concat(ADMIN_UI_MODULE, "/").concat(ActionTypes.fetchActiveApps));
+    this.$store.dispatch("".concat(ADMIN_UI_MODULE, "/").concat(ActionTypes.fetchInstalledApps));
   },
   methods: {
-    deserializeHash: deserializeHash
+    deserializeHash: deserializeHash,
+    isAppActive: function isAppActive(appInfo) {
+      return Object.keys(appInfo.status).includes("active");
+    },
+    getDeactivationReason: function getDeactivationReason(appInfo) {
+      var reason = appInfo.status.inactive.reason;
+
+      if (Object.keys(reason).includes("never_activated")) {
+        return "This app was never activated";
+      } else if (Object.keys(reason).includes("normal")) {
+        return "This app was deactivated by the user";
+      } else {
+        return "There was an error with this app: ".concat(reason.quarantined.error);
+      }
+    },
+    activateApp: function activateApp(appId) {
+      this.$store.dispatch("".concat(ADMIN_UI_MODULE, "/").concat(ActionTypes.activateApp), appId);
+    },
+    deactivateApp: function deactivateApp(appId) {
+      this.$store.dispatch("".concat(ADMIN_UI_MODULE, "/").concat(ActionTypes.deactivateApp), appId);
+    }
   }
 }));
-// CONCATENATED MODULE: ./src/components/ActiveApps.vue?vue&type=script&lang=ts
+// CONCATENATED MODULE: ./src/components/InstalledApps.vue?vue&type=script&lang=ts
  
-// EXTERNAL MODULE: ./src/components/ActiveApps.vue?vue&type=style&index=0&id=12525811&scoped=true&lang=css
-var ActiveAppsvue_type_style_index_0_id_12525811_scoped_true_lang_css = __webpack_require__("6c05");
+// EXTERNAL MODULE: ./src/components/InstalledApps.vue?vue&type=style&index=0&id=e1bc2598&scoped=true&lang=css
+var InstalledAppsvue_type_style_index_0_id_e1bc2598_scoped_true_lang_css = __webpack_require__("a40c");
 
-// CONCATENATED MODULE: ./src/components/ActiveApps.vue
-
-
+// CONCATENATED MODULE: ./src/components/InstalledApps.vue
 
 
 
-ActiveAppsvue_type_script_lang_ts.render = render
-ActiveAppsvue_type_script_lang_ts.__scopeId = "data-v-12525811"
 
-/* harmony default export */ var ActiveApps = (ActiveAppsvue_type_script_lang_ts);
+
+InstalledAppsvue_type_script_lang_ts.render = render
+InstalledAppsvue_type_script_lang_ts.__scopeId = "data-v-e1bc2598"
+
+/* harmony default export */ var InstalledApps = (InstalledAppsvue_type_script_lang_ts);
 // CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/createForOfIteratorHelper.js
 
 
@@ -7433,35 +7612,37 @@ var es_array_map = __webpack_require__("d81d");
 
 
 
+
+
 function hcAdminVuexModule(adminWebsocket, appWebsocket) {
   return {
     namespaced: true,
     state: function state() {
       return {
-        activeApps: {
+        installedApps: {
           loading: false,
           appsInfo: {}
         }
       };
     },
     getters: {
-      allActiveApps: function allActiveApps(state) {
-        return Object.values(state.activeApps.appsInfo);
+      allApps: function allApps(state) {
+        return Object.values(state.installedApps.appsInfo);
       }
     },
     mutations: {
       loadAppsInfo: function loadAppsInfo(state) {
-        state.activeApps.loading = true;
+        state.installedApps.loading = true;
       },
       setAppsInfo: function setAppsInfo(state, activeApps) {
-        state.activeApps.appsInfo = activeApps;
-        state.activeApps.loading = false;
+        state.installedApps.appsInfo = activeApps;
+        state.installedApps.loading = false;
       }
     },
     actions: {
-      fetchActiveApps: function fetchActiveApps(_ref) {
+      fetchInstalledApps: function fetchInstalledApps(_ref) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
-          var commit, activeAppsIds, promises, activeApps, apps, _iterator, _step, app;
+          var commit, activeAppsIds, inactiveAppsIds, promises, installedApps, apps, _iterator, _step, app;
 
           return regeneratorRuntime.wrap(function _callee$(_context) {
             while (1) {
@@ -7474,18 +7655,23 @@ function hcAdminVuexModule(adminWebsocket, appWebsocket) {
 
                 case 4:
                   activeAppsIds = _context.sent;
-                  promises = activeAppsIds.map(function (appId) {
+                  _context.next = 7;
+                  return adminWebsocket.listInactiveApps();
+
+                case 7:
+                  inactiveAppsIds = _context.sent;
+                  promises = [].concat(_toConsumableArray(activeAppsIds), _toConsumableArray(inactiveAppsIds)).map(function (appId) {
                     return appWebsocket.appInfo({
                       installed_app_id: appId
                     });
                   });
-                  _context.next = 8;
+                  _context.next = 11;
                   return Promise.all(promises);
 
-                case 8:
-                  activeApps = _context.sent;
+                case 11:
+                  installedApps = _context.sent;
                   apps = {};
-                  _iterator = _createForOfIteratorHelper(activeApps);
+                  _iterator = _createForOfIteratorHelper(installedApps);
 
                   try {
                     for (_iterator.s(); !(_step = _iterator.n()).done;) {
@@ -7500,7 +7686,7 @@ function hcAdminVuexModule(adminWebsocket, appWebsocket) {
 
                   commit("setAppsInfo", apps);
 
-                case 13:
+                case 16:
                 case "end":
                   return _context.stop();
               }
@@ -7508,20 +7694,65 @@ function hcAdminVuexModule(adminWebsocket, appWebsocket) {
           }, _callee);
         }))();
       },
-      installApp: function installApp(context, appBundle) {
+      activateApp: function activateApp(context, appId) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
-          var agentPubKey, installed_app_id;
           return regeneratorRuntime.wrap(function _callee2$(_context2) {
             while (1) {
               switch (_context2.prev = _context2.next) {
                 case 0:
                   _context2.next = 2;
+                  return adminWebsocket.activateApp({
+                    installed_app_id: appId
+                  });
+
+                case 2:
+                  _context2.next = 4;
+                  return context.dispatch(ActionTypes.fetchInstalledApps);
+
+                case 4:
+                case "end":
+                  return _context2.stop();
+              }
+            }
+          }, _callee2);
+        }))();
+      },
+      deactivateApp: function deactivateApp(context, appId) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
+          return regeneratorRuntime.wrap(function _callee3$(_context3) {
+            while (1) {
+              switch (_context3.prev = _context3.next) {
+                case 0:
+                  _context3.next = 2;
+                  return adminWebsocket.deactivateApp({
+                    installed_app_id: appId
+                  });
+
+                case 2:
+                  context.dispatch(ActionTypes.fetchInstalledApps);
+
+                case 3:
+                case "end":
+                  return _context3.stop();
+              }
+            }
+          }, _callee3);
+        }))();
+      },
+      installApp: function installApp(context, appBundle) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
+          var agentPubKey, installed_app_id;
+          return regeneratorRuntime.wrap(function _callee4$(_context4) {
+            while (1) {
+              switch (_context4.prev = _context4.next) {
+                case 0:
+                  _context4.next = 2;
                   return adminWebsocket.generateAgentPubKey();
 
                 case 2:
-                  agentPubKey = _context2.sent;
+                  agentPubKey = _context4.sent;
                   installed_app_id = appBundle.manifest.name;
-                  _context2.next = 6;
+                  _context4.next = 6;
                   return adminWebsocket.installAppBundle({
                     bundle: appBundle,
                     installed_app_id: installed_app_id,
@@ -7530,20 +7761,20 @@ function hcAdminVuexModule(adminWebsocket, appWebsocket) {
                   });
 
                 case 6:
-                  _context2.next = 8;
+                  _context4.next = 8;
                   return adminWebsocket.activateApp({
                     installed_app_id: installed_app_id
                   });
 
                 case 8:
-                  context.dispatch(ActionTypes.fetchActiveApps);
+                  context.dispatch(ActionTypes.fetchInstalledApps);
 
                 case 9:
                 case "end":
-                  return _context2.stop();
+                  return _context4.stop();
               }
             }
-          }, _callee2);
+          }, _callee4);
         }))();
       }
     }
@@ -11490,7 +11721,7 @@ function _fileToHappBundle() {
     if (!options.appWebsocket) throw new Error("Failed to load the plugin: no \"appWebsocket\" was provided in the plugin options");
     if (!options.store) throw new Error("Failed to load the plugin: no Vuex \"store\" was provided in the plugin options");
     options.store.registerModule(ADMIN_UI_MODULE, hcAdminVuexModule(options.adminWebsocket, options.appWebsocket));
-    app.component("ActiveApps", ActiveApps);
+    app.component("InstalledApps", InstalledApps);
   }
 });
 // CONCATENATED MODULE: ./node_modules/@vue/cli-service/lib/commands/build/entry-lib.js
