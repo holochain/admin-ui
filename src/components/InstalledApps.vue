@@ -89,7 +89,7 @@ export default defineComponent({
       ADMIN_UI_MODULE,
     };
   },
-  emits: ["openApp", "appDeactivated"],
+  emits: ["openApp", "appDeactivated", "appActivated"],
   created() {
     this.$store.dispatch(
       `${ADMIN_UI_MODULE}/${ActionTypes.fetchInstalledApps}`
@@ -125,11 +125,12 @@ export default defineComponent({
         }`;
       }
     },
-    activateApp(appId: string) {
-      this.$store.dispatch(
+    async activateApp(appId: string) {
+      await this.$store.dispatch(
         `${ADMIN_UI_MODULE}/${ActionTypes.activateApp}`,
         appId
       );
+      this.$emit("appActivated", appId);
     },
     async deactivateApp(appId: string) {
       await this.$store.dispatch(
