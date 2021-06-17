@@ -4,12 +4,13 @@ import {
   AppBundle,
   AppWebsocket,
   InstalledAppInfo,
+  ListAppsResponse,
 } from "@holochain/conductor-api";
 import { Dictionary } from "@/types";
 import { ActionTypes } from "./actions";
 
 export interface HcAdminState {
-  installedApps: { loading: boolean; appsInfo: Dictionary<InstalledAppInfo> };
+  installedApps: { loading: boolean; appsInfo: ListAppsResponse };
 }
 
 export function hcAdminVuexModule(
@@ -22,13 +23,19 @@ export function hcAdminVuexModule(
       return {
         installedApps: {
           loading: false,
-          appsInfo: {},
+          appsInfo: {
+            inactive_apps: [],
+            active_apps: [],
+          },
         },
       };
     },
     getters: {
-      allApps(state) {
-        return Object.values(state.installedApps.appsInfo);
+      activeApps(state) {
+        return state.installedApps.appsInfo.active_apps;
+      },
+      inactiveApps(state) {
+        return state.installedApps.appsInfo.inactive_apps;
       },
     },
     mutations: {
@@ -43,21 +50,9 @@ export function hcAdminVuexModule(
     actions: {
       async fetchInstalledApps({ commit }) {
         commit("loadAppsInfo");
-        const activeAppsIds = await adminWebsocket.listActiveApps();
-        const inactiveAppsIds = await adminWebsocket.listInactiveApps();
+        const appsInfos = await adminWebsocket.listApps();
 
-        const promises = [...activeAppsIds, ...inactiveAppsIds].map((appId) =>
-          appWebsocket.appInfo({ installed_app_id: appId })
-        );
-
-        const installedApps = await Promise.all(promises);
-
-        const apps: Dictionary<InstalledAppInfo> = {};
-        for (const app of installedApps) {
-          apps[app.installed_app_id] = app;
-        }
-
-        commit("setAppsInfo", apps);
+        commit("setAppsInfo", appsInfos);
       },
       async activateApp(context, appId: string) {
         await adminWebsocket.activateApp({ installed_app_id: appId });
@@ -70,6 +65,7 @@ export function hcAdminVuexModule(
       },
       async installApp(context, appBundle: AppBundle) {
         const agentPubKey = await adminWebsocket.generateAgentPubKey();
+
         const installed_app_id = appBundle.manifest.name;
         await adminWebsocket.installAppBundle({
           bundle: appBundle,

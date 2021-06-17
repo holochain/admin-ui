@@ -1,7 +1,5 @@
 <template>
-  <ActiveApps
-    :appUrls="{ 'file-storage-test': 'http://localhost:4040' }"
-  ></ActiveApps>
+  <InstalledApps></InstalledApps>
 </template>
 
 <style>
