@@ -6,7 +6,6 @@ import {
   InstalledAppInfo,
   ListAppsResponse,
 } from "@holochain/conductor-api";
-import { Dictionary } from "@/types";
 import { ActionTypes } from "./actions";
 
 export interface HcAdminState {
