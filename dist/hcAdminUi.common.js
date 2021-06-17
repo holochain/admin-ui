@@ -191,23 +191,6 @@ exports.f = DESCRIPTORS ? $getOwnPropertyDescriptor : function getOwnPropertyDes
 
 /***/ }),
 
-/***/ "07ac":
-/***/ (function(module, exports, __webpack_require__) {
-
-var $ = __webpack_require__("23e7");
-var $values = __webpack_require__("6f53").values;
-
-// `Object.values` method
-// https://tc39.es/ecma262/#sec-object.values
-$({ target: 'Object', stat: true }, {
-  values: function values(O) {
-    return $values(O);
-  }
-});
-
-
-/***/ }),
-
 /***/ "0b25":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -429,6 +412,20 @@ module.exports = function (exec, SKIP_CLOSING) {
 var userAgent = __webpack_require__("342f");
 
 module.exports = /(?:iphone|ipod|ipad).*applewebkit/i.test(userAgent);
+
+
+/***/ }),
+
+/***/ "1d3f":
+/***/ (function(module, exports, __webpack_require__) {
+
+// Imports
+var ___CSS_LOADER_API_IMPORT___ = __webpack_require__("24fb");
+exports = ___CSS_LOADER_API_IMPORT___(false);
+// Module
+exports.push([module.i, ".app-row[data-v-2f6be0b6]{margin-bottom:16px}.app-title[data-v-2f6be0b6]{font-size:1.3em;flex:1}.cell-row[data-v-2f6be0b6]{margin-top:8px}.column[data-v-2f6be0b6]{display:flex;flex-direction:column}.title[data-v-2f6be0b6]{font-size:1.5em}.row[data-v-2f6be0b6]{display:flex;flex-direction:row}", ""]);
+// Exports
+module.exports = exports;
 
 
 /***/ }),
@@ -1236,20 +1233,6 @@ module.exports = global;
 
 /***/ }),
 
-/***/ "4443":
-/***/ (function(module, exports, __webpack_require__) {
-
-// Imports
-var ___CSS_LOADER_API_IMPORT___ = __webpack_require__("24fb");
-exports = ___CSS_LOADER_API_IMPORT___(false);
-// Module
-exports.push([module.i, ".app-row[data-v-57c9f644]{margin-bottom:16px}.app-title[data-v-57c9f644]{font-size:1.3em;flex:1}.cell-row[data-v-57c9f644]{margin-top:8px}.column[data-v-57c9f644]{display:flex;flex-direction:column}.title[data-v-57c9f644]{font-size:1.5em}.row[data-v-57c9f644]{display:flex;flex-direction:row}", ""]);
-// Exports
-module.exports = exports;
-
-
-/***/ }),
-
 /***/ "44ad":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1856,17 +1839,6 @@ exportTypedArrayMethod('join', function join(separator) {
 
 /***/ }),
 
-/***/ "5fde":
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var _node_modules_vue_style_loader_index_js_ref_6_oneOf_1_0_node_modules_css_loader_dist_cjs_js_ref_6_oneOf_1_1_node_modules_vue_loader_v16_dist_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_2_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_node_modules_cache_loader_dist_cjs_js_ref_0_0_node_modules_vue_loader_v16_dist_index_js_ref_0_1_InstalledApps_vue_vue_type_style_index_0_id_57c9f644_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__("fdce");
-/* harmony import */ var _node_modules_vue_style_loader_index_js_ref_6_oneOf_1_0_node_modules_css_loader_dist_cjs_js_ref_6_oneOf_1_1_node_modules_vue_loader_v16_dist_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_2_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_node_modules_cache_loader_dist_cjs_js_ref_0_0_node_modules_vue_loader_v16_dist_index_js_ref_0_1_InstalledApps_vue_vue_type_style_index_0_id_57c9f644_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_vue_style_loader_index_js_ref_6_oneOf_1_0_node_modules_css_loader_dist_cjs_js_ref_6_oneOf_1_1_node_modules_vue_loader_v16_dist_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_2_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_node_modules_cache_loader_dist_cjs_js_ref_0_0_node_modules_vue_loader_v16_dist_index_js_ref_0_1_InstalledApps_vue_vue_type_style_index_0_id_57c9f644_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_0__);
-/* unused harmony reexport * */
-
-
-/***/ }),
-
 /***/ "605d":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -2370,45 +2342,6 @@ var TEMPLATE = String(String).split('String');
 
 /***/ }),
 
-/***/ "6f53":
-/***/ (function(module, exports, __webpack_require__) {
-
-var DESCRIPTORS = __webpack_require__("83ab");
-var objectKeys = __webpack_require__("df75");
-var toIndexedObject = __webpack_require__("fc6a");
-var propertyIsEnumerable = __webpack_require__("d1e7").f;
-
-// `Object.{ entries, values }` methods implementation
-var createMethod = function (TO_ENTRIES) {
-  return function (it) {
-    var O = toIndexedObject(it);
-    var keys = objectKeys(O);
-    var length = keys.length;
-    var i = 0;
-    var result = [];
-    var key;
-    while (length > i) {
-      key = keys[i++];
-      if (!DESCRIPTORS || propertyIsEnumerable.call(O, key)) {
-        result.push(TO_ENTRIES ? [key, O[key]] : O[key]);
-      }
-    }
-    return result;
-  };
-};
-
-module.exports = {
-  // `Object.entries` method
-  // https://tc39.es/ecma262/#sec-object.entries
-  entries: createMethod(true),
-  // `Object.values` method
-  // https://tc39.es/ecma262/#sec-object.values
-  values: createMethod(false)
-};
-
-
-/***/ }),
-
 /***/ "7156":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -2744,6 +2677,17 @@ if (DESCRIPTORS) {
     setSpecies(CONSTRUCTOR_NAME);
   };
 } else module.exports = function () { /* empty */ };
+
+
+/***/ }),
+
+/***/ "752b":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var _node_modules_vue_style_loader_index_js_ref_6_oneOf_1_0_node_modules_css_loader_dist_cjs_js_ref_6_oneOf_1_1_node_modules_vue_loader_v16_dist_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_2_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_node_modules_cache_loader_dist_cjs_js_ref_0_0_node_modules_vue_loader_v16_dist_index_js_ref_0_1_InstalledApps_vue_vue_type_style_index_0_id_2f6be0b6_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__("f250");
+/* harmony import */ var _node_modules_vue_style_loader_index_js_ref_6_oneOf_1_0_node_modules_css_loader_dist_cjs_js_ref_6_oneOf_1_1_node_modules_vue_loader_v16_dist_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_2_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_node_modules_cache_loader_dist_cjs_js_ref_0_0_node_modules_vue_loader_v16_dist_index_js_ref_0_1_InstalledApps_vue_vue_type_style_index_0_id_2f6be0b6_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_vue_style_loader_index_js_ref_6_oneOf_1_0_node_modules_css_loader_dist_cjs_js_ref_6_oneOf_1_1_node_modules_vue_loader_v16_dist_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_2_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_node_modules_cache_loader_dist_cjs_js_ref_0_0_node_modules_vue_loader_v16_dist_index_js_ref_0_1_InstalledApps_vue_vue_type_style_index_0_id_2f6be0b6_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_0__);
+/* unused harmony reexport * */
 
 
 /***/ }),
@@ -5587,29 +5531,6 @@ exportTypedArrayMethod('forEach', function forEach(callbackfn /* , thisArg */) {
 
 /***/ }),
 
-/***/ "d81d":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var $ = __webpack_require__("23e7");
-var $map = __webpack_require__("b727").map;
-var arrayMethodHasSpeciesSupport = __webpack_require__("1dde");
-
-var HAS_SPECIES_SUPPORT = arrayMethodHasSpeciesSupport('map');
-
-// `Array.prototype.map` method
-// https://tc39.es/ecma262/#sec-array.prototype.map
-// with adding support of @@species
-$({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT }, {
-  map: function map(callbackfn /* , thisArg */) {
-    return $map(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
-  }
-});
-
-
-/***/ }),
-
 /***/ "da84":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -6593,6 +6514,22 @@ module.exports.f = function (C) {
 
 /***/ }),
 
+/***/ "f250":
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__("1d3f");
+if(content.__esModule) content = content.default;
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__("499e").default
+var update = add("215fbd56", content, true, {"sourceMap":false,"shadowMode":false});
+
+/***/ }),
+
 /***/ "f5df":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -6776,32 +6713,33 @@ var es_array_concat = __webpack_require__("99af");
 // EXTERNAL MODULE: external {"commonjs":"vue","commonjs2":"vue","root":"Vue"}
 var external_commonjs_vue_commonjs2_vue_root_Vue_ = __webpack_require__("8bbf");
 
-// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js??ref--12-0!./node_modules/thread-loader/dist/cjs.js!./node_modules/babel-loader/lib!./node_modules/vue-loader-v16/dist/templateLoader.js??ref--6!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader-v16/dist??ref--0-1!./src/components/InstalledApps.vue?vue&type=template&id=57c9f644&scoped=true
+// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js??ref--12-0!./node_modules/thread-loader/dist/cjs.js!./node_modules/babel-loader/lib!./node_modules/vue-loader-v16/dist/templateLoader.js??ref--6!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader-v16/dist??ref--0-1!./src/components/InstalledApps.vue?vue&type=template&id=2f6be0b6&scoped=true
 
 
 
 
-var _withId = /*#__PURE__*/Object(external_commonjs_vue_commonjs2_vue_root_Vue_["withScopeId"])("data-v-57c9f644");
+var _withId = /*#__PURE__*/Object(external_commonjs_vue_commonjs2_vue_root_Vue_["withScopeId"])("data-v-2f6be0b6");
 
-Object(external_commonjs_vue_commonjs2_vue_root_Vue_["pushScopeId"])("data-v-57c9f644");
+Object(external_commonjs_vue_commonjs2_vue_root_Vue_["pushScopeId"])("data-v-2f6be0b6");
 
 var _hoisted_1 = {
   class: "column"
 };
+var _hoisted_2 = {
+  key: 0
+};
+var _hoisted_3 = {
+  key: 1,
+  class: "column"
+};
 
-var _hoisted_2 = /*#__PURE__*/Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createVNode"])("span", {
+var _hoisted_4 = /*#__PURE__*/Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createVNode"])("span", {
   class: "title",
   style: {
     "margin-bottom": "16px"
   }
-}, "Installed apps", -1);
+}, "Active Apps", -1);
 
-var _hoisted_3 = {
-  key: 0
-};
-var _hoisted_4 = {
-  key: 1
-};
 var _hoisted_5 = {
   key: 0
 };
@@ -6811,11 +6749,25 @@ var _hoisted_6 = {
 var _hoisted_7 = {
   class: "app-title"
 };
-var _hoisted_8 = {
-  key: 1,
+
+var _hoisted_8 = /*#__PURE__*/Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createVNode"])("span", {
+  class: "title",
+  style: {
+    "margin-bottom": "16px",
+    "margin-top": "16px"
+  }
+}, "Inactive Apps", -1);
+
+var _hoisted_9 = {
+  key: 2
+};
+var _hoisted_10 = {
   class: "row"
 };
-var _hoisted_9 = {
+var _hoisted_11 = {
+  class: "app-title"
+};
+var _hoisted_12 = {
   style: {
     "margin-left": "8px"
   }
@@ -6824,36 +6776,46 @@ var _hoisted_9 = {
 Object(external_commonjs_vue_commonjs2_vue_root_Vue_["popScopeId"])();
 
 var render = /*#__PURE__*/_withId(function (_ctx, _cache, $props, $setup, $data, $options) {
-  return Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("div", _hoisted_1, [_hoisted_2, _ctx.$store.state.admin.installedApps.loading ? (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("span", _hoisted_3, "Loading...")) : (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("div", _hoisted_4, [_ctx.$store.getters["".concat(_ctx.ADMIN_UI_MODULE, "/allApps")].length === 0 ? (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("span", _hoisted_5, "You don't have any apps installed yet")) : (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(true), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])(external_commonjs_vue_commonjs2_vue_root_Vue_["Fragment"], {
+  return Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("div", _hoisted_1, [_ctx.$store.state.admin.installedApps.loading ? (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("span", _hoisted_2, "Loading...")) : (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("div", _hoisted_3, [_hoisted_4, _ctx.$store.getters["".concat(_ctx.ADMIN_UI_MODULE, "/activeApps")].length === 0 ? (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("span", _hoisted_5, "You don't have any active apps")) : (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(true), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])(external_commonjs_vue_commonjs2_vue_root_Vue_["Fragment"], {
     key: 1
-  }, Object(external_commonjs_vue_commonjs2_vue_root_Vue_["renderList"])(_ctx.$store.getters["".concat(_ctx.ADMIN_UI_MODULE, "/allApps")], function (app) {
+  }, Object(external_commonjs_vue_commonjs2_vue_root_Vue_["renderList"])(_ctx.$store.getters["".concat(_ctx.ADMIN_UI_MODULE, "/activeApps")], function (app) {
     return Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("div", {
       key: app.installed_app_id,
       class: "app-row column"
     }, [Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createVNode"])("div", _hoisted_6, [Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createVNode"])("span", _hoisted_7, Object(external_commonjs_vue_commonjs2_vue_root_Vue_["toDisplayString"])(app.installed_app_id), 1), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createVNode"])("button", {
-      disabled: !_ctx.isAppActive(app),
       onClick: function onClick($event) {
         return _ctx.$emit('openApp', app.installed_app_id);
       },
       style: {
         "margin-left": "8px"
       }
-    }, " Open ", 8, ["disabled", "onClick"]), _ctx.isAppActive(app) ? (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("button", {
-      key: 0,
+    }, " Open ", 8, ["onClick"]), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createVNode"])("button", {
       onClick: function onClick($event) {
         return _ctx.deactivateApp(app.installed_app_id);
       },
       style: {
         "margin-left": "8px"
       }
-    }, " Deactivate ", 8, ["onClick"])) : (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("div", _hoisted_8, [Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createVNode"])("button", {
+    }, " Deactivate ", 8, ["onClick"])]), (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(true), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])(external_commonjs_vue_commonjs2_vue_root_Vue_["Fragment"], null, Object(external_commonjs_vue_commonjs2_vue_root_Vue_["renderList"])(app.cell_data, function (cellData) {
+      return Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("div", {
+        class: "cell-row row",
+        key: [].concat(_toConsumableArray(cellData.cell_id[0]), _toConsumableArray(cellData.cell_id[0]))
+      }, [Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createVNode"])("span", null, Object(external_commonjs_vue_commonjs2_vue_root_Vue_["toDisplayString"])(cellData.cell_nick), 1)]);
+    }), 128))]);
+  }), 128)), _hoisted_8, _ctx.$store.getters["".concat(_ctx.ADMIN_UI_MODULE, "/inactiveApps")].length === 0 ? (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("span", _hoisted_9, "You don't have any inactive apps")) : (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(true), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])(external_commonjs_vue_commonjs2_vue_root_Vue_["Fragment"], {
+    key: 3
+  }, Object(external_commonjs_vue_commonjs2_vue_root_Vue_["renderList"])(_ctx.$store.getters["".concat(_ctx.ADMIN_UI_MODULE, "/inactiveApps")], function (app) {
+    return Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("div", {
+      key: app.installed_app_id,
+      class: "app-row column"
+    }, [Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createVNode"])("div", _hoisted_10, [Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createVNode"])("span", _hoisted_11, Object(external_commonjs_vue_commonjs2_vue_root_Vue_["toDisplayString"])(app.installed_app_id), 1), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createVNode"])("button", {
       onClick: function onClick($event) {
         return _ctx.activateApp(app.installed_app_id);
       },
       style: {
         "margin-left": "8px"
       }
-    }, " Activate ", 8, ["onClick"]), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createVNode"])("span", _hoisted_9, Object(external_commonjs_vue_commonjs2_vue_root_Vue_["toDisplayString"])(_ctx.getDeactivationReason(app)), 1)]))]), (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(true), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])(external_commonjs_vue_commonjs2_vue_root_Vue_["Fragment"], null, Object(external_commonjs_vue_commonjs2_vue_root_Vue_["renderList"])(app.cell_data, function (cellData) {
+    }, " Activate ", 8, ["onClick"]), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createVNode"])("span", _hoisted_12, Object(external_commonjs_vue_commonjs2_vue_root_Vue_["toDisplayString"])(_ctx.getDeactivationReason(app)), 1)]), (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(true), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])(external_commonjs_vue_commonjs2_vue_root_Vue_["Fragment"], null, Object(external_commonjs_vue_commonjs2_vue_root_Vue_["renderList"])(app.cell_data, function (cellData) {
       return Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("div", {
         class: "cell-row row",
         key: [].concat(_toConsumableArray(cellData.cell_id[0]), _toConsumableArray(cellData.cell_id[0]))
@@ -6861,7 +6823,7 @@ var render = /*#__PURE__*/_withId(function (_ctx, _cache, $props, $setup, $data,
     }), 128))]);
   }), 128))]))]);
 });
-// CONCATENATED MODULE: ./src/components/InstalledApps.vue?vue&type=template&id=57c9f644&scoped=true
+// CONCATENATED MODULE: ./src/components/InstalledApps.vue?vue&type=template&id=2f6be0b6&scoped=true
 
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.promise.js
 var es_promise = __webpack_require__("e6cf");
@@ -7521,8 +7483,8 @@ var ValidationStatus;
 }));
 // CONCATENATED MODULE: ./src/components/InstalledApps.vue?vue&type=script&lang=ts
  
-// EXTERNAL MODULE: ./src/components/InstalledApps.vue?vue&type=style&index=0&id=57c9f644&scoped=true&lang=css
-var InstalledAppsvue_type_style_index_0_id_57c9f644_scoped_true_lang_css = __webpack_require__("5fde");
+// EXTERNAL MODULE: ./src/components/InstalledApps.vue?vue&type=style&index=0&id=2f6be0b6&scoped=true&lang=css
+var InstalledAppsvue_type_style_index_0_id_2f6be0b6_scoped_true_lang_css = __webpack_require__("752b");
 
 // CONCATENATED MODULE: ./src/components/InstalledApps.vue
 
@@ -7531,91 +7493,10 @@ var InstalledAppsvue_type_style_index_0_id_57c9f644_scoped_true_lang_css = __web
 
 
 InstalledAppsvue_type_script_lang_ts.render = render
-InstalledAppsvue_type_script_lang_ts.__scopeId = "data-v-57c9f644"
+InstalledAppsvue_type_script_lang_ts.__scopeId = "data-v-2f6be0b6"
 
 /* harmony default export */ var InstalledApps = (InstalledAppsvue_type_script_lang_ts);
-// CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/createForOfIteratorHelper.js
-
-
-
-
-
-
-
-
-function _createForOfIteratorHelper(o, allowArrayLike) {
-  var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"];
-
-  if (!it) {
-    if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
-      if (it) o = it;
-      var i = 0;
-
-      var F = function F() {};
-
-      return {
-        s: F,
-        n: function n() {
-          if (i >= o.length) return {
-            done: true
-          };
-          return {
-            done: false,
-            value: o[i++]
-          };
-        },
-        e: function e(_e) {
-          throw _e;
-        },
-        f: F
-      };
-    }
-
-    throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-  }
-
-  var normalCompletion = true,
-      didErr = false,
-      err;
-  return {
-    s: function s() {
-      it = it.call(o);
-    },
-    n: function n() {
-      var step = it.next();
-      normalCompletion = step.done;
-      return step;
-    },
-    e: function e(_e2) {
-      didErr = true;
-      err = _e2;
-    },
-    f: function f() {
-      try {
-        if (!normalCompletion && it["return"] != null) it["return"]();
-      } finally {
-        if (didErr) throw err;
-      }
-    }
-  };
-}
-// EXTERNAL MODULE: ./node_modules/core-js/modules/es.object.values.js
-var es_object_values = __webpack_require__("07ac");
-
-// EXTERNAL MODULE: ./node_modules/core-js/modules/es.array.map.js
-var es_array_map = __webpack_require__("d81d");
-
 // CONCATENATED MODULE: ./src/store/index.ts
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -7627,13 +7508,19 @@ function hcAdminVuexModule(adminWebsocket, appWebsocket) {
       return {
         installedApps: {
           loading: false,
-          appsInfo: {}
+          appsInfo: {
+            inactive_apps: [],
+            active_apps: []
+          }
         }
       };
     },
     getters: {
-      allApps: function allApps(state) {
-        return Object.values(state.installedApps.appsInfo);
+      activeApps: function activeApps(state) {
+        return state.installedApps.appsInfo.active_apps;
+      },
+      inactiveApps: function inactiveApps(state) {
+        return state.installedApps.appsInfo.inactive_apps;
       }
     },
     mutations: {
@@ -7648,8 +7535,7 @@ function hcAdminVuexModule(adminWebsocket, appWebsocket) {
     actions: {
       fetchInstalledApps: function fetchInstalledApps(_ref) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
-          var commit, activeAppsIds, inactiveAppsIds, promises, installedApps, apps, _iterator, _step, app;
-
+          var commit, appsInfos;
           return regeneratorRuntime.wrap(function _callee$(_context) {
             while (1) {
               switch (_context.prev = _context.next) {
@@ -7657,42 +7543,13 @@ function hcAdminVuexModule(adminWebsocket, appWebsocket) {
                   commit = _ref.commit;
                   commit("loadAppsInfo");
                   _context.next = 4;
-                  return adminWebsocket.listActiveApps();
+                  return adminWebsocket.listApps();
 
                 case 4:
-                  activeAppsIds = _context.sent;
-                  _context.next = 7;
-                  return adminWebsocket.listInactiveApps();
+                  appsInfos = _context.sent;
+                  commit("setAppsInfo", appsInfos);
 
-                case 7:
-                  inactiveAppsIds = _context.sent;
-                  promises = [].concat(_toConsumableArray(activeAppsIds), _toConsumableArray(inactiveAppsIds)).map(function (appId) {
-                    return appWebsocket.appInfo({
-                      installed_app_id: appId
-                    });
-                  });
-                  _context.next = 11;
-                  return Promise.all(promises);
-
-                case 11:
-                  installedApps = _context.sent;
-                  apps = {};
-                  _iterator = _createForOfIteratorHelper(installedApps);
-
-                  try {
-                    for (_iterator.s(); !(_step = _iterator.n()).done;) {
-                      app = _step.value;
-                      apps[app.installed_app_id] = app;
-                    }
-                  } catch (err) {
-                    _iterator.e(err);
-                  } finally {
-                    _iterator.f();
-                  }
-
-                  commit("setAppsInfo", apps);
-
-                case 16:
+                case 6:
                 case "end":
                   return _context.stop();
               }
@@ -8066,11 +7923,11 @@ var ec = [
     // determined by unknown compression method
 ];
 ;
-var browser_err = function (ind, msg, nt) {
+var err = function (ind, msg, nt) {
     var e = new Error(msg || ec[ind]);
     e.code = ind;
     if (Error.captureStackTrace)
-        Error.captureStackTrace(e, browser_err);
+        Error.captureStackTrace(e, err);
     if (!nt)
         throw e;
     return e;
@@ -8117,7 +7974,7 @@ var inflt = function (dat, buf, st) {
                 var s = shft(pos) + 4, l = dat[s - 4] | (dat[s - 3] << 8), t = s + l;
                 if (t > sl) {
                     if (noSt)
-                        browser_err(0);
+                        err(0);
                     break;
                 }
                 // ensure size
@@ -8182,10 +8039,10 @@ var inflt = function (dat, buf, st) {
                 dm = hMap(dt, dbt, 1);
             }
             else
-                browser_err(1);
+                err(1);
             if (pos > tbts) {
                 if (noSt)
-                    browser_err(0);
+                    err(0);
                 break;
             }
         }
@@ -8201,11 +8058,11 @@ var inflt = function (dat, buf, st) {
             pos += c & 15;
             if (pos > tbts) {
                 if (noSt)
-                    browser_err(0);
+                    err(0);
                 break;
             }
             if (!c)
-                browser_err(2);
+                err(2);
             if (sym < 256)
                 buf[bt++] = sym;
             else if (sym == 256) {
@@ -8224,7 +8081,7 @@ var inflt = function (dat, buf, st) {
                 // dist
                 var d = dm[bits16(dat, pos) & dms], dsym = d >>> 4;
                 if (!d)
-                    browser_err(3);
+                    err(3);
                 pos += d & 15;
                 var dt = fd[dsym];
                 if (dsym > 3) {
@@ -8233,7 +8090,7 @@ var inflt = function (dat, buf, st) {
                 }
                 if (pos > tbts) {
                     if (noSt)
-                        browser_err(0);
+                        err(0);
                     break;
                 }
                 if (noBuf)
@@ -8721,7 +8578,7 @@ var wrkr = function (fns, init, id, cb) {
     return wk(ch[id][0] + ';onmessage=function(e){for(var k in e.data)self[k]=e.data[k];onmessage=' + init.toString() + '}', id, td, cbfs(td), cb);
 };
 // base async inflate fn
-var bInflt = function () { return [u8, u16, u32, fleb, fdeb, clim, fl, fd, flrm, fdrm, rev, ec, hMap, max, bits, bits16, shft, slc, browser_err, inflt, inflateSync, pbf, gu8]; };
+var bInflt = function () { return [u8, u16, u32, fleb, fdeb, clim, fl, fd, flrm, fdrm, rev, ec, hMap, max, bits, bits16, shft, slc, err, inflt, inflateSync, pbf, gu8]; };
 var bDflt = function () { return [u8, u16, u32, fleb, fdeb, clim, revfl, revfd, flm, flt, fdm, fdt, rev, deo, et, hMap, wbits, wbits16, hTree, ln, lc, clen, wfblk, wblk, shft, slc, dflt, dopt, deflateSync, pbf]; };
 // gzip extra
 var gze = function () { return [gzh, gzhl, wbytes, crc, crct]; };
@@ -8764,9 +8621,9 @@ var astrmify = function (fns, strm, opts, init, id) {
     w.postMessage(opts);
     strm.push = function (d, f) {
         if (!strm.ondata)
-            browser_err(5);
+            err(5);
         if (t)
-            strm.ondata(browser_err(4, 0, 1), null, !!f);
+            strm.ondata(err(4, 0, 1), null, !!f);
         w.postMessage([d, t = f], [d.buffer]);
     };
     strm.terminate = function () { w.terminate(); };
@@ -8797,7 +8654,7 @@ var gzh = function (c, o) {
 // gzip start
 var gzs = function (d) {
     if (d[0] != 31 || d[1] != 139 || d[2] != 8)
-        browser_err(6, 'invalid gzip data');
+        err(6, 'invalid gzip data');
     var flg = d[3];
     var st = 10;
     if (flg & 4)
@@ -8821,9 +8678,9 @@ var zlh = function (c, o) {
 // zlib valid
 var zlv = function (d) {
     if ((d[0] & 15) != 8 || (d[0] >>> 4) > 7 || ((d[0] << 8 | d[1]) % 31))
-        browser_err(6, 'invalid zlib data');
+        err(6, 'invalid zlib data');
     if (d[1] & 32)
-        browser_err(6, 'invalid zlib data: preset dictionaries not supported');
+        err(6, 'invalid zlib data: preset dictionaries not supported');
 };
 function AsyncCmpStrm(opts, cb) {
     if (!cb && typeof opts == 'function')
@@ -8852,9 +8709,9 @@ var Deflate = /*#__PURE__*/ (function () {
      */
     Deflate.prototype.push = function (chunk, final) {
         if (!this.ondata)
-            browser_err(5);
+            err(5);
         if (this.d)
-            browser_err(4);
+            err(4);
         this.d = final;
         this.p(chunk, final || false);
     };
@@ -8881,7 +8738,7 @@ function deflate(data, opts, cb) {
     if (!cb)
         cb = opts, opts = {};
     if (typeof cb != 'function')
-        browser_err(7);
+        err(7);
     return cbify(data, opts, [
         bDflt,
     ], function (ev) { return pbf(deflateSync(ev.data[0], ev.data[1])); }, 0, cb);
@@ -8910,9 +8767,9 @@ var Inflate = /*#__PURE__*/ (function () {
     }
     Inflate.prototype.e = function (c) {
         if (!this.ondata)
-            browser_err(5);
+            err(5);
         if (this.d)
-            browser_err(4);
+            err(4);
         var l = this.p.length;
         var n = new u8(l + c.length);
         n.set(this.p), n.set(c, l), this.p = n;
@@ -8961,7 +8818,7 @@ function inflate(data, opts, cb) {
     if (!cb)
         cb = opts, opts = {};
     if (typeof cb != 'function')
-        browser_err(7);
+        err(7);
     return cbify(data, opts, [
         bInflt
     ], function (ev) { return pbf(inflateSync(ev.data[0], gu8(ev.data[1]))); }, 1, cb);
@@ -9028,7 +8885,7 @@ function gzip(data, opts, cb) {
     if (!cb)
         cb = opts, opts = {};
     if (typeof cb != 'function')
-        browser_err(7);
+        err(7);
     return cbify(data, opts, [
         bDflt,
         gze,
@@ -9076,7 +8933,7 @@ var Gunzip = /*#__PURE__*/ (function () {
         }
         if (final) {
             if (this.p.length < 8)
-                browser_err(6, 'invalid gzip data');
+                err(6, 'invalid gzip data');
             this.p = this.p.subarray(0, -8);
         }
         // necessary to prevent TS from using the closure value
@@ -9112,7 +8969,7 @@ function gunzip(data, opts, cb) {
     if (!cb)
         cb = opts, opts = {};
     if (typeof cb != 'function')
-        browser_err(7);
+        err(7);
     return cbify(data, opts, [
         bInflt,
         guze,
@@ -9178,7 +9035,7 @@ function zlib(data, opts, cb) {
     if (!cb)
         cb = opts, opts = {};
     if (typeof cb != 'function')
-        browser_err(7);
+        err(7);
     return cbify(data, opts, [
         bDflt,
         zle,
@@ -9225,7 +9082,7 @@ var Unzlib = /*#__PURE__*/ (function () {
         }
         if (final) {
             if (this.p.length < 4)
-                browser_err(6, 'invalid zlib data');
+                err(6, 'invalid zlib data');
             this.p = this.p.subarray(0, -4);
         }
         // necessary to prevent TS from using the closure value
@@ -9261,7 +9118,7 @@ function unzlib(data, opts, cb) {
     if (!cb)
         cb = opts, opts = {};
     if (typeof cb != 'function')
-        browser_err(7);
+        err(7);
     return cbify(data, opts, [
         bInflt,
         zule,
@@ -9302,7 +9159,7 @@ var Decompress = /*#__PURE__*/ (function () {
      */
     Decompress.prototype.push = function (chunk, final) {
         if (!this.ondata)
-            browser_err(5);
+            err(5);
         if (!this.s) {
             if (this.p && this.p.length) {
                 var n = new u8(this.p.length + chunk.length);
@@ -9357,7 +9214,7 @@ function decompress(data, opts, cb) {
     if (!cb)
         cb = opts, opts = {};
     if (typeof cb != 'function')
-        browser_err(7);
+        err(7);
     return (data[0] == 31 && data[1] == 139 && data[2] == 8)
         ? gunzip(data, opts, cb)
         : ((data[0] & 15) != 8 || (data[0] >> 4) > 7 || ((data[0] << 8 | data[1]) % 31))
@@ -9441,26 +9298,26 @@ var DecodeUTF8 = /*#__PURE__*/ (function () {
      */
     DecodeUTF8.prototype.push = function (chunk, final) {
         if (!this.ondata)
-            browser_err(5);
+            err(5);
         final = !!final;
         if (this.t) {
             this.ondata(this.t.decode(chunk, { stream: true }), final);
             if (final) {
                 if (this.t.decode().length)
-                    browser_err(8);
+                    err(8);
                 this.t = null;
             }
             return;
         }
         if (!this.p)
-            browser_err(4);
+            err(4);
         var dat = new u8(this.p.length + chunk.length);
         dat.set(this.p);
         dat.set(chunk, this.p.length);
         var _a = dutf8(dat), ch = _a[0], np = _a[1];
         if (final) {
             if (np.length)
-                browser_err(8);
+                err(8);
             this.p = null;
         }
         else
@@ -9488,9 +9345,9 @@ var EncodeUTF8 = /*#__PURE__*/ (function () {
      */
     EncodeUTF8.prototype.push = function (chunk, final) {
         if (!this.ondata)
-            browser_err(5);
+            err(5);
         if (this.d)
-            browser_err(4);
+            err(4);
         this.ondata(strToU8(chunk), this.d = final || false);
     };
     return EncodeUTF8;
@@ -9554,7 +9411,7 @@ function strFromU8(dat, latin1) {
     else {
         var _a = dutf8(dat), out = _a[0], ext = _a[1];
         if (ext.length)
-            browser_err(8);
+            err(8);
         return out;
     }
 }
@@ -9582,7 +9439,7 @@ var exfl = function (ex) {
         for (var k in ex) {
             var l = ex[k].length;
             if (l > 65535)
-                browser_err(9);
+                err(9);
             le += l + 4;
         }
     }
@@ -9600,7 +9457,7 @@ var wzh = function (d, b, f, fn, u, c, ce, co) {
     d[b++] = f.compression & 255, d[b++] = f.compression >> 8;
     var dt = new Date(f.mtime == null ? Date.now() : f.mtime), y = dt.getFullYear() - 1980;
     if (y < 0 || y > 119)
-        browser_err(10);
+        err(10);
     wbytes(d, b, (y << 25) | ((dt.getMonth() + 1) << 21) | (dt.getDate() << 16) | (dt.getHours() << 11) | (dt.getMinutes() << 5) | (dt.getSeconds() >>> 1)), b += 4;
     if (c != null) {
         wbytes(d, b, f.crc);
@@ -9670,7 +9527,7 @@ var ZipPassThrough = /*#__PURE__*/ (function () {
      */
     ZipPassThrough.prototype.push = function (chunk, final) {
         if (!this.ondata)
-            browser_err(5);
+            err(5);
         this.c.p(chunk);
         this.size += chunk.length;
         if (final)
@@ -9778,17 +9635,17 @@ var Zip = /*#__PURE__*/ (function () {
     Zip.prototype.add = function (file) {
         var _this_1 = this;
         if (!this.ondata)
-            browser_err(5);
+            err(5);
         // finishing or finished
         if (this.d & 2)
-            this.ondata(browser_err(4 + (this.d & 1) * 8, 0, 1), null, false);
+            this.ondata(err(4 + (this.d & 1) * 8, 0, 1), null, false);
         else {
             var f = strToU8(file.filename), fl_1 = f.length;
             var com = file.comment, o = com && strToU8(com);
             var u = fl_1 != file.filename.length || (o && (com.length != o.length));
             var hl_1 = fl_1 + exfl(file.extra) + 30;
             if (fl_1 > 65535)
-                this.ondata(browser_err(11, 0, 1), null, false);
+                this.ondata(err(11, 0, 1), null, false);
             var header = new u8(hl_1);
             wzh(header, 0, file, f, u);
             var chks_1 = [header];
@@ -9858,7 +9715,7 @@ var Zip = /*#__PURE__*/ (function () {
     Zip.prototype.end = function () {
         var _this_1 = this;
         if (this.d & 2) {
-            this.ondata(browser_err(4 + (this.d & 1) * 8, 0, 1), null, true);
+            this.ondata(err(4 + (this.d & 1) * 8, 0, 1), null, true);
             return;
         }
         if (this.d)
@@ -9909,7 +9766,7 @@ function zip(data, opts, cb) {
     if (!cb)
         cb = opts, opts = {};
     if (typeof cb != 'function')
-        browser_err(7);
+        err(7);
     var r = {};
     fltn(data, '', r, opts);
     var k = Object.keys(r);
@@ -9978,7 +9835,7 @@ function zip(data, opts, cb) {
             }
         };
         if (s > 65535)
-            cbl(browser_err(11, 0, 1), null);
+            cbl(err(11, 0, 1), null);
         if (!compression)
             cbl(null, file);
         else if (size < 160000) {
@@ -10020,7 +9877,7 @@ function zipSync(data, opts) {
         var com = p.comment, m = com && strToU8(com), ms = m && m.length;
         var exl = exfl(p.extra);
         if (s > 65535)
-            browser_err(11);
+            err(11);
         var d = compression ? deflateSync(file, p) : file, l = d.length;
         var c = crc();
         c.p(file);
@@ -10141,9 +9998,9 @@ var Unzip = /*#__PURE__*/ (function () {
     Unzip.prototype.push = function (chunk, final) {
         var _this_1 = this;
         if (!this.onfile)
-            browser_err(5);
+            err(5);
         if (!this.p)
-            browser_err(4);
+            err(4);
         if (this.c > 0) {
             var len = Math.min(this.c, chunk.length);
             var toAdd = chunk.subarray(0, len);
@@ -10194,13 +10051,13 @@ var Unzip = /*#__PURE__*/ (function () {
                             compression: cmp_1,
                             start: function () {
                                 if (!file_1.ondata)
-                                    browser_err(5);
+                                    err(5);
                                 if (!sc_1)
                                     file_1.ondata(null, et, true);
                                 else {
                                     var ctr = _this_1.o[cmp_1];
                                     if (!ctr)
-                                        file_1.ondata(browser_err(14, 'unknown compression type ' + cmp_1, 1), null, false);
+                                        file_1.ondata(err(14, 'unknown compression type ' + cmp_1, 1), null, false);
                                     d_1 = sc_1 < 0 ? new ctr(fn_1) : new ctr(fn_1, sc_1, su_1);
                                     d_1.ondata = function (err, dat, final) { file_1.ondata(err, dat, final); };
                                     for (var _i = 0, chks_4 = chks_3; _i < chks_4.length; _i++) {
@@ -10255,7 +10112,7 @@ var Unzip = /*#__PURE__*/ (function () {
         }
         if (final) {
             if (this.c)
-                browser_err(13);
+                err(13);
             this.p = null;
         }
     };
@@ -10279,7 +10136,7 @@ var mt = typeof queueMicrotask == 'function' ? queueMicrotask : setTimeout;
  */
 function unzip(data, cb) {
     if (typeof cb != 'function')
-        browser_err(7);
+        err(7);
     var term = [];
     var tAll = function () {
         for (var i = 0; i < term.length; ++i)
@@ -10293,7 +10150,7 @@ function unzip(data, cb) {
     var e = data.length - 22;
     for (; b4(data, e) != 0x6054B50; --e) {
         if (!e || data.length - e > 65558) {
-            cbd(browser_err(13, 0, 1), null);
+            cbd(err(13, 0, 1), null);
             return tAll;
         }
     }
@@ -10306,7 +10163,7 @@ function unzip(data, cb) {
         if (z) {
             e = b4(data, e - 12);
             if (b4(data, e) != 0x6064B50) {
-                cbd(browser_err(13, 0, 1), null);
+                cbd(err(13, 0, 1), null);
                 return tAll;
             }
             c = lft = b4(data, e + 32);
@@ -10342,7 +10199,7 @@ function unzip(data, cb) {
                     term.push(inflate(infl, { size: su }, cbl));
             }
             else
-                cbl(browser_err(14, 'unknown compression type ' + c_1, 1), null);
+                cbl(err(14, 'unknown compression type ' + c_1, 1), null);
         };
         for (var i = 0; i < c; ++i) {
             _loop_3(i);
@@ -10363,7 +10220,7 @@ function unzipSync(data) {
     var e = data.length - 22;
     for (; b4(data, e) != 0x6054B50; --e) {
         if (!e || data.length - e > 65558)
-            browser_err(13);
+            err(13);
     }
     ;
     var c = b2(data, e + 8);
@@ -10374,7 +10231,7 @@ function unzipSync(data) {
     if (z) {
         e = b4(data, e - 12);
         if (b4(data, e) != 0x6064B50)
-            browser_err(13);
+            err(13);
         c = b4(data, e + 32);
         o = b4(data, e + 48);
     }
@@ -10386,7 +10243,7 @@ function unzipSync(data) {
         else if (c_2 == 8)
             files[fn] = inflateSync(data.subarray(b, b + sc), new u8(su));
         else
-            browser_err(14, 'unknown compression type ' + c_2);
+            err(14, 'unknown compression type ' + c_2);
     }
     return files;
 }
@@ -11861,22 +11718,6 @@ module.exports = NATIVE_SYMBOL
   && !Symbol.sham
   && typeof Symbol.iterator == 'symbol';
 
-
-/***/ }),
-
-/***/ "fdce":
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__("4443");
-if(content.__esModule) content = content.default;
-if(typeof content === 'string') content = [[module.i, content, '']];
-if(content.locals) module.exports = content.locals;
-// add the styles to the DOM
-var add = __webpack_require__("499e").default
-var update = add("83403dc4", content, true, {"sourceMap":false,"shadowMode":false});
 
 /***/ }),
 

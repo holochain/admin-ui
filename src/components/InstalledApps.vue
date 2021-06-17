@@ -1,46 +1,66 @@
 <template>
   <div class="column">
-    <span class="title" style="margin-bottom: 16px">Installed apps</span>
-
     <span v-if="$store.state.admin.installedApps.loading">Loading...</span>
-    <div v-else>
-      <span
-        v-if="$store.getters[`${ADMIN_UI_MODULE}/allApps`].length === 0"
-        >You don't have any apps installed yet</span
+    <div v-else class="column">
+      <span class="title" style="margin-bottom: 16px">Active Apps</span>
+
+      <span v-if="$store.getters[`${ADMIN_UI_MODULE}/activeApps`].length === 0"
+        >You don't have any active apps</span
       >
       <div
         v-else
-        v-for="app in $store.getters[`${ADMIN_UI_MODULE}/allApps`]"
+        v-for="app in $store.getters[`${ADMIN_UI_MODULE}/activeApps`]"
         :key="app.installed_app_id"
         class="app-row column"
       >
         <div class="row">
           <span class="app-title">{{ app.installed_app_id }}</span>
           <button
-            :disabled="!isAppActive(app)"
             @click="$emit('openApp', app.installed_app_id)"
             style="margin-left: 8px"
           >
             Open
           </button>
           <button
-            v-if="isAppActive(app)"
             @click="deactivateApp(app.installed_app_id)"
             style="margin-left: 8px"
           >
             Deactivate
           </button>
-          <div v-else class="row">
-            <button
-              @click="activateApp(app.installed_app_id)"
-              style="margin-left: 8px"
-            >
-              Activate
-            </button>
-            <span style="margin-left: 8px">{{
-              getDeactivationReason(app)
-            }}</span>
-          </div>
+        </div>
+
+        <div
+          class="cell-row row"
+          v-for="cellData in app.cell_data"
+          :key="[...cellData.cell_id[0], ...cellData.cell_id[0]]"
+        >
+          <span>{{ cellData.cell_nick }}</span>
+        </div>
+      </div>
+
+      <span class="title" style="margin-bottom: 16px; margin-top: 16px"
+        >Inactive Apps</span
+      >
+
+      <span
+        v-if="$store.getters[`${ADMIN_UI_MODULE}/inactiveApps`].length === 0"
+        >You don't have any inactive apps</span
+      >
+      <div
+        v-else
+        v-for="app in $store.getters[`${ADMIN_UI_MODULE}/inactiveApps`]"
+        :key="app.installed_app_id"
+        class="app-row column"
+      >
+        <div class="row">
+          <span class="app-title">{{ app.installed_app_id }}</span>
+          <button
+            @click="activateApp(app.installed_app_id)"
+            style="margin-left: 8px"
+          >
+            Activate
+          </button>
+          <span style="margin-left: 8px">{{ getDeactivationReason(app) }}</span>
         </div>
 
         <div
