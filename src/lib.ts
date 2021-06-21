@@ -5,11 +5,9 @@ import InstalledApps from "@/components/InstalledApps.vue"; // @ is an alias to 
 import { hcAdminVuexModule } from "./store";
 import { ADMIN_UI_MODULE } from "./constants";
 import { ActionTypes } from "./store/actions";
-import { fileToHappBundle } from "./processors/happ-bundle";
 
 export default {
   ActionTypes: ActionTypes,
-  processors: { fileToHappBundle },
   ADMIN_UI_MODULE,
   install(
     app: App,

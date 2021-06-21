@@ -55,18 +55,20 @@ export function hcAdminVuexModule(
         await adminWebsocket.deactivateApp({ installed_app_id: appId });
         await context.dispatch(ActionTypes.fetchInstalledApps);
       },
-      async installApp(context, appBundle: AppBundle) {
+      async installApp(
+        context,
+        { appBundlePath, appId }: { appId: string; appBundlePath: string }
+      ) {
         const agentPubKey = await adminWebsocket.generateAgentPubKey();
 
-        const installed_app_id = appBundle.manifest.name;
         await adminWebsocket.installAppBundle({
-          bundle: appBundle,
-          installed_app_id,
+          path: appBundlePath,
+          installed_app_id: appId,
           membrane_proofs: {},
           agent_key: agentPubKey,
         });
 
-        await adminWebsocket.activateApp({ installed_app_id });
+        await adminWebsocket.activateApp({ installed_app_id: appId });
 
         context.dispatch(ActionTypes.fetchInstalledApps);
       },
