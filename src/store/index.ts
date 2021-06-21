@@ -4,12 +4,11 @@ import {
   AppBundle,
   AppWebsocket,
   InstalledAppInfo,
-  ListAppsResponse,
 } from "@holochain/conductor-api";
 import { ActionTypes } from "./actions";
 
 export interface HcAdminState {
-  installedApps: { loading: boolean; appsInfo: ListAppsResponse };
+  installedApps: { loading: boolean; appsInfo: Array<InstalledAppInfo> };
 }
 
 export function hcAdminVuexModule(
@@ -22,19 +21,13 @@ export function hcAdminVuexModule(
       return {
         installedApps: {
           loading: false,
-          appsInfo: {
-            inactive_apps: [],
-            active_apps: [],
-          },
+          appsInfo: [],
         },
       };
     },
     getters: {
-      activeApps(state) {
-        return state.installedApps.appsInfo.active_apps;
-      },
-      inactiveApps(state) {
-        return state.installedApps.appsInfo.inactive_apps;
+      allApps(state) {
+        return state.installedApps.appsInfo;
       },
     },
     mutations: {
@@ -49,7 +42,7 @@ export function hcAdminVuexModule(
     actions: {
       async fetchInstalledApps({ commit }) {
         commit("loadAppsInfo");
-        const appsInfos = await adminWebsocket.listApps();
+        const appsInfos = await adminWebsocket.listApps({});
 
         commit("setAppsInfo", appsInfos);
       },
