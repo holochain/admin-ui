@@ -17,7 +17,7 @@
         <div class="row">
           <span class="app-title">{{ app.installed_app_id }}</span>
           <button
-            :disabled="!isAppActive(app)"
+            v-if="!isAppActive(app)"
             @click="$emit('openApp', app.installed_app_id)"
             style="margin-left: 8px"
           >
@@ -30,7 +30,7 @@
           >
             Deactivate
           </button>
-          <div v-else class="row">
+          <div v-else class="row center">
             <span style="margin-left: 8px"
               >Inactive: {{ getDeactivationReason(app) }}</span
             >
@@ -143,5 +143,10 @@ export default defineComponent({
 .row {
   display: flex;
   flex-direction: row;
+}
+
+.center {
+  align-items: center;
+  justify-content: center;
 }
 </style>
