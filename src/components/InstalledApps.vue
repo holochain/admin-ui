@@ -48,10 +48,9 @@
           v-for="cellData in app.cell_data"
           :key="[...cellData.cell_id[0], ...cellData.cell_id[1]]"
         >
-          <span>{{ cellData.cell_nick }}</span>
-          <span style="opacity: 0.6"
-            >Dna: {{ serializeHash(cellData.cell_id[0]) }}, PubKey:
-            {{ serializeHash(cellData.cell_id[1]) }}</span
+          <span>Cell Nick: {{ cellData.cell_nick }}</span>
+          <span style="opacity: 0.6; margin-left: 8px;"
+            >Dna: {{ serializeHash(cellData.cell_id[0]) }}</span
           >
         </div>
       </div>
