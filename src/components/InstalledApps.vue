@@ -42,6 +42,18 @@
             </button>
           </div>
         </div>
+
+        <div
+          class="cell-row row"
+          v-for="cellData in app.cell_data"
+          :key="[...cellData.cell_id[0], ...cellData.cell_id[1]]"
+        >
+          <span>{{ cellData.cell_nick }}</span>
+          <span style="opacity: 0.6"
+            >Dna: {{ serializeHash(cellData.cell_id[0]) }}, PubKey:
+            {{ serializeHash(cellData.cell_id[1]) }}</span
+          >
+        </div>
       </div>
     </div>
   </div>
@@ -51,7 +63,7 @@
 import { defineComponent } from "vue";
 import { ActionTypes } from "@/store/actions";
 import { ADMIN_UI_MODULE } from "@/constants";
-import { deserializeHash } from "@holochain-open-dev/core-types";
+import { deserializeHash, serializeHash } from "@holochain-open-dev/core-types";
 import { DeactivationReason, InstalledAppInfo } from "@holochain/conductor-api";
 
 export default defineComponent({
@@ -69,6 +81,7 @@ export default defineComponent({
   },
   methods: {
     deserializeHash,
+    serializeHash,
     isAppActive(appInfo: InstalledAppInfo): boolean {
       return Object.keys(appInfo.status).includes("active");
     },
