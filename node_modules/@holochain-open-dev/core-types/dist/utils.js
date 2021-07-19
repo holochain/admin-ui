@@ -6,10 +6,10 @@ export function serializeHash(hash) {
     return `u${Base64.fromUint8Array(hash, true)}`;
 }
 export function getCellIdForDnaHash(appInfo, dnaHash) {
-    const cell = appInfo.cell_data.find((cellData) => serializeHash(cellData[0][0]) === dnaHash);
+    const cell = appInfo.cell_data.find((cellData) => serializeHash(cellData.cell_id[0]) === dnaHash);
     if (!cell)
         throw new Error(`Could not find cell for dna ${dnaHash}`);
-    return cell[0];
+    return cell.cell_id;
 }
 export function millisToTimestamp(millis) {
     const secs = Math.floor(millis / 1000);

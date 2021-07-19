@@ -46,13 +46,17 @@ export function hcAdminVuexModule(
 
         commit("setAppsInfo", appsInfos);
       },
-      async activateApp(context, appId: string) {
-        await adminWebsocket.activateApp({ installed_app_id: appId });
+      async enableApp(context, appId: string) {
+        await adminWebsocket.enableApp({ installed_app_id: appId });
 
         await context.dispatch(ActionTypes.fetchInstalledApps);
       },
-      async deactivateApp(context, appId: string) {
-        await adminWebsocket.deactivateApp({ installed_app_id: appId });
+      async disableApp(context, appId: string) {
+        await adminWebsocket.disableApp({ installed_app_id: appId });
+        await context.dispatch(ActionTypes.fetchInstalledApps);
+      },
+      async startApp(context, appId: string) {
+        await adminWebsocket.startApp({ installed_app_id: appId });
         await context.dispatch(ActionTypes.fetchInstalledApps);
       },
       async installApp(

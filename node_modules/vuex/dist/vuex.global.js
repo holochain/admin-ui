@@ -1,5 +1,5 @@
 /*!
- * vuex v4.0.1
+ * vuex v4.0.2
  * (c) 2021 Evan You
  * @license MIT
  */
@@ -454,7 +454,7 @@ var Vuex = (function (vue) {
             makeLocalGetters(store, modulePath);
             payload.state = formatStoreForInspectorState(
               getStoreModule(store._modules, modulePath),
-              store._makeLocalGettersCache,
+              modulePath === 'root' ? store.getters : store._makeLocalGettersCache,
               modulePath
             );
           }
@@ -622,14 +622,43 @@ var Vuex = (function (vue) {
     };
 
     if (gettersKeys.length) {
-      storeState.getters = gettersKeys.map(function (key) { return ({
+      var tree = transformPathsToObjectTree(getters);
+      storeState.getters = Object.keys(tree).map(function (key) { return ({
         key: key.endsWith('/') ? extractNameFromPath(key) : key,
         editable: false,
-        value: getters[key]
+        value: canThrow(function () { return tree[key]; })
       }); });
     }
 
     return storeState
+  }
+
+  function transformPathsToObjectTree (getters) {
+    var result = {};
+    Object.keys(getters).forEach(function (key) {
+      var path = key.split('/');
+      if (path.length > 1) {
+        var target = result;
+        var leafKey = path.pop();
+        path.forEach(function (p) {
+          if (!target[p]) {
+            target[p] = {
+              _custom: {
+                value: {},
+                display: p,
+                tooltip: 'Module',
+                abstract: true
+              }
+            };
+          }
+          target = target[p]._custom.value;
+        });
+        target[leafKey] = canThrow(function () { return getters[key]; });
+      } else {
+        result[key] = canThrow(function () { return getters[key]; });
+      }
+    });
+    return result
   }
 
   function getStoreModule (moduleMap, path) {
@@ -644,6 +673,14 @@ var Vuex = (function (vue) {
       },
       path === 'root' ? moduleMap : moduleMap.root._children
     )
+  }
+
+  function canThrow (cb) {
+    try {
+      return cb()
+    } catch (e) {
+      return e
+    }
   }
 
   // Base data struct for store's module, package with some attribute and method
@@ -1436,7 +1473,7 @@ var Vuex = (function (vue) {
   }
 
   var index_cjs = {
-    version: '4.0.1',
+    version: '4.0.2',
     Store: Store,
     storeKey: storeKey,
     createStore: createStore,

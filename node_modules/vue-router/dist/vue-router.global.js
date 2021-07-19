@@ -1,5 +1,5 @@
 /*!
-  * vue-router v4.0.8
+  * vue-router v4.0.10
   * (c) 2021 Eduardo San Martin Morote
   * @license MIT
   */
@@ -127,7 +127,7 @@ var VueRouter = (function (exports, vue) {
    */
   function stripBase(pathname, base) {
       // no base or base is not found at the beginning
-      if (!base || pathname.toLowerCase().indexOf(base.toLowerCase()))
+      if (!base || !pathname.toLowerCase().startsWith(base.toLowerCase()))
           return pathname;
       return pathname.slice(base.length) || '/';
   }
@@ -731,7 +731,7 @@ var VueRouter = (function (exports, vue) {
       // location.pathname contains an initial `/` even at the root: `https://example.com`
       base = location.host ? base || location.pathname + location.search : '';
       // allow the user to provide a `#` in the middle: `/base/#/app`
-      if (base.indexOf('#') < 0)
+      if (!base.includes('#'))
           base += '#';
       if (!base.endsWith('#/') && !base.endsWith('#')) {
           warn(`A hash base must end with a "#":\n"${base}" should be "${base.replace(/#.*$/, '#')}".`);
@@ -1728,10 +1728,6 @@ var VueRouter = (function (exports, vue) {
           // allow the = character
           let eqPos = searchParam.indexOf('=');
           let key = decode(eqPos < 0 ? searchParam : searchParam.slice(0, eqPos));
-          // this ignores ?__proto__&toString
-          if (Object.prototype.hasOwnProperty(key)) {
-              continue;
-          }
           let value = eqPos < 0 ? null : decode(searchParam.slice(eqPos + 1));
           if (key in query) {
               // an extra variable for ts types
@@ -1919,7 +1915,7 @@ var VueRouter = (function (exports, vue) {
               const message = `The "next" callback was never called inside of ${guard.name ? '"' + guard.name + '"' : ''}:\n${guard.toString()}\n. If you are returning a value instead of calling "next", make sure to remove the "next" parameter from your function.`;
               if (typeof guardReturn === 'object' && 'then' in guardReturn) {
                   guardCall = guardCall.then(resolvedValue => {
-                      // @ts-ignore: _called is added at canOnlyBeCalledOnce
+                      // @ts-expect-error: _called is added at canOnlyBeCalledOnce
                       if (!next._called) {
                           warn(message);
                           return Promise.reject(new Error('Invalid navigation guard'));
@@ -1929,7 +1925,7 @@ var VueRouter = (function (exports, vue) {
                   // TODO: test me!
               }
               else if (guardReturn !== undefined) {
-                  // @ts-ignore: _called is added at canOnlyBeCalledOnce
+                  // @ts-expect-error: _called is added at canOnlyBeCalledOnce
                   if (!next._called) {
                       warn(message);
                       reject(new Error('Invalid navigation guard'));
@@ -1945,7 +1941,7 @@ var VueRouter = (function (exports, vue) {
       return function () {
           if (called++ === 1)
               warn(`The "next" callback was called more than once in one navigation guard when going from "${from.fullPath}" to "${to.fullPath}". It should be called exactly one time in each navigation guard. This will fail in production.`);
-          // @ts-ignore: we put it in the original one because it's easier to check
+          // @ts-expect-error: we put it in the original one because it's easier to check
           next._called = true;
           if (called === 1)
               next.apply(null, arguments);
@@ -2002,10 +1998,6 @@ var VueRouter = (function (exports, vue) {
                   if (!('catch' in componentPromise)) {
                       warn(`Component "${name}" in record with path "${record.path}" is a function that does not return a Promise. If you were passing a functional component, make sure to add a "displayName" to the component. This will break in production if not fixed.`);
                       componentPromise = Promise.resolve(componentPromise);
-                  }
-                  else {
-                      // display the error if any
-                      componentPromise = componentPromise.catch(console.error);
                   }
                   guards.push(() => componentPromise.then(resolved => {
                       if (!resolved)
@@ -2072,9 +2064,32 @@ var VueRouter = (function (exports, vue) {
           activeRecordIndex.value === currentRoute.matched.length - 1 &&
           isSameRouteLocationParams(currentRoute.params, route.value.params));
       function navigate(e = {}) {
-          if (guardEvent(e))
-              return router[vue.unref(props.replace) ? 'replace' : 'push'](vue.unref(props.to));
+          if (guardEvent(e)) {
+              return router[vue.unref(props.replace) ? 'replace' : 'push'](vue.unref(props.to)
+              // avoid uncaught errors are they are logged anyway
+              ).catch(noop);
+          }
           return Promise.resolve();
+      }
+      // devtools only
+      if (isBrowser) {
+          const instance = vue.getCurrentInstance();
+          if (instance) {
+              const linkContextDevtools = {
+                  route: route.value,
+                  isActive: isActive.value,
+                  isExactActive: isExactActive.value,
+              };
+              // @ts-expect-error: this is internal
+              instance.__vrl_devtools = instance.__vrl_devtools || [];
+              // @ts-expect-error: this is internal
+              instance.__vrl_devtools.push(linkContextDevtools);
+              vue.watchEffect(() => {
+                  linkContextDevtools.route = route.value;
+                  linkContextDevtools.isActive = isActive.value;
+                  linkContextDevtools.isExactActive = isExactActive.value;
+              }, { flush: 'post' });
+          }
       }
       return {
           route,
@@ -2101,6 +2116,7 @@ var VueRouter = (function (exports, vue) {
               default: 'page',
           },
       },
+      useLink,
       setup(props, { slots }) {
           const link = vue.reactive(useLink(props));
           const { options } = vue.inject(routerKey);
@@ -2113,21 +2129,6 @@ var VueRouter = (function (exports, vue) {
               // )]: !link.isExactActive,
               [getLinkClass(props.exactActiveClass, options.linkExactActiveClass, 'router-link-exact-active')]: link.isExactActive,
           }));
-          // devtools only
-          if (isBrowser) {
-              const instance = vue.getCurrentInstance();
-              vue.watchEffect(() => {
-                  if (!instance)
-                      return;
-                  instance.__vrl_route = link.route;
-              }, { flush: 'post' });
-              vue.watchEffect(() => {
-                  if (!instance)
-                      return;
-                  instance.__vrl_active = link.isActive;
-                  instance.__vrl_exactActive = link.isExactActive;
-              }, { flush: 'post' });
-          }
           return () => {
               const children = slots.default && slots.default(link);
               return props.custom
@@ -2162,9 +2163,9 @@ var VueRouter = (function (exports, vue) {
       if (e.button !== undefined && e.button !== 0)
           return;
       // don't redirect if `target="_blank"`
-      // @ts-ignore getAttribute does exist
+      // @ts-expect-error getAttribute does exist
       if (e.currentTarget && e.currentTarget.getAttribute) {
-          // @ts-ignore getAttribute exists
+          // @ts-expect-error getAttribute exists
           const target = e.currentTarget.getAttribute('target');
           if (/\b_blank\b/i.test(target))
               return;
@@ -2413,28 +2414,27 @@ var VueRouter = (function (exports, vue) {
           });
           // mark router-link as active
           api.on.visitComponentTree(({ treeNode: node, componentInstance }) => {
-              if (node.name === 'RouterLink') {
-                  if (componentInstance.__vrl_route) {
+              // if multiple useLink are used
+              if (Array.isArray(componentInstance.__vrl_devtools)) {
+                  componentInstance.__devtoolsApi = api;
+                  componentInstance.__vrl_devtools.forEach(devtoolsData => {
+                      let backgroundColor = ORANGE_400;
+                      let tooltip = '';
+                      if (devtoolsData.isExactActive) {
+                          backgroundColor = LIME_500;
+                          tooltip = 'This is exactly active';
+                      }
+                      else if (devtoolsData.isActive) {
+                          backgroundColor = BLUE_600;
+                          tooltip = 'This link is active';
+                      }
                       node.tags.push({
-                          label: componentInstance.__vrl_route.path,
+                          label: devtoolsData.route.path,
                           textColor: 0,
-                          backgroundColor: ORANGE_400,
+                          tooltip,
+                          backgroundColor,
                       });
-                  }
-                  if (componentInstance.__vrl_exactActive) {
-                      node.tags.push({
-                          label: 'exact',
-                          textColor: 0,
-                          backgroundColor: LIME_500,
-                      });
-                  }
-                  if (componentInstance.__vrl_active) {
-                      node.tags.push({
-                          label: 'active',
-                          textColor: 0,
-                          backgroundColor: BLUE_600,
-                      });
-                  }
+                  });
               }
           });
           vue.watch(router.currentRoute, () => {
@@ -2442,6 +2442,7 @@ var VueRouter = (function (exports, vue) {
               refreshRoutesView();
               api.notifyComponentUpdate();
               api.sendInspectorTree(routerInspectorId);
+              api.sendInspectorState(routerInspectorId);
           });
           const navigationsLayerId = 'router:navigations:' + id;
           api.addTimelineLayer({
@@ -2455,15 +2456,16 @@ var VueRouter = (function (exports, vue) {
           //   label: 'Router Errors',
           //   color: 0xea5455,
           // })
-          router.onError(error => {
+          router.onError((error, to) => {
               api.addTimelineEvent({
                   layerId: navigationsLayerId,
                   event: {
-                      title: 'Error',
-                      subtitle: 'An uncaught error happened during navigation',
+                      title: 'Error during Navigation',
+                      subtitle: to.fullPath,
                       logType: 'error',
                       time: Date.now(),
                       data: { error },
+                      groupId: to.meta.__navigationId,
                   },
               });
           });
@@ -2484,6 +2486,7 @@ var VueRouter = (function (exports, vue) {
                   event: {
                       time: Date.now(),
                       title: 'Start of navigation',
+                      subtitle: to.fullPath,
                       data,
                       groupId: to.meta.__navigationId,
                   },
@@ -2515,6 +2518,7 @@ var VueRouter = (function (exports, vue) {
                   layerId: navigationsLayerId,
                   event: {
                       title: 'End of navigation',
+                      subtitle: to.fullPath,
                       time: Date.now(),
                       data,
                       logType: failure ? 'warning' : 'default',
@@ -2766,7 +2770,7 @@ var VueRouter = (function (exports, vue) {
       const ret = {};
       for (let key in obj) {
           if (!keys.includes(key)) {
-              // @ts-ignore
+              // @ts-expect-error
               ret[key] = obj[key];
           }
       }
@@ -2935,10 +2939,13 @@ var VueRouter = (function (exports, vue) {
               let newTargetLocation = typeof redirect === 'function' ? redirect(to) : redirect;
               if (typeof newTargetLocation === 'string') {
                   newTargetLocation =
-                      newTargetLocation.indexOf('?') > -1 ||
-                          newTargetLocation.indexOf('#') > -1
+                      newTargetLocation.includes('?') || newTargetLocation.includes('#')
                           ? (newTargetLocation = locationAsObject(newTargetLocation))
-                          : { path: newTargetLocation };
+                          : // force empty params
+                              { path: newTargetLocation };
+                  // @ts-expect-error: force empty params when a string is passed to let
+                  // the router parse them again
+                  newTargetLocation.params = {};
               }
               if (!('path' in newTargetLocation) &&
                   !('name' in newTargetLocation)) {
@@ -2987,7 +2994,7 @@ var VueRouter = (function (exports, vue) {
               .catch((error) => isNavigationFailure(error)
               ? error
               : // reject any unknown error
-                  triggerError(error))
+                  triggerError(error, toLocation, from))
               .then((failure) => {
               if (failure) {
                   if (isNavigationFailure(failure, 2 /* NAVIGATION_GUARD_REDIRECT */)) {
@@ -2995,9 +3002,9 @@ var VueRouter = (function (exports, vue) {
                           isSameRouteLocation(stringifyQuery$1, resolve(failure.to), toLocation) &&
                           // and we have done it a couple of times
                           redirectedFrom &&
-                          // @ts-ignore
+                          // @ts-expect-error: added only in dev
                           (redirectedFrom._count = redirectedFrom._count
-                              ? // @ts-ignore
+                              ? // @ts-expect-error
                                   redirectedFrom._count + 1
                               : 1) > 10) {
                           warn(`Detected an infinite redirection in a navigation guard when going from "${from.fullPath}" to "${toLocation.fullPath}". Aborting to avoid a Stack Overflow. This will break in production if not fixed.`);
@@ -3073,7 +3080,7 @@ var VueRouter = (function (exports, vue) {
               guards = [];
               for (const record of to.matched) {
                   // do not trigger beforeEnter on reused views
-                  if (record.beforeEnter && from.matched.indexOf(record) < 0) {
+                  if (record.beforeEnter && !from.matched.includes(record)) {
                       if (Array.isArray(record.beforeEnter)) {
                           for (const beforeEnter of record.beforeEnter)
                               guards.push(guardToPromiseFn(beforeEnter, to, from));
@@ -3184,7 +3191,19 @@ var VueRouter = (function (exports, vue) {
                       // logging the error
                       pushWithRedirect(error.to, toLocation
                       // avoid an uncaught rejection, let push call triggerError
-                      ).catch(noop);
+                      )
+                          .then(failure => {
+                          // manual change in hash history #916 ending up in the URL not
+                          // changing but it was changed by the manual url change, so we
+                          // need to manually change it ourselves
+                          if (isNavigationFailure(failure, 4 /* NAVIGATION_ABORTED */ |
+                              16 /* NAVIGATION_DUPLICATED */) &&
+                              !info.delta &&
+                              info.type === NavigationType.pop) {
+                              routerHistory.go(-1, false);
+                          }
+                      })
+                          .catch(noop);
                       // avoid the then branch
                       return Promise.reject();
                   }
@@ -3192,7 +3211,7 @@ var VueRouter = (function (exports, vue) {
                   if (info.delta)
                       routerHistory.go(-info.delta, false);
                   // unrecognized error, transfer to the global handler
-                  return triggerError(error);
+                  return triggerError(error, toLocation, from);
               })
                   .then((failure) => {
                   failure =
@@ -3201,8 +3220,17 @@ var VueRouter = (function (exports, vue) {
                           // after navigation, all matched components are resolved
                           toLocation, from, false);
                   // revert the navigation
-                  if (failure && info.delta)
-                      routerHistory.go(-info.delta, false);
+                  if (failure) {
+                      if (info.delta) {
+                          routerHistory.go(-info.delta, false);
+                      }
+                      else if (info.type === NavigationType.pop &&
+                          isNavigationFailure(failure, 4 /* NAVIGATION_ABORTED */ | 16 /* NAVIGATION_DUPLICATED */)) {
+                          // manual change in hash history #916
+                          // it's like a push but lacks the information of the direction
+                          routerHistory.go(-1, false);
+                      }
+                  }
                   triggerAfterEach(toLocation, from, failure);
               })
                   .catch(noop);
@@ -3214,12 +3242,24 @@ var VueRouter = (function (exports, vue) {
       let ready;
       /**
        * Trigger errorHandlers added via onError and throws the error as well
+       *
        * @param error - error to throw
+       * @param to - location we were navigating to when the error happened
+       * @param from - location we were navigating from when the error happened
        * @returns the error as a rejected promise
        */
-      function triggerError(error) {
+      function triggerError(error, to, from) {
           markAsReady(error);
-          errorHandlers.list().forEach(handler => handler(error));
+          const list = errorHandlers.list();
+          if (list.length) {
+              list.forEach(handler => handler(error, to, from));
+          }
+          else {
+              {
+                  warn('uncaught error during route navigation:');
+              }
+              console.error(error);
+          }
           return Promise.reject(error);
       }
       function isReady() {
@@ -3257,7 +3297,7 @@ var VueRouter = (function (exports, vue) {
           return vue.nextTick()
               .then(() => scrollBehavior(to, from, scrollPosition))
               .then(position => position && scrollToPosition(position))
-              .catch(triggerError);
+              .catch(err => triggerError(err, to, from));
       }
       const go = (delta) => routerHistory.go(delta);
       let started;
@@ -3305,7 +3345,7 @@ var VueRouter = (function (exports, vue) {
               }
               const reactiveRoute = {};
               for (let key in START_LOCATION_NORMALIZED) {
-                  // @ts-ignore: the key matches
+                  // @ts-expect-error: the key matches
                   reactiveRoute[key] = vue.computed(() => currentRoute.value[key]);
               }
               app.provide(routerKey, router);

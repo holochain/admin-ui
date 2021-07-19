@@ -218,17 +218,6 @@ module.exports = !DESCRIPTORS && !fails(function () {
 
 /***/ }),
 
-/***/ "0fa6":
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var _node_modules_vue_style_loader_index_js_ref_6_oneOf_1_0_node_modules_css_loader_dist_cjs_js_ref_6_oneOf_1_1_node_modules_vue_loader_v16_dist_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_2_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_node_modules_cache_loader_dist_cjs_js_ref_0_0_node_modules_vue_loader_v16_dist_index_js_ref_0_1_InstalledApps_vue_vue_type_style_index_0_id_03966e14_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__("5249");
-/* harmony import */ var _node_modules_vue_style_loader_index_js_ref_6_oneOf_1_0_node_modules_css_loader_dist_cjs_js_ref_6_oneOf_1_1_node_modules_vue_loader_v16_dist_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_2_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_node_modules_cache_loader_dist_cjs_js_ref_0_0_node_modules_vue_loader_v16_dist_index_js_ref_0_1_InstalledApps_vue_vue_type_style_index_0_id_03966e14_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_vue_style_loader_index_js_ref_6_oneOf_1_0_node_modules_css_loader_dist_cjs_js_ref_6_oneOf_1_1_node_modules_vue_loader_v16_dist_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_2_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_node_modules_cache_loader_dist_cjs_js_ref_0_0_node_modules_vue_loader_v16_dist_index_js_ref_0_1_InstalledApps_vue_vue_type_style_index_0_id_03966e14_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_0__);
-/* unused harmony reexport * */
-
-
-/***/ }),
-
 /***/ "19aa":
 /***/ (function(module, exports) {
 
@@ -666,6 +655,20 @@ module.exports = function (CONSTRUCTOR_NAME) {
     });
   }
 };
+
+
+/***/ }),
+
+/***/ "275a":
+/***/ (function(module, exports, __webpack_require__) {
+
+// Imports
+var ___CSS_LOADER_API_IMPORT___ = __webpack_require__("24fb");
+exports = ___CSS_LOADER_API_IMPORT___(false);
+// Module
+exports.push([module.i, ".app-row[data-v-cee39846]{margin-bottom:16px}.app-title[data-v-cee39846]{font-size:1.3em;flex:1}.cell-row[data-v-cee39846]{margin-top:8px}.column[data-v-cee39846]{display:flex;flex-direction:column}.title[data-v-cee39846]{font-size:1.5em}.row[data-v-cee39846]{display:flex;flex-direction:row}.center[data-v-cee39846]{align-items:center;justify-content:center}", ""]);
+// Exports
+module.exports = exports;
 
 
 /***/ }),
@@ -1452,22 +1455,6 @@ module.exports = Object.hasOwn || function hasOwn(it, key) {
 
 /***/ }),
 
-/***/ "5249":
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__("f3f7");
-if(content.__esModule) content = content.default;
-if(typeof content === 'string') content = [[module.i, content, '']];
-if(content.locals) module.exports = content.locals;
-// add the styles to the DOM
-var add = __webpack_require__("499e").default
-var update = add("34968668", content, true, {"sourceMap":false,"shadowMode":false});
-
-/***/ }),
-
 /***/ "5692":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1477,7 +1464,7 @@ var store = __webpack_require__("c6cd");
 (module.exports = function (key, value) {
   return store[key] || (store[key] = value !== undefined ? value : {});
 })('versions', []).push({
-  version: '3.13.1',
+  version: '3.15.2',
   mode: IS_PURE ? 'pure' : 'global',
   copyright: '© 2021 Denis Pushkarev (zloirock.ru)'
 });
@@ -3810,6 +3797,17 @@ module.exports = {
 
 /***/ }),
 
+/***/ "bda8":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var _node_modules_vue_style_loader_index_js_ref_6_oneOf_1_0_node_modules_css_loader_dist_cjs_js_ref_6_oneOf_1_1_node_modules_vue_loader_v16_dist_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_2_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_node_modules_cache_loader_dist_cjs_js_ref_0_0_node_modules_vue_loader_v16_dist_index_js_ref_0_1_InstalledApps_vue_vue_type_style_index_0_id_cee39846_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__("cca6");
+/* harmony import */ var _node_modules_vue_style_loader_index_js_ref_6_oneOf_1_0_node_modules_css_loader_dist_cjs_js_ref_6_oneOf_1_1_node_modules_vue_loader_v16_dist_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_2_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_node_modules_cache_loader_dist_cjs_js_ref_0_0_node_modules_vue_loader_v16_dist_index_js_ref_0_1_InstalledApps_vue_vue_type_style_index_0_id_cee39846_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_vue_style_loader_index_js_ref_6_oneOf_1_0_node_modules_css_loader_dist_cjs_js_ref_6_oneOf_1_1_node_modules_vue_loader_v16_dist_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_2_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_node_modules_cache_loader_dist_cjs_js_ref_0_0_node_modules_vue_loader_v16_dist_index_js_ref_0_1_InstalledApps_vue_vue_type_style_index_0_id_cee39846_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_0__);
+/* unused harmony reexport * */
+
+
+/***/ }),
+
 /***/ "c04e":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -3953,6 +3951,22 @@ module.exports = function (it) {
   return EXISTS ? document.createElement(it) : {};
 };
 
+
+/***/ }),
+
+/***/ "cca6":
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__("275a");
+if(content.__esModule) content = content.default;
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__("499e").default
+var update = add("7dc65267", content, true, {"sourceMap":false,"shadowMode":false});
 
 /***/ }),
 
@@ -4468,7 +4482,8 @@ var SUBCLASSING = false;
 var Internal, OwnPromiseCapability, PromiseWrapper, nativeThen;
 
 var FORCED = isForced(PROMISE, function () {
-  var GLOBAL_CORE_JS_PROMISE = inspectSource(PromiseConstructor) !== String(PromiseConstructor);
+  var PROMISE_CONSTRUCTOR_SOURCE = inspectSource(PromiseConstructor);
+  var GLOBAL_CORE_JS_PROMISE = PROMISE_CONSTRUCTOR_SOURCE !== String(PromiseConstructor);
   // V8 6.6 (Node 10 and Chrome 66) have a bug with resolving custom thenables
   // https://bugs.chromium.org/p/chromium/issues/detail?id=830565
   // We can't detect it synchronously, so just check versions
@@ -4478,7 +4493,7 @@ var FORCED = isForced(PROMISE, function () {
   // We can't use @@species feature detection in V8 since it causes
   // deoptimization and performance degradation
   // https://github.com/zloirock/core-js/issues/679
-  if (V8_VERSION >= 51 && /native code/.test(PromiseConstructor)) return false;
+  if (V8_VERSION >= 51 && /native code/.test(PROMISE_CONSTRUCTOR_SOURCE)) return false;
   // Detect correctness of subclassing with @@species support
   var promise = new PromiseConstructor(function (resolve) { resolve(1); });
   var FakePromise = function (exec) {
@@ -4887,20 +4902,6 @@ module.exports.f = function (C) {
 
 /***/ }),
 
-/***/ "f3f7":
-/***/ (function(module, exports, __webpack_require__) {
-
-// Imports
-var ___CSS_LOADER_API_IMPORT___ = __webpack_require__("24fb");
-exports = ___CSS_LOADER_API_IMPORT___(false);
-// Module
-exports.push([module.i, ".app-row[data-v-03966e14]{margin-bottom:16px}.app-title[data-v-03966e14]{font-size:1.3em;flex:1}.cell-row[data-v-03966e14]{margin-top:8px}.column[data-v-03966e14]{display:flex;flex-direction:column}.title[data-v-03966e14]{font-size:1.5em}.row[data-v-03966e14]{display:flex;flex-direction:row}.center[data-v-03966e14]{align-items:center;justify-content:center}", ""]);
-// Exports
-module.exports = exports;
-
-
-/***/ }),
-
 /***/ "f5df":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -5070,14 +5071,14 @@ var es_array_concat = __webpack_require__("99af");
 // EXTERNAL MODULE: external {"commonjs":"vue","commonjs2":"vue","root":"Vue"}
 var external_commonjs_vue_commonjs2_vue_root_Vue_ = __webpack_require__("8bbf");
 
-// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js??ref--12-0!./node_modules/thread-loader/dist/cjs.js!./node_modules/babel-loader/lib!./node_modules/vue-loader-v16/dist/templateLoader.js??ref--6!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader-v16/dist??ref--0-1!./src/components/InstalledApps.vue?vue&type=template&id=03966e14&scoped=true
+// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js??ref--12-0!./node_modules/thread-loader/dist/cjs.js!./node_modules/babel-loader/lib!./node_modules/vue-loader-v16/dist/templateLoader.js??ref--6!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader-v16/dist??ref--0-1!./src/components/InstalledApps.vue?vue&type=template&id=cee39846&scoped=true
 
 
 
 
-var _withId = /*#__PURE__*/Object(external_commonjs_vue_commonjs2_vue_root_Vue_["withScopeId"])("data-v-03966e14");
+var _withId = /*#__PURE__*/Object(external_commonjs_vue_commonjs2_vue_root_Vue_["withScopeId"])("data-v-cee39846");
 
-Object(external_commonjs_vue_commonjs2_vue_root_Vue_["pushScopeId"])("data-v-03966e14");
+Object(external_commonjs_vue_commonjs2_vue_root_Vue_["pushScopeId"])("data-v-cee39846");
 
 var _hoisted_1 = {
   class: "column"
@@ -5103,19 +5104,18 @@ var _hoisted_6 = {
   key: 0
 };
 var _hoisted_7 = {
-  class: "row"
+  class: "row center"
 };
 var _hoisted_8 = {
   class: "app-title"
 };
 var _hoisted_9 = {
-  key: 2,
-  class: "row center"
-};
-var _hoisted_10 = {
   style: {
     "margin-left": "8px"
   }
+};
+var _hoisted_10 = {
+  key: 0
 };
 var _hoisted_11 = {
   style: {
@@ -5133,7 +5133,7 @@ var render = /*#__PURE__*/_withId(function (_ctx, _cache, $props, $setup, $data,
     return Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("div", {
       key: app.installed_app_id,
       class: "app-row column"
-    }, [Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createVNode"])("div", _hoisted_7, [Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createVNode"])("span", _hoisted_8, Object(external_commonjs_vue_commonjs2_vue_root_Vue_["toDisplayString"])(app.installed_app_id), 1), _ctx.isAppActive(app) ? (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("button", {
+    }, [Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createVNode"])("div", _hoisted_7, [Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createVNode"])("span", _hoisted_8, Object(external_commonjs_vue_commonjs2_vue_root_Vue_["toDisplayString"])(app.installed_app_id), 1), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createVNode"])("span", _hoisted_9, [Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createTextVNode"])(Object(external_commonjs_vue_commonjs2_vue_root_Vue_["toDisplayString"])(_ctx.getStatus(app)), 1), _ctx.getReason(app) ? (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("span", _hoisted_10, ": " + Object(external_commonjs_vue_commonjs2_vue_root_Vue_["toDisplayString"])(_ctx.getReason(app)), 1)) : Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createCommentVNode"])("", true)]), _ctx.isAppRunning(app) ? (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("button", {
       key: 0,
       onClick: function onClick($event) {
         return _ctx.$emit('openApp', app.installed_app_id);
@@ -5141,22 +5141,31 @@ var render = /*#__PURE__*/_withId(function (_ctx, _cache, $props, $setup, $data,
       style: {
         "margin-left": "8px"
       }
-    }, " Open ", 8, ["onClick"])) : Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createCommentVNode"])("", true), _ctx.isAppActive(app) ? (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("button", {
+    }, " Open ", 8, ["onClick"])) : Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createCommentVNode"])("", true), !_ctx.isAppDisabled(app) ? (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("button", {
       key: 1,
       onClick: function onClick($event) {
-        return _ctx.deactivateApp(app.installed_app_id);
+        return _ctx.disableApp(app.installed_app_id);
       },
       style: {
         "margin-left": "8px"
       }
-    }, " Deactivate ", 8, ["onClick"])) : (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("div", _hoisted_9, [Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createVNode"])("span", _hoisted_10, "Inactive: " + Object(external_commonjs_vue_commonjs2_vue_root_Vue_["toDisplayString"])(_ctx.getDeactivationReason(app)), 1), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createVNode"])("button", {
+    }, " Disable ", 8, ["onClick"])) : Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createCommentVNode"])("", true), _ctx.isAppDisabled(app) ? (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("button", {
+      key: 2,
       onClick: function onClick($event) {
-        return _ctx.activateApp(app.installed_app_id);
+        return _ctx.enableApp(app.installed_app_id);
       },
       style: {
         "margin-left": "8px"
       }
-    }, " Activate ", 8, ["onClick"])]))]), (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(true), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])(external_commonjs_vue_commonjs2_vue_root_Vue_["Fragment"], null, Object(external_commonjs_vue_commonjs2_vue_root_Vue_["renderList"])(app.cell_data, function (cellData) {
+    }, " Enable ", 8, ["onClick"])) : Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createCommentVNode"])("", true), _ctx.isAppPaused(app) ? (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("button", {
+      key: 3,
+      onClick: function onClick($event) {
+        return _ctx.startApp(app.installed_app_id);
+      },
+      style: {
+        "margin-left": "8px"
+      }
+    }, " Start ", 8, ["onClick"])) : Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createCommentVNode"])("", true)]), (Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(true), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])(external_commonjs_vue_commonjs2_vue_root_Vue_["Fragment"], null, Object(external_commonjs_vue_commonjs2_vue_root_Vue_["renderList"])(app.cell_data, function (cellData) {
       return Object(external_commonjs_vue_commonjs2_vue_root_Vue_["openBlock"])(), Object(external_commonjs_vue_commonjs2_vue_root_Vue_["createBlock"])("div", {
         class: "cell-row row",
         key: [].concat(_toConsumableArray(cellData.cell_id[0]), _toConsumableArray(cellData.cell_id[1]))
@@ -5164,7 +5173,7 @@ var render = /*#__PURE__*/_withId(function (_ctx, _cache, $props, $setup, $data,
     }), 128))]);
   }), 128))]))]);
 });
-// CONCATENATED MODULE: ./src/components/InstalledApps.vue?vue&type=template&id=03966e14&scoped=true
+// CONCATENATED MODULE: ./src/components/InstalledApps.vue?vue&type=template&id=cee39846&scoped=true
 
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.promise.js
 var es_promise = __webpack_require__("e6cf");
@@ -5223,8 +5232,9 @@ var es_object_keys = __webpack_require__("b64b");
 // CONCATENATED MODULE: ./src/store/actions.ts
 var ActionTypes = {
   fetchInstalledApps: "fetchInstalledApps",
-  activateApp: "activateApp",
-  deactivateApp: "deactivateApp",
+  enableApp: "enableApp",
+  disableApp: "disableApp",
+  startApp: "startApp",
   installApp: "installApp"
 };
 // CONCATENATED MODULE: ./src/constants.ts
@@ -5720,10 +5730,10 @@ function serializeHash(hash) {
     return `u${gBase64.fromUint8Array(hash, true)}`;
 }
 function getCellIdForDnaHash(appInfo, dnaHash) {
-    const cell = appInfo.cell_data.find((cellData) => serializeHash(cellData[0][0]) === dnaHash);
+    const cell = appInfo.cell_data.find((cellData) => serializeHash(cellData.cell_id[0]) === dnaHash);
     if (!cell)
         throw new Error(`Could not find cell for dna ${dnaHash}`);
-    return cell[0];
+    return cell.cell_id;
 }
 function millisToTimestamp(millis) {
     const secs = Math.floor(millis / 1000);
@@ -5775,28 +5785,45 @@ var ValidationStatus;
       ADMIN_UI_MODULE: ADMIN_UI_MODULE
     };
   },
-  emits: ["openApp", "appDeactivated", "appActivated"],
+  emits: ["openApp", "appDisabled", "appEnabled", "appStarted"],
   created: function created() {
     this.$store.dispatch("".concat(ADMIN_UI_MODULE, "/").concat(ActionTypes.fetchInstalledApps));
   },
   methods: {
     deserializeHash: deserializeHash,
     serializeHash: serializeHash,
-    isAppActive: function isAppActive(appInfo) {
-      return Object.keys(appInfo.status).includes("active");
+    isAppRunning: function isAppRunning(appInfo) {
+      return Object.keys(appInfo.status).includes("running");
     },
-    getDeactivationReason: function getDeactivationReason(appInfo) {
-      var reason = appInfo.status.inactive.reason;
+    isAppDisabled: function isAppDisabled(appInfo) {
+      return Object.keys(appInfo.status).includes("disabled");
+    },
+    isAppPaused: function isAppPaused(appInfo) {
+      return Object.keys(appInfo.status).includes("paused");
+    },
+    getStatus: function getStatus(appInfo) {
+      if (this.isAppRunning(appInfo)) return "Running";
+      if (this.isAppDisabled(appInfo)) return "Disabled";
+      if (this.isAppPaused(appInfo)) return "Paused";
+    },
+    getReason: function getReason(appInfo) {
+      if (this.isAppRunning(appInfo)) return undefined;
 
-      if (Object.keys(reason).includes("never_activated")) {
-        return "this app was never activated";
-      } else if (Object.keys(reason).includes("normal")) {
-        return "this app was deactivated by the user";
+      if (this.isAppDisabled(appInfo)) {
+        var reason = appInfo.status.disabled.reason;
+
+        if (Object.keys(reason).includes("never_started")) {
+          return "this app was never started";
+        } else if (Object.keys(reason).includes("user")) {
+          return "this app was disabled by the user";
+        } else {
+          return "there was an error with this app: ".concat(reason.error);
+        }
       } else {
-        return "there was an error with this app: ".concat(reason.quarantined.error);
+        return appInfo.status.paused.error;
       }
     },
-    activateApp: function activateApp(appId) {
+    enableApp: function enableApp(appId) {
       var _this = this;
 
       return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
@@ -5805,10 +5832,10 @@ var ValidationStatus;
             switch (_context.prev = _context.next) {
               case 0:
                 _context.next = 2;
-                return _this.$store.dispatch("".concat(ADMIN_UI_MODULE, "/").concat(ActionTypes.activateApp), appId);
+                return _this.$store.dispatch("".concat(ADMIN_UI_MODULE, "/").concat(ActionTypes.enableApp), appId);
 
               case 2:
-                _this.$emit("appActivated", appId);
+                _this.$emit("appEnabled", appId);
 
               case 3:
               case "end":
@@ -5818,7 +5845,7 @@ var ValidationStatus;
         }, _callee);
       }))();
     },
-    deactivateApp: function deactivateApp(appId) {
+    disableApp: function disableApp(appId) {
       var _this2 = this;
 
       return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
@@ -5827,10 +5854,10 @@ var ValidationStatus;
             switch (_context2.prev = _context2.next) {
               case 0:
                 _context2.next = 2;
-                return _this2.$store.dispatch("".concat(ADMIN_UI_MODULE, "/").concat(ActionTypes.deactivateApp), appId);
+                return _this2.$store.dispatch("".concat(ADMIN_UI_MODULE, "/").concat(ActionTypes.disableApp), appId);
 
               case 2:
-                _this2.$emit("appDeactivated", appId);
+                _this2.$emit("appDisabled", appId);
 
               case 3:
               case "end":
@@ -5839,13 +5866,35 @@ var ValidationStatus;
           }
         }, _callee2);
       }))();
+    },
+    startApp: function startApp(appId) {
+      var _this3 = this;
+
+      return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
+        return regeneratorRuntime.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                _context3.next = 2;
+                return _this3.$store.dispatch("".concat(ADMIN_UI_MODULE, "/").concat(ActionTypes.startApp), appId);
+
+              case 2:
+                _this3.$emit("appStarted", appId);
+
+              case 3:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, _callee3);
+      }))();
     }
   }
 }));
 // CONCATENATED MODULE: ./src/components/InstalledApps.vue?vue&type=script&lang=ts
  
-// EXTERNAL MODULE: ./src/components/InstalledApps.vue?vue&type=style&index=0&id=03966e14&scoped=true&lang=css
-var InstalledAppsvue_type_style_index_0_id_03966e14_scoped_true_lang_css = __webpack_require__("0fa6");
+// EXTERNAL MODULE: ./src/components/InstalledApps.vue?vue&type=style&index=0&id=cee39846&scoped=true&lang=css
+var InstalledAppsvue_type_style_index_0_id_cee39846_scoped_true_lang_css = __webpack_require__("bda8");
 
 // CONCATENATED MODULE: ./src/components/InstalledApps.vue
 
@@ -5854,7 +5903,7 @@ var InstalledAppsvue_type_style_index_0_id_03966e14_scoped_true_lang_css = __web
 
 
 InstalledAppsvue_type_script_lang_ts.render = render
-InstalledAppsvue_type_script_lang_ts.__scopeId = "data-v-03966e14"
+InstalledAppsvue_type_script_lang_ts.__scopeId = "data-v-cee39846"
 
 /* harmony default export */ var InstalledApps = (InstalledAppsvue_type_script_lang_ts);
 // CONCATENATED MODULE: ./src/store/index.ts
@@ -5911,14 +5960,14 @@ function hcAdminVuexModule(adminWebsocket, appWebsocket) {
           }, _callee);
         }))();
       },
-      activateApp: function activateApp(context, appId) {
+      enableApp: function enableApp(context, appId) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
           return regeneratorRuntime.wrap(function _callee2$(_context2) {
             while (1) {
               switch (_context2.prev = _context2.next) {
                 case 0:
                   _context2.next = 2;
-                  return adminWebsocket.activateApp({
+                  return adminWebsocket.enableApp({
                     installed_app_id: appId
                   });
 
@@ -5934,14 +5983,14 @@ function hcAdminVuexModule(adminWebsocket, appWebsocket) {
           }, _callee2);
         }))();
       },
-      deactivateApp: function deactivateApp(context, appId) {
+      disableApp: function disableApp(context, appId) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
           return regeneratorRuntime.wrap(function _callee3$(_context3) {
             while (1) {
               switch (_context3.prev = _context3.next) {
                 case 0:
                   _context3.next = 2;
-                  return adminWebsocket.deactivateApp({
+                  return adminWebsocket.disableApp({
                     installed_app_id: appId
                   });
 
@@ -5957,20 +6006,43 @@ function hcAdminVuexModule(adminWebsocket, appWebsocket) {
           }, _callee3);
         }))();
       },
-      installApp: function installApp(context, _ref2) {
+      startApp: function startApp(context, appId) {
         return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
-          var appBundlePath, appId, agentPubKey;
           return regeneratorRuntime.wrap(function _callee4$(_context4) {
             while (1) {
               switch (_context4.prev = _context4.next) {
                 case 0:
+                  _context4.next = 2;
+                  return adminWebsocket.startApp({
+                    installed_app_id: appId
+                  });
+
+                case 2:
+                  _context4.next = 4;
+                  return context.dispatch(ActionTypes.fetchInstalledApps);
+
+                case 4:
+                case "end":
+                  return _context4.stop();
+              }
+            }
+          }, _callee4);
+        }))();
+      },
+      installApp: function installApp(context, _ref2) {
+        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5() {
+          var appBundlePath, appId, agentPubKey;
+          return regeneratorRuntime.wrap(function _callee5$(_context5) {
+            while (1) {
+              switch (_context5.prev = _context5.next) {
+                case 0:
                   appBundlePath = _ref2.appBundlePath, appId = _ref2.appId;
-                  _context4.next = 3;
+                  _context5.next = 3;
                   return adminWebsocket.generateAgentPubKey();
 
                 case 3:
-                  agentPubKey = _context4.sent;
-                  _context4.next = 6;
+                  agentPubKey = _context5.sent;
+                  _context5.next = 6;
                   return adminWebsocket.installAppBundle({
                     path: appBundlePath,
                     installed_app_id: appId,
@@ -5979,7 +6051,7 @@ function hcAdminVuexModule(adminWebsocket, appWebsocket) {
                   });
 
                 case 6:
-                  _context4.next = 8;
+                  _context5.next = 8;
                   return adminWebsocket.activateApp({
                     installed_app_id: appId
                   });
@@ -5989,10 +6061,10 @@ function hcAdminVuexModule(adminWebsocket, appWebsocket) {
 
                 case 9:
                 case "end":
-                  return _context4.stop();
+                  return _context5.stop();
               }
             }
-          }, _callee4);
+          }, _callee5);
         }))();
       }
     }
