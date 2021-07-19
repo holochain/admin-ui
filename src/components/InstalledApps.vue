@@ -14,33 +14,52 @@
         :key="app.installed_app_id"
         class="app-row column"
       >
-        <div class="row">
+        <div class="row center">
           <span class="app-title">{{ app.installed_app_id }}</span>
+          <span style="margin-left: 8px"
+            >{{ getStatus(app)
+            }}<span v-if="getReason(app)">: {{ getReason(app) }}</span></span
+          >
+
           <button
-            v-if="isAppActive(app)"
+            v-if="isAppRunning(app)"
             @click="$emit('openApp', app.installed_app_id)"
             style="margin-left: 8px"
           >
             Open
           </button>
           <button
-            v-if="isAppActive(app)"
-            @click="deactivateApp(app.installed_app_id)"
+            v-if="!isAppDisabled(app)"
+            @click="disableApp(app.installed_app_id)"
             style="margin-left: 8px"
           >
-            Deactivate
+            Disable
           </button>
-          <div v-else class="row center">
-            <span style="margin-left: 8px"
-              >Inactive: {{ getDeactivationReason(app) }}</span
-            >
-            <button
-              @click="activateApp(app.installed_app_id)"
-              style="margin-left: 8px"
-            >
-              Activate
-            </button>
-          </div>
+          <button
+            v-if="isAppDisabled(app)"
+            @click="enableApp(app.installed_app_id)"
+            style="margin-left: 8px"
+          >
+            Enable
+          </button>
+          <button
+            v-if="isAppPaused(app)"
+            @click="startApp(app.installed_app_id)"
+            style="margin-left: 8px"
+          >
+            Start
+          </button>
+        </div>
+
+        <div
+          class="cell-row row"
+          v-for="cellData in app.cell_data"
+          :key="[...cellData.cell_id[0], ...cellData.cell_id[1]]"
+        >
+          <span>Cell Nick: {{ cellData.cell_nick }}</span>
+          <span style="opacity: 0.6; margin-left: 8px"
+            >Dna: {{ serializeHash(cellData.cell_id[0]) }}</span
+          >
         </div>
       </div>
     </div>
@@ -51,8 +70,8 @@
 import { defineComponent } from "vue";
 import { ActionTypes } from "@/store/actions";
 import { ADMIN_UI_MODULE } from "@/constants";
-import { deserializeHash } from "@holochain-open-dev/core-types";
-import { DeactivationReason, InstalledAppInfo } from "@holochain/conductor-api";
+import { deserializeHash, serializeHash } from "@holochain-open-dev/core-types";
+import { DisabledAppReason, InstalledAppInfo } from "@holochain/conductor-api";
 
 export default defineComponent({
   name: "InstalledApps",
@@ -61,7 +80,7 @@ export default defineComponent({
       ADMIN_UI_MODULE,
     };
   },
-  emits: ["openApp", "appDeactivated", "appActivated"],
+  emits: ["openApp", "appDisabled", "appEnabled", "appStarted"],
   created() {
     this.$store.dispatch(
       `${ADMIN_UI_MODULE}/${ActionTypes.fetchInstalledApps}`
@@ -69,48 +88,71 @@ export default defineComponent({
   },
   methods: {
     deserializeHash,
-    isAppActive(appInfo: InstalledAppInfo): boolean {
-      return Object.keys(appInfo.status).includes("active");
+    serializeHash,
+    isAppRunning(appInfo: InstalledAppInfo): boolean {
+      return Object.keys(appInfo.status).includes("running");
     },
-    getDeactivationReason(appInfo: InstalledAppInfo): string {
-      const reason = (
-        appInfo.status as {
-          inactive: {
-            reason: DeactivationReason;
-          };
-        }
-      ).inactive.reason;
+    isAppDisabled(appInfo: InstalledAppInfo): boolean {
+      return Object.keys(appInfo.status).includes("disabled");
+    },
+    isAppPaused(appInfo: InstalledAppInfo): boolean {
+      return Object.keys(appInfo.status).includes("paused");
+    },
+    getStatus(appInfo: InstalledAppInfo) {
+      if (this.isAppRunning(appInfo)) return "Running";
+      if (this.isAppDisabled(appInfo)) return "Disabled";
+      if (this.isAppPaused(appInfo)) return "Paused";
+    },
+    getReason(appInfo: InstalledAppInfo): string | undefined {
+      if (this.isAppRunning(appInfo)) return undefined;
+      if (this.isAppDisabled(appInfo)) {
+        const reason = (
+          appInfo.status as unknown as {
+            disabled: {
+              reason: DisabledAppReason;
+            };
+          }
+        ).disabled.reason;
 
-      if (Object.keys(reason).includes("never_activated")) {
-        return "this app was never activated";
-      } else if (Object.keys(reason).includes("normal")) {
-        return "this app was deactivated by the user";
-      } else {
-        return `there was an error with this app: ${
-          (
-            reason as {
-              quarantined: {
+        if (Object.keys(reason).includes("never_started")) {
+          return "this app was never started";
+        } else if (Object.keys(reason).includes("user")) {
+          return "this app was disabled by the user";
+        } else {
+          return `there was an error with this app: ${
+            (
+              reason as {
                 error: string;
-              };
-            }
-          ).quarantined.error
-        }`;
+              }
+            ).error
+          }`;
+        }
+      } else {
+        return (appInfo.status as unknown as { paused: { error: string } })
+          .paused.error;
       }
     },
-    async activateApp(appId: string) {
+    async enableApp(appId: string) {
       await this.$store.dispatch(
-        `${ADMIN_UI_MODULE}/${ActionTypes.activateApp}`,
+        `${ADMIN_UI_MODULE}/${ActionTypes.enableApp}`,
         appId
       );
-      this.$emit("appActivated", appId);
+      this.$emit("appEnabled", appId);
     },
-    async deactivateApp(appId: string) {
+    async disableApp(appId: string) {
       await this.$store.dispatch(
-        `${ADMIN_UI_MODULE}/${ActionTypes.deactivateApp}`,
+        `${ADMIN_UI_MODULE}/${ActionTypes.disableApp}`,
         appId
       );
 
-      this.$emit("appDeactivated", appId);
+      this.$emit("appDisabled", appId);
+    },
+    async startApp(appId: string) {
+      await this.$store.dispatch(
+        `${ADMIN_UI_MODULE}/${ActionTypes.startApp}`,
+        appId
+      );
+      this.$emit("appStarted", appId);
     },
   },
 });

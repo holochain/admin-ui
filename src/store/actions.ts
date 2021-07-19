@@ -1,6 +1,7 @@
 export const ActionTypes = {
   fetchInstalledApps: "fetchInstalledApps",
-  activateApp: "activateApp",
-  deactivateApp: "deactivateApp",
+  enableApp: "enableApp",
+  disableApp: "disableApp",
+  startApp: "startApp",
   installApp: "installApp",
 };
