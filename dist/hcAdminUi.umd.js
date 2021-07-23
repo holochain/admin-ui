@@ -5234,8 +5234,7 @@ var ActionTypes = {
   fetchInstalledApps: "fetchInstalledApps",
   enableApp: "enableApp",
   disableApp: "disableApp",
-  startApp: "startApp",
-  installApp: "installApp"
+  startApp: "startApp"
 };
 // CONCATENATED MODULE: ./src/constants.ts
 var ADMIN_UI_MODULE = "admin";
@@ -6027,44 +6026,6 @@ function hcAdminVuexModule(adminWebsocket, appWebsocket) {
               }
             }
           }, _callee4);
-        }))();
-      },
-      installApp: function installApp(context, _ref2) {
-        return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5() {
-          var appBundlePath, appId, agentPubKey;
-          return regeneratorRuntime.wrap(function _callee5$(_context5) {
-            while (1) {
-              switch (_context5.prev = _context5.next) {
-                case 0:
-                  appBundlePath = _ref2.appBundlePath, appId = _ref2.appId;
-                  _context5.next = 3;
-                  return adminWebsocket.generateAgentPubKey();
-
-                case 3:
-                  agentPubKey = _context5.sent;
-                  _context5.next = 6;
-                  return adminWebsocket.installAppBundle({
-                    path: appBundlePath,
-                    installed_app_id: appId,
-                    membrane_proofs: {},
-                    agent_key: agentPubKey
-                  });
-
-                case 6:
-                  _context5.next = 8;
-                  return adminWebsocket.activateApp({
-                    installed_app_id: appId
-                  });
-
-                case 8:
-                  context.dispatch(ActionTypes.fetchInstalledApps);
-
-                case 9:
-                case "end":
-                  return _context5.stop();
-              }
-            }
-          }, _callee5);
         }))();
       }
     }
