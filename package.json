@@ -6,14 +6,14 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build --target lib --name hcAdminUi ./src/lib.ts",
+    "prepare": "npm run build",
     "test:unit": "vue-cli-service test:unit",
     "test:e2e": "vue-cli-service test:e2e",
-    "lint": "vue-cli-service lint",
-    "publish-to-branch": "npm run build && gh-pages -d ./ -b build"
+    "lint": "vue-cli-service lint"
   },
   "dependencies": {
     "@holochain-open-dev/core-types": "0.1.1",
-    "@holochain/conductor-api": "github:holochain/holochain-conductor-api#enable-disable",
+    "@holochain/conductor-api": "0.2.0",
     "@msgpack/msgpack": "^2.7.0",
     "core-js": "^3.6.5",
     "fflate": "^0.7.0",
