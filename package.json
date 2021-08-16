@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@holochain-open-dev/core-types": "0.1.1",
-    "@holochain/conductor-api": "github:holochain/holochain-conductor-api#enable-disable",
+    "@holochain/conductor-api": "0.2.0",
     "@msgpack/msgpack": "^2.7.0",
     "core-js": "^3.6.5",
     "fflate": "^0.7.0",
