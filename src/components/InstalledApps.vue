@@ -128,9 +128,9 @@ export default defineComponent({
           }`;
         }
       } else {
-        return JSON.stringify(appInfo.status)
-        //return (appInfo.status as unknown as { paused: { error: string } })
-        //  .paused.error;
+        return (
+          appInfo.status as unknown as { paused: { reason: { error: string } } }
+        ).paused.reason.error;
       }
     },
     async enableApp(appId: string) {
