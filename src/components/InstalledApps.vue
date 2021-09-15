@@ -49,6 +49,12 @@
           >
             Start
           </button>
+          <button
+            @click="uninstallApp(app.installed_app_id)"
+            style="margin-left: 8px"
+          >
+            Uninstall
+          </button>
         </div>
 
         <div
@@ -80,7 +86,7 @@ export default defineComponent({
       ADMIN_UI_MODULE,
     };
   },
-  emits: ["openApp", "appDisabled", "appEnabled", "appStarted"],
+  emits: ["openApp", "appDisabled", "appEnabled", "appStarted", "uninstallApp"],
   created() {
     this.$store.dispatch(
       `${ADMIN_UI_MODULE}/${ActionTypes.fetchInstalledApps}`
@@ -154,6 +160,9 @@ export default defineComponent({
         appId
       );
       this.$emit("appStarted", appId);
+    },
+    async uninstallApp(appId: string) {
+      this.$emit("uninstallApp", appId);
     },
   },
 });
