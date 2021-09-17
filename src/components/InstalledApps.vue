@@ -1,10 +1,10 @@
 <template>
-  <div class="column">
-    <span v-if="$store.state.admin.installedApps.loading">Loading...</span>
-    <span class="title" style="margin-bottom: 16px">Installed apps</span>
-
-    <span v-if="$store.state.admin.installedApps.loading">Loading...</span>
-    <div v-else>
+  <mwc-circular-progress v-if="$store.state.admin.installedApps.loading"
+    >Loading...</mwc-circular-progress
+  >
+  <div v-else>
+    <div class="column">
+      <span class="title" style="margin-bottom: 16px">Installed apps</span>
       <span v-if="$store.getters[`${ADMIN_UI_MODULE}/allApps`].length === 0"
         >You don't have any apps installed yet</span
       >
@@ -21,40 +21,40 @@
             }}<span v-if="getReason(app)">: {{ getReason(app) }}</span></span
           >
 
-          <button
+          <mwc-button
             v-if="isAppRunning(app)"
             @click="$emit('openApp', app.installed_app_id)"
             style="margin-left: 8px"
+            label="Open"
           >
-            Open
-          </button>
-          <button
+          </mwc-button>
+          <mwc-button
             v-if="!isAppDisabled(app)"
             @click="disableApp(app.installed_app_id)"
             style="margin-left: 8px"
+            label="Disable"
           >
-            Disable
-          </button>
-          <button
+          </mwc-button>
+          <mwc-button
             v-if="isAppDisabled(app)"
             @click="enableApp(app.installed_app_id)"
             style="margin-left: 8px"
+            label="Enable"
           >
-            Enable
-          </button>
-          <button
+          </mwc-button>
+          <mwc-button
             v-if="isAppPaused(app)"
             @click="startApp(app.installed_app_id)"
             style="margin-left: 8px"
+            label="Start"
           >
-            Start
-          </button>
-          <button
+          </mwc-button>
+          <mwc-button
             @click="uninstallApp(app.installed_app_id)"
             style="margin-left: 8px"
+            label="Uninstall"
           >
-            Uninstall
-          </button>
+          </mwc-button>
         </div>
 
         <div
@@ -78,6 +78,8 @@ import { ActionTypes } from "@/store/actions";
 import { ADMIN_UI_MODULE } from "@/constants";
 import { deserializeHash, serializeHash } from "@holochain-open-dev/core-types";
 import { DisabledAppReason, InstalledAppInfo } from "@holochain/conductor-api";
+import "@material/mwc-button";
+import "@material/mwc-circular-progress";
 
 export default defineComponent({
   name: "InstalledApps",
