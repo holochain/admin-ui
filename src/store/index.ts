@@ -5,7 +5,6 @@ import {
   AppWebsocket,
   InstalledAppInfo,
 } from "@holochain/conductor-api";
-import { ActionTypes } from "./actions";
 
 export interface HcAdminState {
   installedApps: { loading: boolean; appsInfo: Array<InstalledAppInfo> };
@@ -45,19 +44,6 @@ export function hcAdminVuexModule(
         const appsInfos = await adminWebsocket.listApps({});
 
         commit("setAppsInfo", appsInfos);
-      },
-      async enableApp(context, appId: string) {
-        await adminWebsocket.enableApp({ installed_app_id: appId });
-
-        await context.dispatch(ActionTypes.fetchInstalledApps);
-      },
-      async disableApp(context, appId: string) {
-        await adminWebsocket.disableApp({ installed_app_id: appId });
-        await context.dispatch(ActionTypes.fetchInstalledApps);
-      },
-      async startApp(context, appId: string) {
-        await adminWebsocket.startApp({ installed_app_id: appId });
-        await context.dispatch(ActionTypes.fetchInstalledApps);
       },
     },
   };
