@@ -17,7 +17,7 @@
         :key="app.installed_app_id"
         class="app-row column"
       >
-        <mwc-card>
+        <mwc-card style="width: auto">
           <div class="row" style="flex: 1; padding: 8px">
             <div class="column" style="flex: 1">
               <span class="app-title">{{ app.installed_app_id }}</span>
@@ -109,6 +109,7 @@ import { ADMIN_UI_MODULE } from "@/constants";
 import { deserializeHash, serializeHash } from "@holochain-open-dev/core-types";
 import { DisabledAppReason, InstalledAppInfo } from "@holochain/conductor-api";
 import "@shoelace-style/shoelace/dist/themes/light.css";
+import "@shoelace-style/shoelace/dist/components/tag/tag.js";
 
 export default defineComponent({
   name: "InstalledApps",
