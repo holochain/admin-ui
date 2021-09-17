@@ -1,7 +1,10 @@
 <template>
-  <mwc-circular-progress v-if="$store.state.admin.installedApps.loading"
-    >Loading...</mwc-circular-progress
+  <div
+    v-if="$store.state.admin.installedApps.loading"
+    style="flex: 1; display: flex; align-items: center; justify-content: center"
   >
+    <mwc-circular-progress></mwc-circular-progress>
+  </div>
   <div v-else>
     <div class="column">
       <span class="title" style="margin-bottom: 16px">Installed apps</span>
@@ -14,59 +17,86 @@
         :key="app.installed_app_id"
         class="app-row column"
       >
-        <div class="row center">
-          <span class="app-title">{{ app.installed_app_id }}</span>
-          <span style="margin-left: 8px"
-            >{{ getStatus(app)
-            }}<span v-if="getReason(app)">: {{ getReason(app) }}</span></span
-          >
+        <mwc-card>
+          <div class="row" style="flex: 1; padding: 8px">
+            <div class="column" style="flex: 1">
+              <span class="app-title">{{ app.installed_app_id }}</span>
 
-          <mwc-button
-            v-if="isAppRunning(app)"
-            @click="$emit('openApp', app.installed_app_id)"
-            style="margin-left: 8px"
-            label="Open"
-          >
-          </mwc-button>
-          <mwc-button
-            v-if="!isAppDisabled(app)"
-            @click="disableApp(app.installed_app_id)"
-            style="margin-left: 8px"
-            label="Disable"
-          >
-          </mwc-button>
-          <mwc-button
-            v-if="isAppDisabled(app)"
-            @click="enableApp(app.installed_app_id)"
-            style="margin-left: 8px"
-            label="Enable"
-          >
-          </mwc-button>
-          <mwc-button
-            v-if="isAppPaused(app)"
-            @click="startApp(app.installed_app_id)"
-            style="margin-left: 8px"
-            label="Start"
-          >
-          </mwc-button>
-          <mwc-button
-            @click="uninstallApp(app.installed_app_id)"
-            style="margin-left: 8px"
-            label="Uninstall"
-          >
-          </mwc-button>
-        </div>
+              <div
+                class="cell-row row"
+                v-for="cellData in app.cell_data"
+                :key="[...cellData.cell_id[0], ...cellData.cell_id[1]]"
+                style="align-items: center"
+              >
+                <span>{{ cellData.cell_nick }}</span>
+                <span style="opacity: 0.7; margin-left: 8px">Dna Hash:</span
+                ><copyable-hash
+                  style="margin-left: 8px"
+                  :hash="serializeHash(cellData.cell_id[0])"
+                ></copyable-hash>
+              </div>
+            </div>
 
-        <div
-          class="cell-row row"
-          v-for="cellData in app.cell_data"
-          :key="[...cellData.cell_id[0], ...cellData.cell_id[1]]"
-        >
-          <span>Cell Nick: {{ cellData.cell_nick }}</span>
-          <span style="opacity: 0.6; margin-left: 8px"
-            >Dna: {{ serializeHash(cellData.cell_id[0]) }}</span
-          >
-        </div>
+            <div class="column">
+              <div class="row center">
+                <span style="margin-right: 8px; opacity: 0.7">Public Key:</span>
+                <copyable-hash
+                  :hash="serializeHash(app.cell_data[0].cell_id[1])"
+                  style="margin-right: 16px"
+                ></copyable-hash>
+
+                <sl-tag type="success" v-if="isAppRunning(app)">Running</sl-tag>
+                <sl-tag type="warning" v-if="isAppPaused(app)">Paused</sl-tag>
+                <sl-tag type="danger" v-if="isAppDisabled(app)"
+                  >Disabled</sl-tag
+                >
+              </div>
+              <span
+                v-if="getReason(app)"
+                style="align-self: end; margin-top: 8px"
+              >
+                {{ getReason(app) }}</span
+              >
+
+              <div class="row center" style="align-self: end; margin-top: 8px">
+                <mwc-button
+                  v-if="isAppRunning(app)"
+                  @click="$emit('openApp', app.installed_app_id)"
+                  style="margin-left: 8px"
+                  label="Open"
+                >
+                </mwc-button>
+                <mwc-button
+                  v-if="!isAppDisabled(app)"
+                  @click="disableApp(app.installed_app_id)"
+                  style="margin-left: 8px"
+                  label="Disable"
+                >
+                </mwc-button>
+                <mwc-button
+                  v-if="isAppDisabled(app)"
+                  @click="enableApp(app.installed_app_id)"
+                  style="margin-left: 8px"
+                  label="Enable"
+                >
+                </mwc-button>
+                <mwc-button
+                  v-if="isAppPaused(app)"
+                  @click="startApp(app.installed_app_id)"
+                  style="margin-left: 8px"
+                  label="Start"
+                >
+                </mwc-button>
+                <mwc-button
+                  @click="uninstallApp(app.installed_app_id)"
+                  style="margin-left: 8px"
+                  label="Uninstall"
+                >
+                </mwc-button>
+              </div>
+            </div>
+          </div>
+        </mwc-card>
       </div>
     </div>
   </div>
@@ -78,8 +108,7 @@ import { ActionTypes } from "@/store/actions";
 import { ADMIN_UI_MODULE } from "@/constants";
 import { deserializeHash, serializeHash } from "@holochain-open-dev/core-types";
 import { DisabledAppReason, InstalledAppInfo } from "@holochain/conductor-api";
-import "@material/mwc-button";
-import "@material/mwc-circular-progress";
+import "@shoelace-style/shoelace/dist/themes/light.css";
 
 export default defineComponent({
   name: "InstalledApps",
@@ -88,7 +117,7 @@ export default defineComponent({
       ADMIN_UI_MODULE,
     };
   },
-  emits: ["openApp", "appDisabled", "appEnabled", "appStarted", "uninstallApp"],
+  emits: ["openApp", "disableApp", "enableApp", "startApp", "uninstallApp"],
   created() {
     this.$store.dispatch(
       `${ADMIN_UI_MODULE}/${ActionTypes.fetchInstalledApps}`
@@ -106,11 +135,6 @@ export default defineComponent({
     isAppPaused(appInfo: InstalledAppInfo): boolean {
       return Object.keys(appInfo.status).includes("paused");
     },
-    getStatus(appInfo: InstalledAppInfo) {
-      if (this.isAppRunning(appInfo)) return "Running";
-      if (this.isAppDisabled(appInfo)) return "Disabled";
-      if (this.isAppPaused(appInfo)) return "Paused";
-    },
     getReason(appInfo: InstalledAppInfo): string | undefined {
       if (this.isAppRunning(appInfo)) return undefined;
       if (this.isAppDisabled(appInfo)) {
@@ -123,11 +147,11 @@ export default defineComponent({
         ).disabled.reason;
 
         if (Object.keys(reason).includes("never_started")) {
-          return "this app was never started";
+          return "This app was never started";
         } else if (Object.keys(reason).includes("user")) {
-          return "this app was disabled by the user";
+          return "This app was disabled by the user";
         } else {
-          return `there was an error with this app: ${
+          return `There was an error with this app: ${
             (
               reason as {
                 error: string;
@@ -142,26 +166,13 @@ export default defineComponent({
       }
     },
     async enableApp(appId: string) {
-      await this.$store.dispatch(
-        `${ADMIN_UI_MODULE}/${ActionTypes.enableApp}`,
-        appId
-      );
-      this.$emit("appEnabled", appId);
+      this.$emit("enableApp", appId);
     },
     async disableApp(appId: string) {
-      await this.$store.dispatch(
-        `${ADMIN_UI_MODULE}/${ActionTypes.disableApp}`,
-        appId
-      );
-
-      this.$emit("appDisabled", appId);
+      this.$emit("disableApp", appId);
     },
     async startApp(appId: string) {
-      await this.$store.dispatch(
-        `${ADMIN_UI_MODULE}/${ActionTypes.startApp}`,
-        appId
-      );
-      this.$emit("appStarted", appId);
+      this.$emit("startApp", appId);
     },
     async uninstallApp(appId: string) {
       this.$emit("uninstallApp", appId);
@@ -178,7 +189,6 @@ export default defineComponent({
 
 .app-title {
   font-size: 1.3em;
-  flex: 1;
 }
 
 .cell-row {
