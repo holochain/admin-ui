@@ -12,13 +12,13 @@
     "publish-to-branch": "npm run build && gh-pages -d ./ -b build"
   },
   "dependencies": {
+    "@authentic/mwc-card": "^0.9.0",
     "@holochain-open-dev/core-types": "0.1.1",
     "@holochain-playground/elements": "github:holochain-playground/elements#build",
     "@holochain/conductor-api": "0.2.0",
     "@material/mwc-button": "^0.23.0",
     "@material/mwc-circular-progress": "^0.23.0",
     "@msgpack/msgpack": "^2.7.0",
-    "@scoped-elements/shoelace": "^0.0.4",
     "@shoelace-style/shoelace": "^2.0.0-beta.51",
     "core-js": "^3.6.5",
     "fflate": "^0.7.0",

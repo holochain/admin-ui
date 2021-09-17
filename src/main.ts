@@ -4,16 +4,12 @@ import App from "./App.vue";
 import { AdminWebsocket, AppWebsocket } from "@holochain/conductor-api";
 import HcAdminPlugin from "./lib";
 import { CopyableHash } from "@holochain-playground/elements";
-import { Card, Button, CircularProgress } from "@scoped-elements/material-web";
-import { SlTag } from "@scoped-elements/shoelace";
-
-customElements.define("copyable-hash", CopyableHash);
-customElements.define("mwc-button", Button);
-customElements.define("mwc-card", Card);
-customElements.define("mwc-circular-progress", CircularProgress);
-console.log("sl-tag", SlTag);
+import "@material/mwc-button";
+import "@authentic/mwc-card";
+import "@material/mwc-circular-progress";
 
 async function setup() {
+  customElements.define("copyable-hash", CopyableHash);
   const adminWebsocket = await AdminWebsocket.connect(`ws://localhost:8889`);
 
   const appWebsocket = await connectAppWebsocket(adminWebsocket);
