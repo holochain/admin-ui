@@ -32,7 +32,7 @@
             <div style="flex: 1; display: flex; flex-direction: column">
               <span style="font-size: 1.3em">{{ app.installed_app_id }}</span>
 
-              <table>
+              <table style="width: 600px; text-align: left; margin-top: 12px">
                 <tr>
                   <th>Cell Nick</th>
                   <th>Dna Hash</th>
@@ -47,10 +47,9 @@
                     <span>{{ cellData.cell_nick }}</span>
                   </td>
                   <td>
-                    <copyable-hash
-                      style="margin-left: 8px"
-                      :hash="serializeHash(cellData.cell_id[0])"
-                    ></copyable-hash>
+                    <span style="opacity: 0.7">{{
+                      serializeHash(cellData.cell_id[0])
+                    }}</span>
                   </td>
                 </tr>
               </table>
@@ -71,11 +70,12 @@
                   justify-content: center;
                 "
               >
-                <span style="margin-right: 8px; opacity: 0.7">Public Key:</span>
-                <copyable-hash
-                  :hash="serializeHash(app.cell_data[0].cell_id[1])"
-                  style="margin-right: 16px"
-                ></copyable-hash>
+                <span style="margin-right: 8px; opacity: 0.9"
+                  >Your Public Key:</span
+                >
+                <span style="margin-right: 16px; opacity: 0.7">{{
+                  serializeHash(cellData.cell_id[1])
+                }}</span>
 
                 <sl-tag type="success" v-if="isAppRunning(app)">Running</sl-tag>
                 <sl-tag type="warning" v-if="isAppPaused(app)">Paused</sl-tag>
@@ -83,12 +83,14 @@
                   >Disabled</sl-tag
                 >
               </div>
-              <span
-                v-if="getReason(app)"
-                style="margin-top: 8px; max-width: 600px"
-              >
-                {{ getReason(app) }}</span
-              >
+              <div style="flex: 1">
+                <span
+                  v-if="getReason(app)"
+                  style="margin-top: 8px; max-width: 600px"
+                >
+                  {{ getReason(app) }}</span
+                >
+              </div>
 
               <div
                 style="
@@ -111,7 +113,7 @@
                 <mwc-button
                   v-if="!isAppDisabled(app)"
                   @click="disableApp(app.installed_app_id)"
-                  style="margin-left: 8px;"
+                  style="margin-left: 8px"
                   label="Disable"
                   icon="archive"
                 >
@@ -119,7 +121,7 @@
                 <mwc-button
                   v-if="isAppDisabled(app)"
                   @click="enableApp(app.installed_app_id)"
-                  style="margin-left: 8px;"
+                  style="margin-left: 8px"
                   label="Enable"
                   icon="unarchive"
                 >
@@ -127,7 +129,7 @@
                 <mwc-button
                   v-if="isAppPaused(app)"
                   @click="startApp(app.installed_app_id)"
-                  style="margin-left: 8px;"
+                  style="margin-left: 8px"
                   label="Start"
                   icon="play_arrow"
                 >
@@ -136,7 +138,7 @@
                 <mwc-button
                   v-if="isAppRunning(app)"
                   @click="$emit('openApp', app.installed_app_id)"
-                  style="margin-left: 8px;"
+                  style="margin-left: 8px"
                   label="Open"
                   icon="launch"
                 >

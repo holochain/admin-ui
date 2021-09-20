@@ -8,9 +8,6 @@ import { ActionTypes } from "./store/actions";
 import "@material/mwc-button";
 import "@authentic/mwc-card";
 import "@material/mwc-circular-progress";
-import "@material/mwc-snackbar";
-
-import { CopyableHash } from "./components/copyable-hash";
 
 export default {
   ActionTypes: ActionTypes,
@@ -23,7 +20,6 @@ export default {
       store: Store<any>;
     }
   ) {
-    customElements.define("copyable-hash", CopyableHash);
     if (!options.adminWebsocket)
       throw new Error(
         `Failed to load the plugin: no "adminWebsocket" was provided in the plugin options`
