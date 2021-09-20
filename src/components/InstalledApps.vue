@@ -6,8 +6,8 @@
     <mwc-circular-progress></mwc-circular-progress>
   </div>
   <div v-else>
-    <div class="column">
-      <span class="title" style="margin-bottom: 16px">Installed apps</span>
+    <div style="display: flex; flex-direction: column">
+      <span style="margin-bottom: 16px; font-size: 1.5em">Installed apps</span>
       <span v-if="$store.getters[`${ADMIN_UI_MODULE}/allApps`].length === 0"
         >You don't have any apps installed yet</span
       >
@@ -15,18 +15,24 @@
         v-else
         v-for="app in $store.getters[`${ADMIN_UI_MODULE}/allApps`]"
         :key="app.installed_app_id"
-        class="app-row column"
+        style="display: flex; flex-direction: column; margin-bottom: 16px"
       >
         <mwc-card style="width: auto">
-          <div class="row" style="flex: 1; padding: 8px">
-            <div class="column" style="flex: 1">
-              <span class="app-title">{{ app.installed_app_id }}</span>
+          <div
+            style="display: flex; flex-direction: row; flex: 1; padding: 8px"
+          >
+            <div style="flex: 1; display: flex; flex-direction: column">
+              <span style="font-size: 1.3em">{{ app.installed_app_id }}</span>
 
               <div
-                class="cell-row row"
+                style="
+                  margin-top: 8px;
+                  display: flex;
+                  flex-direction: row;
+                  align-items: center;
+                "
                 v-for="cellData in app.cell_data"
                 :key="[...cellData.cell_id[0], ...cellData.cell_id[1]]"
-                style="align-items: center"
               >
                 <span>{{ cellData.cell_nick }}</span>
                 <span style="opacity: 0.7; margin-left: 8px">Dna Hash:</span
@@ -37,8 +43,15 @@
               </div>
             </div>
 
-            <div class="column">
-              <div class="row center">
+            <div style="display: flex; flex-direction: column">
+              <div
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  justify-content: center;
+                "
+              >
                 <span style="margin-right: 8px; opacity: 0.7">Public Key:</span>
                 <copyable-hash
                   :hash="serializeHash(app.cell_data[0].cell_id[1])"
@@ -58,7 +71,16 @@
                 {{ getReason(app) }}</span
               >
 
-              <div class="row center" style="align-self: end; margin-top: 8px">
+              <div
+                style="
+                  display: flex;
+                  flex-direction: row;
+                  align-items: center;
+                  justify-content: center;
+                  align-self: end;
+                  margin-top: 8px;
+                "
+              >
                 <mwc-button
                   v-if="isAppRunning(app)"
                   @click="$emit('openApp', app.installed_app_id)"
@@ -181,37 +203,4 @@ export default defineComponent({
   },
 });
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-.app-row {
-  margin-bottom: 16px;
-}
-
-.app-title {
-  font-size: 1.3em;
-}
-
-.cell-row {
-  margin-top: 8px;
-}
-
-.column {
-  display: flex;
-  flex-direction: column;
-}
-
-.title {
-  font-size: 1.5em;
-}
-
-.row {
-  display: flex;
-  flex-direction: row;
-}
-
-.center {
-  align-items: center;
-  justify-content: center;
-}
-</style>
+<!-- We don't have scoped styles with classes because it becomes harder to export a reusable library -->

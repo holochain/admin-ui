@@ -1,4 +1,4 @@
-import { defineComponent, pushScopeId, popScopeId, resolveComponent, openBlock, createElementBlock, createVNode, createElementVNode, Fragment, renderList, withCtx, toDisplayString, createBlock, createCommentVNode, createTextVNode } from 'vue';
+import { defineComponent, resolveComponent, openBlock, createElementBlock, createVNode, createElementVNode, Fragment, renderList, withCtx, toDisplayString, createBlock, createCommentVNode, createTextVNode } from 'vue';
 import { deserializeHash, serializeHash } from '@holochain-open-dev/core-types';
 import '@shoelace-style/shoelace/dist/themes/light.css';
 import '@shoelace-style/shoelace/dist/components/tag/tag.js';
@@ -102,30 +102,20 @@ var script = defineComponent({
     },
 });
 
-pushScopeId("data-v-5dfcc70c");
 const _hoisted_1 = {
   key: 0,
   style: {"flex":"1","display":"flex","align-items":"center","justify-content":"center"}
 };
 const _hoisted_2 = { key: 1 };
-const _hoisted_3 = { class: "column" };
-const _hoisted_4 = /*#__PURE__*/createElementVNode("span", {
-  class: "title",
-  style: {"margin-bottom":"16px"}
-}, "Installed apps", -1 /* HOISTED */);
+const _hoisted_3 = { style: {"display":"flex","flex-direction":"column"} };
+const _hoisted_4 = /*#__PURE__*/createElementVNode("span", { style: {"margin-bottom":"16px","font-size":"1.5em"} }, "Installed apps", -1 /* HOISTED */);
 const _hoisted_5 = { key: 0 };
-const _hoisted_6 = {
-  class: "row",
-  style: {"flex":"1","padding":"8px"}
-};
-const _hoisted_7 = {
-  class: "column",
-  style: {"flex":"1"}
-};
-const _hoisted_8 = { class: "app-title" };
+const _hoisted_6 = { style: {"display":"flex","flex-direction":"row","flex":"1","padding":"8px"} };
+const _hoisted_7 = { style: {"flex":"1","display":"flex","flex-direction":"column"} };
+const _hoisted_8 = { style: {"font-size":"1.3em"} };
 const _hoisted_9 = /*#__PURE__*/createElementVNode("span", { style: {"opacity":"0.7","margin-left":"8px"} }, "Dna Hash:", -1 /* HOISTED */);
-const _hoisted_10 = { class: "column" };
-const _hoisted_11 = { class: "row center" };
+const _hoisted_10 = { style: {"display":"flex","flex-direction":"column"} };
+const _hoisted_11 = { style: {"display":"flex","flex-direction":"column","align-items":"center","justify-content":"center"} };
 const _hoisted_12 = /*#__PURE__*/createElementVNode("span", { style: {"margin-right":"8px","opacity":"0.7"} }, "Public Key:", -1 /* HOISTED */);
 const _hoisted_13 = /*#__PURE__*/createTextVNode("Running");
 const _hoisted_14 = /*#__PURE__*/createTextVNode("Paused");
@@ -134,11 +124,7 @@ const _hoisted_16 = {
   key: 0,
   style: {"align-self":"end","margin-top":"8px"}
 };
-const _hoisted_17 = {
-  class: "row center",
-  style: {"align-self":"end","margin-top":"8px"}
-};
-popScopeId();
+const _hoisted_17 = { style: {"display":"flex","flex-direction":"row","align-items":"center","justify-content":"center","align-self":"end","margin-top":"8px"} };
 
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   const _component_mwc_circular_progress = resolveComponent("mwc-circular-progress");
@@ -159,7 +145,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
             : (openBlock(true), createElementBlock(Fragment, { key: 1 }, renderList(_ctx.$store.getters[`${_ctx.ADMIN_UI_MODULE}/allApps`], (app) => {
                 return (openBlock(), createElementBlock("div", {
                   key: app.installed_app_id,
-                  class: "app-row column"
+                  style: {"display":"flex","flex-direction":"column","margin-bottom":"16px"}
                 }, [
                   createVNode(_component_mwc_card, { style: {"width":"auto"} }, {
                     default: withCtx(() => [
@@ -168,9 +154,8 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                           createElementVNode("span", _hoisted_8, toDisplayString(app.installed_app_id), 1 /* TEXT */),
                           (openBlock(true), createElementBlock(Fragment, null, renderList(app.cell_data, (cellData) => {
                             return (openBlock(), createElementBlock("div", {
-                              class: "cell-row row",
-                              key: [...cellData.cell_id[0], ...cellData.cell_id[1]],
-                              style: {"align-items":"center"}
+                              style: {"margin-top":"8px","display":"flex","flex-direction":"row","align-items":"center"},
+                              key: [...cellData.cell_id[0], ...cellData.cell_id[1]]
                             }, [
                               createElementVNode("span", null, toDisplayString(cellData.cell_nick), 1 /* TEXT */),
                               _hoisted_9,
@@ -276,7 +261,6 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
 }
 
 script.render = render;
-script.__scopeId = "data-v-5dfcc70c";
 script.__file = "src/components/InstalledApps.vue";
 
 function hcAdminVuexModule(adminWebsocket, appWebsocket) {
