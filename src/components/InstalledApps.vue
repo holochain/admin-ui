@@ -32,7 +32,7 @@
             <div style="flex: 1; display: flex; flex-direction: column">
               <span style="font-size: 1.3em">{{ app.installed_app_id }}</span>
 
-              <table style="width: 600px; text-align: left; margin-top: 12px">
+              <table style="width: 350px; text-align: left; margin-top: 12px">
                 <tr>
                   <th>Cell Nick</th>
                   <th>Dna Hash</th>

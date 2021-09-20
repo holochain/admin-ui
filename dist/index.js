@@ -125,7 +125,7 @@ const _hoisted_10 = { style: {"width":"auto"} };
 const _hoisted_11 = { style: {"display":"flex","flex-direction":"row","flex":"1","padding":"8px"} };
 const _hoisted_12 = { style: {"flex":"1","display":"flex","flex-direction":"column"} };
 const _hoisted_13 = { style: {"font-size":"1.3em"} };
-const _hoisted_14 = { style: {"width":"600px","text-align":"left","margin-top":"12px"} };
+const _hoisted_14 = { style: {"width":"350px","text-align":"left","margin-top":"12px"} };
 const _hoisted_15 = /*#__PURE__*/createElementVNode("tr", null, [
   /*#__PURE__*/createElementVNode("th", null, "Cell Nick"),
   /*#__PURE__*/createElementVNode("th", null, "Dna Hash")
