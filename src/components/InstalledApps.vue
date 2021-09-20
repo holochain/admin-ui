@@ -96,7 +96,7 @@
               >
                 <mwc-button
                   @click="uninstallApp(app.installed_app_id)"
-                  style="margin-left: 8px; --mdc-theme-primary: #000000"
+                  style="margin-left: 8px; --mdc-theme-primary: rgb(111,111,111)"
                   label="Uninstall"
                   icon="delete"
                 >
@@ -105,7 +105,7 @@
                 <mwc-button
                   v-if="!isAppDisabled(app)"
                   @click="disableApp(app.installed_app_id)"
-                  style="margin-left: 8px; --mdc-theme-primary: #000000"
+                  style="margin-left: 8px; --mdc-theme-primary: rgb(111,111,111)"
                   label="Disable"
                   icon="archive"
                 >
@@ -113,7 +113,7 @@
                 <mwc-button
                   v-if="isAppDisabled(app)"
                   @click="enableApp(app.installed_app_id)"
-                  style="margin-left: 8px; --mdc-theme-primary: #000000"
+                  style="margin-left: 8px; --mdc-theme-primary: rgb(111,111,111)"
                   label="Enable"
                   icon="unarchive"
                 >
@@ -121,7 +121,7 @@
                 <mwc-button
                   v-if="isAppPaused(app)"
                   @click="startApp(app.installed_app_id)"
-                  style="margin-left: 8px; --mdc-theme-primary: #000000"
+                  style="margin-left: 8px; --mdc-theme-primary: rgb(111,111,111)"
                   label="Start"
                   icon="play_arrow"
                 >
@@ -130,7 +130,7 @@
                 <mwc-button
                   v-if="isAppRunning(app)"
                   @click="$emit('openApp', app.installed_app_id)"
-                  style="margin-left: 8px; --mdc-theme-primary: #000000"
+                  style="margin-left: 8px; --mdc-theme-primary: rgb(111,111,111)"
                   label="Open"
                   icon="launch"
                 >
