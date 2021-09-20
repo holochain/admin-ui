@@ -17,7 +17,9 @@
           justify-content: center;
         "
       >
-        <span style="margin-top: 160px;">You don't have any apps installed yet</span>
+        <span style="margin-top: 160px"
+          >You don't have any apps installed yet</span
+        >
       </div>
       <div
         v-else
@@ -92,11 +94,8 @@
                   >Disabled</sl-tag
                 >
               </div>
-              <div style="flex: 1; margin-top: 12px;">
-                <span
-                  v-if="getReason(app)"
-                  style="max-width: 600px"
-                >
+              <div style="flex: 1; margin-top: 12px">
+                <span v-if="getReason(app)" style="max-width: 600px">
                   {{ getReason(app) }}</span
                 >
               </div>
