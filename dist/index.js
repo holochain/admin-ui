@@ -221,7 +221,6 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                             onClick: $event => (_ctx.uninstallApp(app.installed_app_id)),
                             style: {"margin-left":"8px","--mdc-theme-primary":"#fc0303"},
                             label: "Uninstall",
-                            raised: "",
                             icon: "delete"
                           }, null, 8 /* PROPS */, _hoisted_25),
                           (!_ctx.isAppDisabled(app))
@@ -230,7 +229,6 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                 onClick: $event => (_ctx.disableApp(app.installed_app_id)),
                                 style: {"margin-left":"8px","--mdc-theme-primary":"#fcf403"},
                                 label: "Disable",
-                                raised: "",
                                 icon: "archive"
                               }, null, 8 /* PROPS */, _hoisted_26))
                             : createCommentVNode("v-if", true),
@@ -240,7 +238,6 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                 onClick: $event => (_ctx.enableApp(app.installed_app_id)),
                                 style: {"margin-left":"8px","--mdc-theme-primary":"#3dfc03"},
                                 label: "Enable",
-                                raised: "",
                                 icon: "unarchive"
                               }, null, 8 /* PROPS */, _hoisted_27))
                             : createCommentVNode("v-if", true),
@@ -250,7 +247,6 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                 onClick: $event => (_ctx.startApp(app.installed_app_id)),
                                 style: {"margin-left":"8px","--mdc-theme-primary":"#3dfc03"},
                                 label: "Start",
-                                raised: "",
                                 icon: "play_arrow"
                               }, null, 8 /* PROPS */, _hoisted_28))
                             : createCommentVNode("v-if", true),
@@ -260,7 +256,6 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                 onClick: $event => (_ctx.$emit('openApp', app.installed_app_id)),
                                 style: {"margin-left":"8px"},
                                 label: "Open",
-                                raised: "",
                                 icon: "launch"
                               }, null, 8 /* PROPS */, _hoisted_29))
                             : createCommentVNode("v-if", true)

@@ -98,7 +98,6 @@
                   @click="uninstallApp(app.installed_app_id)"
                   style="margin-left: 8px; --mdc-theme-primary: #fc0303"
                   label="Uninstall"
-                  raised
                   icon="delete"
                 >
                 </mwc-button>
@@ -108,7 +107,6 @@
                   @click="disableApp(app.installed_app_id)"
                   style="margin-left: 8px; --mdc-theme-primary: #fcf403"
                   label="Disable"
-                  raised
                   icon="archive"
                 >
                 </mwc-button>
@@ -117,7 +115,6 @@
                   @click="enableApp(app.installed_app_id)"
                   style="margin-left: 8px; --mdc-theme-primary: #3dfc03"
                   label="Enable"
-                  raised
                   icon="unarchive"
                 >
                 </mwc-button>
@@ -126,7 +123,6 @@
                   @click="startApp(app.installed_app_id)"
                   style="margin-left: 8px; --mdc-theme-primary: #3dfc03"
                   label="Start"
-                  raised
                   icon="play_arrow"
                 >
                 </mwc-button>
@@ -136,7 +132,6 @@
                   @click="$emit('openApp', app.installed_app_id)"
                   style="margin-left: 8px"
                   label="Open"
-                  raised
                   icon="launch"
                 >
                 </mwc-button>
