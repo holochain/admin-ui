@@ -219,7 +219,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                         createElementVNode("div", _hoisted_24, [
                           createElementVNode("mwc-button", {
                             onClick: $event => (_ctx.uninstallApp(app.installed_app_id)),
-                            style: {"margin-left":"8px"},
+                            style: {"margin-left":"8px","--mdc-theme-primary":"#000000"},
                             label: "Uninstall",
                             icon: "delete"
                           }, null, 8 /* PROPS */, _hoisted_25),
@@ -227,7 +227,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                             ? (openBlock(), createElementBlock("mwc-button", {
                                 key: 0,
                                 onClick: $event => (_ctx.disableApp(app.installed_app_id)),
-                                style: {"margin-left":"8px"},
+                                style: {"margin-left":"8px","--mdc-theme-primary":"#000000"},
                                 label: "Disable",
                                 icon: "archive"
                               }, null, 8 /* PROPS */, _hoisted_26))
@@ -236,7 +236,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                             ? (openBlock(), createElementBlock("mwc-button", {
                                 key: 1,
                                 onClick: $event => (_ctx.enableApp(app.installed_app_id)),
-                                style: {"margin-left":"8px"},
+                                style: {"margin-left":"8px","--mdc-theme-primary":"#000000"},
                                 label: "Enable",
                                 icon: "unarchive"
                               }, null, 8 /* PROPS */, _hoisted_27))
@@ -245,7 +245,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                             ? (openBlock(), createElementBlock("mwc-button", {
                                 key: 2,
                                 onClick: $event => (_ctx.startApp(app.installed_app_id)),
-                                style: {"margin-left":"8px"},
+                                style: {"margin-left":"8px","--mdc-theme-primary":"#000000"},
                                 label: "Start",
                                 icon: "play_arrow"
                               }, null, 8 /* PROPS */, _hoisted_28))
@@ -254,7 +254,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                             ? (openBlock(), createElementBlock("mwc-button", {
                                 key: 3,
                                 onClick: $event => (_ctx.$emit('openApp', app.installed_app_id)),
-                                style: {"margin-left":"8px"},
+                                style: {"margin-left":"8px","--mdc-theme-primary":"#000000"},
                                 label: "Open",
                                 icon: "launch"
                               }, null, 8 /* PROPS */, _hoisted_29))
