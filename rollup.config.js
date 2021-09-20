@@ -11,5 +11,17 @@ export default {
     dir: "dist",
   },
   external: [...Object.keys(pkg.dependencies)],
-  plugins: [typescript({}), css({}), vue({})],
+  plugins: [
+    typescript({}),
+    css({}),
+    vue({
+      compilerOptions: {
+        // treat any tag that starts with ion- as custom elements
+        isCustomElement: (tag) =>
+          tag.startsWith("copyable-") ||
+          tag.startsWith("mwc-") ||
+          tag.startsWith("sl-"),
+      },
+    }),
+  ],
 };

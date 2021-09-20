@@ -1,4 +1,4 @@
-import { defineComponent, resolveComponent, openBlock, createElementBlock, createVNode, createElementVNode, Fragment, renderList, withCtx, toDisplayString, createBlock, createCommentVNode, createTextVNode } from 'vue';
+import { defineComponent, openBlock, createElementBlock, createElementVNode, Fragment, renderList, toDisplayString, createCommentVNode } from 'vue';
 import { deserializeHash, serializeHash } from '@holochain-open-dev/core-types';
 import '@shoelace-style/shoelace/dist/themes/light.css';
 import '@shoelace-style/shoelace/dist/components/tag/tag.js';
@@ -117,171 +117,157 @@ const _hoisted_1 = {
   key: 0,
   style: {"flex":"1","display":"flex","align-items":"center","justify-content":"center"}
 };
-const _hoisted_2 = { key: 1 };
-const _hoisted_3 = { style: {"display":"flex","flex":"1","flex-direction":"column"} };
-const _hoisted_4 = /*#__PURE__*/createElementVNode("span", { style: {"margin-bottom":"16px","font-size":"1.5em"} }, "Installed apps", -1 /* HOISTED */);
-const _hoisted_5 = {
+const _hoisted_2 = /*#__PURE__*/createElementVNode("mwc-circular-progress", { indeterminate: "" }, null, -1 /* HOISTED */);
+const _hoisted_3 = [
+  _hoisted_2
+];
+const _hoisted_4 = { key: 1 };
+const _hoisted_5 = { style: {"display":"flex","flex":"1","flex-direction":"column"} };
+const _hoisted_6 = /*#__PURE__*/createElementVNode("span", { style: {"margin-bottom":"16px","font-size":"1.5em"} }, "Installed apps", -1 /* HOISTED */);
+const _hoisted_7 = {
   key: 0,
   style: {"flex":"1","display":"flex","align-items":"center","justify-content":"center"}
 };
-const _hoisted_6 = /*#__PURE__*/createElementVNode("span", null, "You don't have any apps installed yet", -1 /* HOISTED */);
-const _hoisted_7 = [
-  _hoisted_6
+const _hoisted_8 = /*#__PURE__*/createElementVNode("span", null, "You don't have any apps installed yet", -1 /* HOISTED */);
+const _hoisted_9 = [
+  _hoisted_8
 ];
-const _hoisted_8 = { style: {"display":"flex","flex-direction":"row","flex":"1","padding":"8px"} };
-const _hoisted_9 = { style: {"flex":"1","display":"flex","flex-direction":"column"} };
-const _hoisted_10 = { style: {"font-size":"1.3em"} };
-const _hoisted_11 = /*#__PURE__*/createElementVNode("span", { style: {"opacity":"0.7","margin-left":"8px"} }, "Dna Hash:", -1 /* HOISTED */);
-const _hoisted_12 = { style: {"display":"flex","flex-direction":"column","align-items":"flex-end"} };
-const _hoisted_13 = { style: {"display":"flex","flex-direction":"row","align-items":"center","justify-content":"center"} };
-const _hoisted_14 = /*#__PURE__*/createElementVNode("span", { style: {"margin-right":"8px","opacity":"0.7"} }, "Public Key:", -1 /* HOISTED */);
-const _hoisted_15 = /*#__PURE__*/createTextVNode("Running");
-const _hoisted_16 = /*#__PURE__*/createTextVNode("Paused");
-const _hoisted_17 = /*#__PURE__*/createTextVNode("Disabled");
-const _hoisted_18 = {
+const _hoisted_10 = { style: {"width":"auto"} };
+const _hoisted_11 = { style: {"display":"flex","flex-direction":"row","flex":"1","padding":"8px"} };
+const _hoisted_12 = { style: {"flex":"1","display":"flex","flex-direction":"column"} };
+const _hoisted_13 = { style: {"font-size":"1.3em"} };
+const _hoisted_14 = /*#__PURE__*/createElementVNode("span", { style: {"opacity":"0.7","margin-left":"8px"} }, "Dna Hash:", -1 /* HOISTED */);
+const _hoisted_15 = ["hash"];
+const _hoisted_16 = { style: {"display":"flex","flex-direction":"column","align-items":"flex-end"} };
+const _hoisted_17 = { style: {"display":"flex","flex-direction":"row","align-items":"center","justify-content":"center"} };
+const _hoisted_18 = /*#__PURE__*/createElementVNode("span", { style: {"margin-right":"8px","opacity":"0.7"} }, "Public Key:", -1 /* HOISTED */);
+const _hoisted_19 = ["hash"];
+const _hoisted_20 = {
+  key: 0,
+  type: "success"
+};
+const _hoisted_21 = {
+  key: 1,
+  type: "warning"
+};
+const _hoisted_22 = {
+  key: 2,
+  type: "danger"
+};
+const _hoisted_23 = {
   key: 0,
   style: {"margin-top":"8px","max-width":"600px"}
 };
-const _hoisted_19 = { style: {"display":"flex","flex-direction":"row","align-items":"center","justify-content":"center","margin-top":"8px"} };
+const _hoisted_24 = { style: {"display":"flex","flex-direction":"row","align-items":"center","justify-content":"center","margin-top":"8px"} };
+const _hoisted_25 = ["onClick"];
+const _hoisted_26 = ["onClick"];
+const _hoisted_27 = ["onClick"];
+const _hoisted_28 = ["onClick"];
+const _hoisted_29 = ["onClick"];
 
 function render(_ctx, _cache, $props, $setup, $data, $options) {
-  const _component_mwc_circular_progress = resolveComponent("mwc-circular-progress");
-  const _component_copyable_hash = resolveComponent("copyable-hash");
-  const _component_sl_tag = resolveComponent("sl-tag");
-  const _component_mwc_button = resolveComponent("mwc-button");
-  const _component_mwc_card = resolveComponent("mwc-card");
-
   return (_ctx.$store.state.admin.installedApps.loading)
-    ? (openBlock(), createElementBlock("div", _hoisted_1, [
-        createVNode(_component_mwc_circular_progress, { indeterminate: "" })
-      ]))
-    : (openBlock(), createElementBlock("div", _hoisted_2, [
-        createElementVNode("div", _hoisted_3, [
-          _hoisted_4,
+    ? (openBlock(), createElementBlock("div", _hoisted_1, _hoisted_3))
+    : (openBlock(), createElementBlock("div", _hoisted_4, [
+        createElementVNode("div", _hoisted_5, [
+          _hoisted_6,
           (_ctx.$store.getters[`${_ctx.ADMIN_UI_MODULE}/allApps`].length === 0)
-            ? (openBlock(), createElementBlock("div", _hoisted_5, _hoisted_7))
+            ? (openBlock(), createElementBlock("div", _hoisted_7, _hoisted_9))
             : (openBlock(true), createElementBlock(Fragment, { key: 1 }, renderList(_ctx.$store.getters[`${_ctx.ADMIN_UI_MODULE}/allApps`], (app) => {
                 return (openBlock(), createElementBlock("div", {
                   key: app.installed_app_id,
                   style: {"display":"flex","flex-direction":"column","margin-bottom":"16px"}
                 }, [
-                  createVNode(_component_mwc_card, { style: {"width":"auto"} }, {
-                    default: withCtx(() => [
-                      createElementVNode("div", _hoisted_8, [
-                        createElementVNode("div", _hoisted_9, [
-                          createElementVNode("span", _hoisted_10, toDisplayString(app.installed_app_id), 1 /* TEXT */),
-                          (openBlock(true), createElementBlock(Fragment, null, renderList(app.cell_data, (cellData) => {
-                            return (openBlock(), createElementBlock("div", {
-                              style: {"margin-top":"8px","display":"flex","flex-direction":"row","align-items":"center"},
-                              key: [...cellData.cell_id[0], ...cellData.cell_id[1]]
-                            }, [
-                              createElementVNode("span", null, toDisplayString(cellData.cell_nick), 1 /* TEXT */),
-                              _hoisted_11,
-                              createVNode(_component_copyable_hash, {
-                                style: {"margin-left":"8px"},
-                                hash: _ctx.serializeHash(cellData.cell_id[0])
-                              }, null, 8 /* PROPS */, ["hash"])
-                            ]))
-                          }), 128 /* KEYED_FRAGMENT */))
-                        ]),
-                        createElementVNode("div", _hoisted_12, [
-                          createElementVNode("div", _hoisted_13, [
+                  createElementVNode("mwc-card", _hoisted_10, [
+                    createElementVNode("div", _hoisted_11, [
+                      createElementVNode("div", _hoisted_12, [
+                        createElementVNode("span", _hoisted_13, toDisplayString(app.installed_app_id), 1 /* TEXT */),
+                        (openBlock(true), createElementBlock(Fragment, null, renderList(app.cell_data, (cellData) => {
+                          return (openBlock(), createElementBlock("div", {
+                            style: {"margin-top":"8px","display":"flex","flex-direction":"row","align-items":"center"},
+                            key: [...cellData.cell_id[0], ...cellData.cell_id[1]]
+                          }, [
+                            createElementVNode("span", null, toDisplayString(cellData.cell_nick), 1 /* TEXT */),
                             _hoisted_14,
-                            createVNode(_component_copyable_hash, {
-                              hash: _ctx.serializeHash(app.cell_data[0].cell_id[1]),
-                              style: {"margin-right":"16px"}
-                            }, null, 8 /* PROPS */, ["hash"]),
-                            (_ctx.isAppRunning(app))
-                              ? (openBlock(), createBlock(_component_sl_tag, {
-                                  key: 0,
-                                  type: "success"
-                                }, {
-                                  default: withCtx(() => [
-                                    _hoisted_15
-                                  ]),
-                                  _: 1 /* STABLE */
-                                }))
-                              : createCommentVNode("v-if", true),
-                            (_ctx.isAppPaused(app))
-                              ? (openBlock(), createBlock(_component_sl_tag, {
-                                  key: 1,
-                                  type: "warning"
-                                }, {
-                                  default: withCtx(() => [
-                                    _hoisted_16
-                                  ]),
-                                  _: 1 /* STABLE */
-                                }))
-                              : createCommentVNode("v-if", true),
-                            (_ctx.isAppDisabled(app))
-                              ? (openBlock(), createBlock(_component_sl_tag, {
-                                  key: 2,
-                                  type: "danger"
-                                }, {
-                                  default: withCtx(() => [
-                                    _hoisted_17
-                                  ]),
-                                  _: 1 /* STABLE */
-                                }))
-                              : createCommentVNode("v-if", true)
-                          ]),
-                          (_ctx.getReason(app))
-                            ? (openBlock(), createElementBlock("span", _hoisted_18, toDisplayString(_ctx.getReason(app)), 1 /* TEXT */))
+                            createElementVNode("copyable-hash", {
+                              style: {"margin-left":"8px"},
+                              hash: _ctx.serializeHash(cellData.cell_id[0])
+                            }, null, 8 /* PROPS */, _hoisted_15)
+                          ]))
+                        }), 128 /* KEYED_FRAGMENT */))
+                      ]),
+                      createElementVNode("div", _hoisted_16, [
+                        createElementVNode("div", _hoisted_17, [
+                          _hoisted_18,
+                          createElementVNode("copyable-hash", {
+                            hash: _ctx.serializeHash(app.cell_data[0].cell_id[1]),
+                            style: {"margin-right":"16px"}
+                          }, null, 8 /* PROPS */, _hoisted_19),
+                          (_ctx.isAppRunning(app))
+                            ? (openBlock(), createElementBlock("sl-tag", _hoisted_20, "Running"))
                             : createCommentVNode("v-if", true),
-                          createElementVNode("div", _hoisted_19, [
-                            createVNode(_component_mwc_button, {
-                              onClick: $event => (_ctx.uninstallApp(app.installed_app_id)),
-                              style: {"margin-left":"8px","--mdc-theme-primary":"#fc0303"},
-                              label: "Uninstall",
-                              raised: "",
-                              icon: "delete"
-                            }, null, 8 /* PROPS */, ["onClick"]),
-                            (!_ctx.isAppDisabled(app))
-                              ? (openBlock(), createBlock(_component_mwc_button, {
-                                  key: 0,
-                                  onClick: $event => (_ctx.disableApp(app.installed_app_id)),
-                                  style: {"margin-left":"8px","--mdc-theme-primary":"#fcf403"},
-                                  label: "Disable",
-                                  raised: "",
-                                  icon: "archive"
-                                }, null, 8 /* PROPS */, ["onClick"]))
-                              : createCommentVNode("v-if", true),
-                            (_ctx.isAppDisabled(app))
-                              ? (openBlock(), createBlock(_component_mwc_button, {
-                                  key: 1,
-                                  onClick: $event => (_ctx.enableApp(app.installed_app_id)),
-                                  style: {"margin-left":"8px","--mdc-theme-primary":"#3dfc03"},
-                                  label: "Enable",
-                                  raised: "",
-                                  icon: "unarchive"
-                                }, null, 8 /* PROPS */, ["onClick"]))
-                              : createCommentVNode("v-if", true),
-                            (_ctx.isAppPaused(app))
-                              ? (openBlock(), createBlock(_component_mwc_button, {
-                                  key: 2,
-                                  onClick: $event => (_ctx.startApp(app.installed_app_id)),
-                                  style: {"margin-left":"8px","--mdc-theme-primary":"#3dfc03"},
-                                  label: "Start",
-                                  raised: "",
-                                  icon: "play_arrow"
-                                }, null, 8 /* PROPS */, ["onClick"]))
-                              : createCommentVNode("v-if", true),
-                            (_ctx.isAppRunning(app))
-                              ? (openBlock(), createBlock(_component_mwc_button, {
-                                  key: 3,
-                                  onClick: $event => (_ctx.$emit('openApp', app.installed_app_id)),
-                                  style: {"margin-left":"8px"},
-                                  label: "Open",
-                                  raised: "",
-                                  icon: "launch"
-                                }, null, 8 /* PROPS */, ["onClick"]))
-                              : createCommentVNode("v-if", true)
-                          ])
+                          (_ctx.isAppPaused(app))
+                            ? (openBlock(), createElementBlock("sl-tag", _hoisted_21, "Paused"))
+                            : createCommentVNode("v-if", true),
+                          (_ctx.isAppDisabled(app))
+                            ? (openBlock(), createElementBlock("sl-tag", _hoisted_22, "Disabled"))
+                            : createCommentVNode("v-if", true)
+                        ]),
+                        (_ctx.getReason(app))
+                          ? (openBlock(), createElementBlock("span", _hoisted_23, toDisplayString(_ctx.getReason(app)), 1 /* TEXT */))
+                          : createCommentVNode("v-if", true),
+                        createElementVNode("div", _hoisted_24, [
+                          createElementVNode("mwc-button", {
+                            onClick: $event => (_ctx.uninstallApp(app.installed_app_id)),
+                            style: {"margin-left":"8px","--mdc-theme-primary":"#fc0303"},
+                            label: "Uninstall",
+                            raised: "",
+                            icon: "delete"
+                          }, null, 8 /* PROPS */, _hoisted_25),
+                          (!_ctx.isAppDisabled(app))
+                            ? (openBlock(), createElementBlock("mwc-button", {
+                                key: 0,
+                                onClick: $event => (_ctx.disableApp(app.installed_app_id)),
+                                style: {"margin-left":"8px","--mdc-theme-primary":"#fcf403"},
+                                label: "Disable",
+                                raised: "",
+                                icon: "archive"
+                              }, null, 8 /* PROPS */, _hoisted_26))
+                            : createCommentVNode("v-if", true),
+                          (_ctx.isAppDisabled(app))
+                            ? (openBlock(), createElementBlock("mwc-button", {
+                                key: 1,
+                                onClick: $event => (_ctx.enableApp(app.installed_app_id)),
+                                style: {"margin-left":"8px","--mdc-theme-primary":"#3dfc03"},
+                                label: "Enable",
+                                raised: "",
+                                icon: "unarchive"
+                              }, null, 8 /* PROPS */, _hoisted_27))
+                            : createCommentVNode("v-if", true),
+                          (_ctx.isAppPaused(app))
+                            ? (openBlock(), createElementBlock("mwc-button", {
+                                key: 2,
+                                onClick: $event => (_ctx.startApp(app.installed_app_id)),
+                                style: {"margin-left":"8px","--mdc-theme-primary":"#3dfc03"},
+                                label: "Start",
+                                raised: "",
+                                icon: "play_arrow"
+                              }, null, 8 /* PROPS */, _hoisted_28))
+                            : createCommentVNode("v-if", true),
+                          (_ctx.isAppRunning(app))
+                            ? (openBlock(), createElementBlock("mwc-button", {
+                                key: 3,
+                                onClick: $event => (_ctx.$emit('openApp', app.installed_app_id)),
+                                style: {"margin-left":"8px"},
+                                label: "Open",
+                                raised: "",
+                                icon: "launch"
+                              }, null, 8 /* PROPS */, _hoisted_29))
+                            : createCommentVNode("v-if", true)
                         ])
                       ])
-                    ]),
-                    _: 2 /* DYNAMIC */
-                  }, 1024 /* DYNAMIC_SLOTS */)
+                    ])
+                  ])
                 ]))
               }), 128 /* KEYED_FRAGMENT */))
         ])
