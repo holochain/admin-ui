@@ -1,7 +1,6 @@
-import { createStore, Module } from "vuex";
+import { Module } from "vuex";
 import {
   AdminWebsocket,
-  AppBundle,
   AppWebsocket,
   InstalledAppInfo,
 } from "@holochain/conductor-api";
