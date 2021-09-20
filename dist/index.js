@@ -108,24 +108,31 @@ const _hoisted_1 = {
   style: {"flex":"1","display":"flex","align-items":"center","justify-content":"center"}
 };
 const _hoisted_2 = { key: 1 };
-const _hoisted_3 = { style: {"display":"flex","flex-direction":"column"} };
+const _hoisted_3 = { style: {"display":"flex","flex":"1","flex-direction":"column"} };
 const _hoisted_4 = /*#__PURE__*/createElementVNode("span", { style: {"margin-bottom":"16px","font-size":"1.5em"} }, "Installed apps", -1 /* HOISTED */);
-const _hoisted_5 = { key: 0 };
-const _hoisted_6 = { style: {"display":"flex","flex-direction":"row","flex":"1","padding":"8px"} };
-const _hoisted_7 = { style: {"flex":"1","display":"flex","flex-direction":"column"} };
-const _hoisted_8 = { style: {"font-size":"1.3em"} };
-const _hoisted_9 = /*#__PURE__*/createElementVNode("span", { style: {"opacity":"0.7","margin-left":"8px"} }, "Dna Hash:", -1 /* HOISTED */);
-const _hoisted_10 = { style: {"display":"flex","flex-direction":"column","align-items":"flex-end"} };
-const _hoisted_11 = { style: {"display":"flex","flex-direction":"row","align-items":"center","justify-content":"center"} };
-const _hoisted_12 = /*#__PURE__*/createElementVNode("span", { style: {"margin-right":"8px","opacity":"0.7"} }, "Public Key:", -1 /* HOISTED */);
-const _hoisted_13 = /*#__PURE__*/createTextVNode("Running");
-const _hoisted_14 = /*#__PURE__*/createTextVNode("Paused");
-const _hoisted_15 = /*#__PURE__*/createTextVNode("Disabled");
-const _hoisted_16 = {
+const _hoisted_5 = {
+  key: 0,
+  style: {"flex":"1","display":"flex","align-items":"center","justify-content":"center"}
+};
+const _hoisted_6 = /*#__PURE__*/createElementVNode("span", null, "You don't have any apps installed yet", -1 /* HOISTED */);
+const _hoisted_7 = [
+  _hoisted_6
+];
+const _hoisted_8 = { style: {"display":"flex","flex-direction":"row","flex":"1","padding":"8px"} };
+const _hoisted_9 = { style: {"flex":"1","display":"flex","flex-direction":"column"} };
+const _hoisted_10 = { style: {"font-size":"1.3em"} };
+const _hoisted_11 = /*#__PURE__*/createElementVNode("span", { style: {"opacity":"0.7","margin-left":"8px"} }, "Dna Hash:", -1 /* HOISTED */);
+const _hoisted_12 = { style: {"display":"flex","flex-direction":"column","align-items":"flex-end"} };
+const _hoisted_13 = { style: {"display":"flex","flex-direction":"row","align-items":"center","justify-content":"center"} };
+const _hoisted_14 = /*#__PURE__*/createElementVNode("span", { style: {"margin-right":"8px","opacity":"0.7"} }, "Public Key:", -1 /* HOISTED */);
+const _hoisted_15 = /*#__PURE__*/createTextVNode("Running");
+const _hoisted_16 = /*#__PURE__*/createTextVNode("Paused");
+const _hoisted_17 = /*#__PURE__*/createTextVNode("Disabled");
+const _hoisted_18 = {
   key: 0,
   style: {"margin-top":"8px","max-width":"600px"}
 };
-const _hoisted_17 = { style: {"display":"flex","flex-direction":"row","align-items":"center","justify-content":"center","margin-top":"8px"} };
+const _hoisted_19 = { style: {"display":"flex","flex-direction":"row","align-items":"center","justify-content":"center","margin-top":"8px"} };
 
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   const _component_mwc_circular_progress = resolveComponent("mwc-circular-progress");
@@ -142,7 +149,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
         createElementVNode("div", _hoisted_3, [
           _hoisted_4,
           (_ctx.$store.getters[`${_ctx.ADMIN_UI_MODULE}/allApps`].length === 0)
-            ? (openBlock(), createElementBlock("span", _hoisted_5, "You don't have any apps installed yet"))
+            ? (openBlock(), createElementBlock("div", _hoisted_5, _hoisted_7))
             : (openBlock(true), createElementBlock(Fragment, { key: 1 }, renderList(_ctx.$store.getters[`${_ctx.ADMIN_UI_MODULE}/allApps`], (app) => {
                 return (openBlock(), createElementBlock("div", {
                   key: app.installed_app_id,
@@ -150,16 +157,16 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                 }, [
                   createVNode(_component_mwc_card, { style: {"width":"auto"} }, {
                     default: withCtx(() => [
-                      createElementVNode("div", _hoisted_6, [
-                        createElementVNode("div", _hoisted_7, [
-                          createElementVNode("span", _hoisted_8, toDisplayString(app.installed_app_id), 1 /* TEXT */),
+                      createElementVNode("div", _hoisted_8, [
+                        createElementVNode("div", _hoisted_9, [
+                          createElementVNode("span", _hoisted_10, toDisplayString(app.installed_app_id), 1 /* TEXT */),
                           (openBlock(true), createElementBlock(Fragment, null, renderList(app.cell_data, (cellData) => {
                             return (openBlock(), createElementBlock("div", {
                               style: {"margin-top":"8px","display":"flex","flex-direction":"row","align-items":"center"},
                               key: [...cellData.cell_id[0], ...cellData.cell_id[1]]
                             }, [
                               createElementVNode("span", null, toDisplayString(cellData.cell_nick), 1 /* TEXT */),
-                              _hoisted_9,
+                              _hoisted_11,
                               createVNode(_component_copyable_hash, {
                                 style: {"margin-left":"8px"},
                                 hash: _ctx.serializeHash(cellData.cell_id[0])
@@ -167,9 +174,9 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                             ]))
                           }), 128 /* KEYED_FRAGMENT */))
                         ]),
-                        createElementVNode("div", _hoisted_10, [
-                          createElementVNode("div", _hoisted_11, [
-                            _hoisted_12,
+                        createElementVNode("div", _hoisted_12, [
+                          createElementVNode("div", _hoisted_13, [
+                            _hoisted_14,
                             createVNode(_component_copyable_hash, {
                               hash: _ctx.serializeHash(app.cell_data[0].cell_id[1]),
                               style: {"margin-right":"16px"}
@@ -180,7 +187,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                   type: "success"
                                 }, {
                                   default: withCtx(() => [
-                                    _hoisted_13
+                                    _hoisted_15
                                   ]),
                                   _: 1 /* STABLE */
                                 }))
@@ -191,7 +198,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                   type: "warning"
                                 }, {
                                   default: withCtx(() => [
-                                    _hoisted_14
+                                    _hoisted_16
                                   ]),
                                   _: 1 /* STABLE */
                                 }))
@@ -202,16 +209,16 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                   type: "danger"
                                 }, {
                                   default: withCtx(() => [
-                                    _hoisted_15
+                                    _hoisted_17
                                   ]),
                                   _: 1 /* STABLE */
                                 }))
                               : createCommentVNode("v-if", true)
                           ]),
                           (_ctx.getReason(app))
-                            ? (openBlock(), createElementBlock("span", _hoisted_16, toDisplayString(_ctx.getReason(app)), 1 /* TEXT */))
+                            ? (openBlock(), createElementBlock("span", _hoisted_18, toDisplayString(_ctx.getReason(app)), 1 /* TEXT */))
                             : createCommentVNode("v-if", true),
-                          createElementVNode("div", _hoisted_17, [
+                          createElementVNode("div", _hoisted_19, [
                             createVNode(_component_mwc_button, {
                               onClick: $event => (_ctx.uninstallApp(app.installed_app_id)),
                               style: {"margin-left":"8px","--mdc-theme-primary":"#fc0303"},

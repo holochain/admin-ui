@@ -6,11 +6,19 @@
     <mwc-circular-progress></mwc-circular-progress>
   </div>
   <div v-else>
-    <div style="display: flex; flex-direction: column">
+    <div style="display: flex; flex: 1; flex-direction: column">
       <span style="margin-bottom: 16px; font-size: 1.5em">Installed apps</span>
-      <span v-if="$store.getters[`${ADMIN_UI_MODULE}/allApps`].length === 0"
-        >You don't have any apps installed yet</span
+      <div
+        v-if="$store.getters[`${ADMIN_UI_MODULE}/allApps`].length === 0"
+        style="
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        "
       >
+        <span>You don't have any apps installed yet</span>
+      </div>
       <div
         v-else
         v-for="app in $store.getters[`${ADMIN_UI_MODULE}/allApps`]"
@@ -98,7 +106,7 @@
                 <mwc-button
                   v-if="!isAppDisabled(app)"
                   @click="disableApp(app.installed_app_id)"
-                  style="margin-left: 8px; --mdc-theme-primary: #fcf403;"
+                  style="margin-left: 8px; --mdc-theme-primary: #fcf403"
                   label="Disable"
                   raised
                   icon="archive"
