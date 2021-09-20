@@ -74,7 +74,7 @@
                   >Your Public Key:</span
                 >
                 <span style="margin-right: 16px; opacity: 0.7">{{
-                  serializeHash(cellData.cell_id[1])
+                  serializeHash(app.cell_data[0].cell_id[1])
                 }}</span>
 
                 <sl-tag type="success" v-if="isAppRunning(app)">Running</sl-tag>
