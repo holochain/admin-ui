@@ -130,11 +130,11 @@ const _hoisted_15 = /*#__PURE__*/createElementVNode("tr", null, [
   /*#__PURE__*/createElementVNode("th", null, "Cell Nick"),
   /*#__PURE__*/createElementVNode("th", null, "Dna Hash")
 ], -1 /* HOISTED */);
-const _hoisted_16 = { style: {"opacity":"0.7"} };
+const _hoisted_16 = { style: {"opacity":"0.7","font-family":"monospace"} };
 const _hoisted_17 = { style: {"display":"flex","flex-direction":"column","align-items":"flex-end"} };
 const _hoisted_18 = { style: {"display":"flex","flex-direction":"row","align-items":"center","justify-content":"center"} };
 const _hoisted_19 = /*#__PURE__*/createElementVNode("span", { style: {"margin-right":"8px","opacity":"0.9"} }, "Your Public Key:", -1 /* HOISTED */);
-const _hoisted_20 = { style: {"margin-right":"16px","opacity":"0.7"} };
+const _hoisted_20 = { style: {"margin-right":"16px","opacity":"0.7","font-family":"monospace"} };
 const _hoisted_21 = {
   key: 0,
   type: "success"
@@ -187,7 +187,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                 createElementVNode("span", null, toDisplayString(cellData.cell_nick), 1 /* TEXT */)
                               ]),
                               createElementVNode("td", null, [
-                                createElementVNode("span", _hoisted_16, toDisplayString(_ctx.serializeHash(cellData.cell_id[0])), 1 /* TEXT */)
+                                createElementVNode("span", _hoisted_16, toDisplayString(_ctx.serializeHash(cellData.cell_id[0]).substring(0,  14)), 1 /* TEXT */)
                               ])
                             ]))
                           }), 128 /* KEYED_FRAGMENT */))
@@ -196,7 +196,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                       createElementVNode("div", _hoisted_17, [
                         createElementVNode("div", _hoisted_18, [
                           _hoisted_19,
-                          createElementVNode("span", _hoisted_20, toDisplayString(_ctx.serializeHash(app.cell_data[0].cell_id[1])), 1 /* TEXT */),
+                          createElementVNode("span", _hoisted_20, toDisplayString(_ctx.serializeHash(app.cell_data[0].cell_id[1]).substring(0,  14)), 1 /* TEXT */),
                           (_ctx.isAppRunning(app))
                             ? (openBlock(), createElementBlock("sl-tag", _hoisted_21, "Running"))
                             : createCommentVNode("v-if", true),

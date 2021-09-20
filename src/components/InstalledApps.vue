@@ -47,8 +47,8 @@
                     <span>{{ cellData.cell_nick }}</span>
                   </td>
                   <td>
-                    <span style="opacity: 0.7">{{
-                      serializeHash(cellData.cell_id[0])
+                    <span style="opacity: 0.7; font-family: monospace;">{{
+                      serializeHash(cellData.cell_id[0]).substring(0,  14)
                     }}</span>
                   </td>
                 </tr>
@@ -73,8 +73,8 @@
                 <span style="margin-right: 8px; opacity: 0.9"
                   >Your Public Key:</span
                 >
-                <span style="margin-right: 16px; opacity: 0.7">{{
-                  serializeHash(app.cell_data[0].cell_id[1])
+                <span style="margin-right: 16px; opacity: 0.7; font-family: monospace;">{{
+                  serializeHash(app.cell_data[0].cell_id[1]).substring(0,  14)
                 }}</span>
 
                 <sl-tag type="success" v-if="isAppRunning(app)">Running</sl-tag>
