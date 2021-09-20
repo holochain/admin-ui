@@ -219,7 +219,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                         createElementVNode("div", _hoisted_24, [
                           createElementVNode("mwc-button", {
                             onClick: $event => (_ctx.uninstallApp(app.installed_app_id)),
-                            style: {"margin-left":"8px","--mdc-theme-primary":"#fc0303"},
+                            style: {"margin-left":"8px"},
                             label: "Uninstall",
                             icon: "delete"
                           }, null, 8 /* PROPS */, _hoisted_25),
@@ -227,7 +227,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                             ? (openBlock(), createElementBlock("mwc-button", {
                                 key: 0,
                                 onClick: $event => (_ctx.disableApp(app.installed_app_id)),
-                                style: {"margin-left":"8px","--mdc-theme-primary":"#fcf403"},
+                                style: {"margin-left":"8px"},
                                 label: "Disable",
                                 icon: "archive"
                               }, null, 8 /* PROPS */, _hoisted_26))
@@ -236,7 +236,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                             ? (openBlock(), createElementBlock("mwc-button", {
                                 key: 1,
                                 onClick: $event => (_ctx.enableApp(app.installed_app_id)),
-                                style: {"margin-left":"8px","--mdc-theme-primary":"#3dfc03"},
+                                style: {"margin-left":"8px"},
                                 label: "Enable",
                                 icon: "unarchive"
                               }, null, 8 /* PROPS */, _hoisted_27))
@@ -245,7 +245,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                             ? (openBlock(), createElementBlock("mwc-button", {
                                 key: 2,
                                 onClick: $event => (_ctx.startApp(app.installed_app_id)),
-                                style: {"margin-left":"8px","--mdc-theme-primary":"#3dfc03"},
+                                style: {"margin-left":"8px"},
                                 label: "Start",
                                 icon: "play_arrow"
                               }, null, 8 /* PROPS */, _hoisted_28))

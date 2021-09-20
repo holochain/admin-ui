@@ -96,7 +96,7 @@
               >
                 <mwc-button
                   @click="uninstallApp(app.installed_app_id)"
-                  style="margin-left: 8px; --mdc-theme-primary: #fc0303"
+                  style="margin-left: 8px;"
                   label="Uninstall"
                   icon="delete"
                 >
@@ -105,7 +105,7 @@
                 <mwc-button
                   v-if="!isAppDisabled(app)"
                   @click="disableApp(app.installed_app_id)"
-                  style="margin-left: 8px; --mdc-theme-primary: #fcf403"
+                  style="margin-left: 8px;"
                   label="Disable"
                   icon="archive"
                 >
@@ -113,7 +113,7 @@
                 <mwc-button
                   v-if="isAppDisabled(app)"
                   @click="enableApp(app.installed_app_id)"
-                  style="margin-left: 8px; --mdc-theme-primary: #3dfc03"
+                  style="margin-left: 8px;"
                   label="Enable"
                   icon="unarchive"
                 >
@@ -121,7 +121,7 @@
                 <mwc-button
                   v-if="isAppPaused(app)"
                   @click="startApp(app.installed_app_id)"
-                  style="margin-left: 8px; --mdc-theme-primary: #3dfc03"
+                  style="margin-left: 8px;"
                   label="Start"
                   icon="play_arrow"
                 >
