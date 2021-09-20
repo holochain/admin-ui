@@ -32,23 +32,28 @@
             <div style="flex: 1; display: flex; flex-direction: column">
               <span style="font-size: 1.3em">{{ app.installed_app_id }}</span>
 
-              <div
-                style="
-                  margin-top: 8px;
-                  display: flex;
-                  flex-direction: row;
-                  align-items: center;
-                "
-                v-for="cellData in app.cell_data"
-                :key="[...cellData.cell_id[0], ...cellData.cell_id[1]]"
-              >
-                <span>{{ cellData.cell_nick }}</span>
-                <span style="opacity: 0.7; margin-left: 8px">Dna Hash:</span
-                ><copyable-hash
-                  style="margin-left: 8px"
-                  :hash="serializeHash(cellData.cell_id[0])"
-                ></copyable-hash>
-              </div>
+              <table>
+                <tr>
+                  <th>Cell Nick</th>
+                  <th>Dna Hash</th>
+                </tr>
+
+                <tr
+                  style=""
+                  v-for="cellData in app.cell_data"
+                  :key="[...cellData.cell_id[0], ...cellData.cell_id[1]]"
+                >
+                  <td>
+                    <span>{{ cellData.cell_nick }}</span>
+                  </td>
+                  <td>
+                    <copyable-hash
+                      style="margin-left: 8px"
+                      :hash="serializeHash(cellData.cell_id[0])"
+                    ></copyable-hash>
+                  </td>
+                </tr>
+              </table>
             </div>
 
             <div
@@ -92,11 +97,12 @@
                   align-items: center;
                   justify-content: center;
                   margin-top: 8px;
+                  --mdc-theme-primary: rgb(90, 90, 90);
                 "
               >
                 <mwc-button
                   @click="uninstallApp(app.installed_app_id)"
-                  style="margin-left: 8px; --mdc-theme-primary: rgb(111,111,111)"
+                  style="margin-left: 8px"
                   label="Uninstall"
                   icon="delete"
                 >
@@ -105,7 +111,7 @@
                 <mwc-button
                   v-if="!isAppDisabled(app)"
                   @click="disableApp(app.installed_app_id)"
-                  style="margin-left: 8px; --mdc-theme-primary: rgb(111,111,111)"
+                  style="margin-left: 8px;"
                   label="Disable"
                   icon="archive"
                 >
@@ -113,7 +119,7 @@
                 <mwc-button
                   v-if="isAppDisabled(app)"
                   @click="enableApp(app.installed_app_id)"
-                  style="margin-left: 8px; --mdc-theme-primary: rgb(111,111,111)"
+                  style="margin-left: 8px;"
                   label="Enable"
                   icon="unarchive"
                 >
@@ -121,7 +127,7 @@
                 <mwc-button
                   v-if="isAppPaused(app)"
                   @click="startApp(app.installed_app_id)"
-                  style="margin-left: 8px; --mdc-theme-primary: rgb(111,111,111)"
+                  style="margin-left: 8px;"
                   label="Start"
                   icon="play_arrow"
                 >
@@ -130,7 +136,7 @@
                 <mwc-button
                   v-if="isAppRunning(app)"
                   @click="$emit('openApp', app.installed_app_id)"
-                  style="margin-left: 8px; --mdc-theme-primary: rgb(111,111,111)"
+                  style="margin-left: 8px;"
                   label="Open"
                   icon="launch"
                 >

@@ -136,7 +136,10 @@ const _hoisted_10 = { style: {"width":"auto"} };
 const _hoisted_11 = { style: {"display":"flex","flex-direction":"row","flex":"1","padding":"8px"} };
 const _hoisted_12 = { style: {"flex":"1","display":"flex","flex-direction":"column"} };
 const _hoisted_13 = { style: {"font-size":"1.3em"} };
-const _hoisted_14 = /*#__PURE__*/createElementVNode("span", { style: {"opacity":"0.7","margin-left":"8px"} }, "Dna Hash:", -1 /* HOISTED */);
+const _hoisted_14 = /*#__PURE__*/createElementVNode("tr", null, [
+  /*#__PURE__*/createElementVNode("th", null, "Cell Nick"),
+  /*#__PURE__*/createElementVNode("th", null, "Dna Hash")
+], -1 /* HOISTED */);
 const _hoisted_15 = ["hash"];
 const _hoisted_16 = { style: {"display":"flex","flex-direction":"column","align-items":"flex-end"} };
 const _hoisted_17 = { style: {"display":"flex","flex-direction":"row","align-items":"center","justify-content":"center"} };
@@ -158,7 +161,7 @@ const _hoisted_23 = {
   key: 0,
   style: {"margin-top":"8px","max-width":"600px"}
 };
-const _hoisted_24 = { style: {"display":"flex","flex-direction":"row","align-items":"center","justify-content":"center","margin-top":"8px"} };
+const _hoisted_24 = { style: {"display":"flex","flex-direction":"row","align-items":"center","justify-content":"center","margin-top":"8px","--mdc-theme-primary":"rgb(90, 90, 90)"} };
 const _hoisted_25 = ["onClick"];
 const _hoisted_26 = ["onClick"];
 const _hoisted_27 = ["onClick"];
@@ -182,19 +185,25 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                     createElementVNode("div", _hoisted_11, [
                       createElementVNode("div", _hoisted_12, [
                         createElementVNode("span", _hoisted_13, toDisplayString(app.installed_app_id), 1 /* TEXT */),
-                        (openBlock(true), createElementBlock(Fragment, null, renderList(app.cell_data, (cellData) => {
-                          return (openBlock(), createElementBlock("div", {
-                            style: {"margin-top":"8px","display":"flex","flex-direction":"row","align-items":"center"},
-                            key: [...cellData.cell_id[0], ...cellData.cell_id[1]]
-                          }, [
-                            createElementVNode("span", null, toDisplayString(cellData.cell_nick), 1 /* TEXT */),
-                            _hoisted_14,
-                            createElementVNode("copyable-hash", {
-                              style: {"margin-left":"8px"},
-                              hash: _ctx.serializeHash(cellData.cell_id[0])
-                            }, null, 8 /* PROPS */, _hoisted_15)
-                          ]))
-                        }), 128 /* KEYED_FRAGMENT */))
+                        createElementVNode("table", null, [
+                          _hoisted_14,
+                          (openBlock(true), createElementBlock(Fragment, null, renderList(app.cell_data, (cellData) => {
+                            return (openBlock(), createElementBlock("tr", {
+                              style: {},
+                              key: [...cellData.cell_id[0], ...cellData.cell_id[1]]
+                            }, [
+                              createElementVNode("td", null, [
+                                createElementVNode("span", null, toDisplayString(cellData.cell_nick), 1 /* TEXT */)
+                              ]),
+                              createElementVNode("td", null, [
+                                createElementVNode("copyable-hash", {
+                                  style: {"margin-left":"8px"},
+                                  hash: _ctx.serializeHash(cellData.cell_id[0])
+                                }, null, 8 /* PROPS */, _hoisted_15)
+                              ])
+                            ]))
+                          }), 128 /* KEYED_FRAGMENT */))
+                        ])
                       ]),
                       createElementVNode("div", _hoisted_16, [
                         createElementVNode("div", _hoisted_17, [
@@ -219,7 +228,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                         createElementVNode("div", _hoisted_24, [
                           createElementVNode("mwc-button", {
                             onClick: $event => (_ctx.uninstallApp(app.installed_app_id)),
-                            style: {"margin-left":"8px","--mdc-theme-primary":"rgb(111,111,111)"},
+                            style: {"margin-left":"8px"},
                             label: "Uninstall",
                             icon: "delete"
                           }, null, 8 /* PROPS */, _hoisted_25),
@@ -227,7 +236,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                             ? (openBlock(), createElementBlock("mwc-button", {
                                 key: 0,
                                 onClick: $event => (_ctx.disableApp(app.installed_app_id)),
-                                style: {"margin-left":"8px","--mdc-theme-primary":"rgb(111,111,111)"},
+                                style: {"margin-left":"8px"},
                                 label: "Disable",
                                 icon: "archive"
                               }, null, 8 /* PROPS */, _hoisted_26))
@@ -236,7 +245,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                             ? (openBlock(), createElementBlock("mwc-button", {
                                 key: 1,
                                 onClick: $event => (_ctx.enableApp(app.installed_app_id)),
-                                style: {"margin-left":"8px","--mdc-theme-primary":"rgb(111,111,111)"},
+                                style: {"margin-left":"8px"},
                                 label: "Enable",
                                 icon: "unarchive"
                               }, null, 8 /* PROPS */, _hoisted_27))
@@ -245,7 +254,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                             ? (openBlock(), createElementBlock("mwc-button", {
                                 key: 2,
                                 onClick: $event => (_ctx.startApp(app.installed_app_id)),
-                                style: {"margin-left":"8px","--mdc-theme-primary":"rgb(111,111,111)"},
+                                style: {"margin-left":"8px"},
                                 label: "Start",
                                 icon: "play_arrow"
                               }, null, 8 /* PROPS */, _hoisted_28))
@@ -254,7 +263,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                             ? (openBlock(), createElementBlock("mwc-button", {
                                 key: 3,
                                 onClick: $event => (_ctx.$emit('openApp', app.installed_app_id)),
-                                style: {"margin-left":"8px","--mdc-theme-primary":"rgb(111,111,111)"},
+                                style: {"margin-left":"8px"},
                                 label: "Open",
                                 icon: "launch"
                               }, null, 8 /* PROPS */, _hoisted_29))
