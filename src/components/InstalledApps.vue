@@ -17,7 +17,7 @@
           justify-content: center;
         "
       >
-        <span>You don't have any apps installed yet</span>
+        <span style="margin-top: 160px;">You don't have any apps installed yet</span>
       </div>
       <div
         v-else
@@ -92,10 +92,10 @@
                   >Disabled</sl-tag
                 >
               </div>
-              <div style="flex: 1">
+              <div style="flex: 1; margin-top: 12px;">
                 <span
                   v-if="getReason(app)"
-                  style="margin-top: 8px; max-width: 600px"
+                  style="max-width: 600px"
                 >
                   {{ getReason(app) }}</span
                 >
@@ -207,9 +207,9 @@ export default defineComponent({
         ).disabled.reason;
 
         if (Object.keys(reason).includes("never_started")) {
-          return "This app was never started";
+          return "App was never started";
         } else if (Object.keys(reason).includes("user")) {
-          return "This app was disabled by the user";
+          return "App was disabled by the user";
         } else {
           return `There was an error with this app: ${
             (

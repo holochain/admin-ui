@@ -66,10 +66,10 @@ var script = defineComponent({
             if (this.isAppDisabled(appInfo)) {
                 const reason = appInfo.status.disabled.reason;
                 if (Object.keys(reason).includes("never_started")) {
-                    return "This app was never started";
+                    return "App was never started";
                 }
                 else if (Object.keys(reason).includes("user")) {
-                    return "This app was disabled by the user";
+                    return "App was disabled by the user";
                 }
                 else {
                     return `There was an error with this app: ${reason.error}`;
@@ -117,7 +117,7 @@ const _hoisted_7 = {
   key: 0,
   style: {"flex":"1","display":"flex","align-items":"center","justify-content":"center"}
 };
-const _hoisted_8 = /*#__PURE__*/createElementVNode("span", null, "You don't have any apps installed yet", -1 /* HOISTED */);
+const _hoisted_8 = /*#__PURE__*/createElementVNode("span", { style: {"margin-top":"160px"} }, "You don't have any apps installed yet", -1 /* HOISTED */);
 const _hoisted_9 = [
   _hoisted_8
 ];
@@ -147,10 +147,10 @@ const _hoisted_23 = {
   key: 2,
   type: "danger"
 };
-const _hoisted_24 = { style: {"flex":"1"} };
+const _hoisted_24 = { style: {"flex":"1","margin-top":"12px"} };
 const _hoisted_25 = {
   key: 0,
-  style: {"margin-top":"8px","max-width":"600px"}
+  style: {"max-width":"600px"}
 };
 const _hoisted_26 = { style: {"display":"flex","flex-direction":"row","align-items":"center","justify-content":"center","margin-top":"8px","--mdc-theme-primary":"rgb(90, 90, 90)"} };
 const _hoisted_27 = ["onClick"];
