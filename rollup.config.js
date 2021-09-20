@@ -5,7 +5,7 @@ import css from "rollup-plugin-css-only";
 const pkg = require("./package.json");
 
 export default {
-  input: "src/lib.ts",
+  input: "src/index.ts",
   output: {
     format: "esm",
     dir: "dist",

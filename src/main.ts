@@ -2,9 +2,8 @@ import { createApp } from "vue";
 import { createStore } from "vuex";
 import App from "./App.vue";
 import { AdminWebsocket, AppWebsocket } from "@holochain/conductor-api";
-import HcAdminPlugin from "./lib";
+import HcAdminPlugin from "./index";
 import { CopyableHash } from "@holochain-playground/elements";
-
 
 async function setup() {
   customElements.define("copyable-hash", CopyableHash);

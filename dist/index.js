@@ -316,7 +316,7 @@ function hcAdminVuexModule(adminWebsocket, appWebsocket) {
     };
 }
 
-var lib = {
+var index = {
     ActionTypes: ActionTypes,
     ADMIN_UI_MODULE,
     install(app, options) {
@@ -331,4 +331,4 @@ var lib = {
     },
 };
 
-export { lib as default };
+export { index as default };
