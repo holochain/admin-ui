@@ -3,47 +3,90 @@
     v-if="$store.state.admin.installedApps.loading"
     style="flex: 1; display: flex; align-items: center; justify-content: center"
   >
-    <mwc-circular-progress></mwc-circular-progress>
+    <mwc-circular-progress indeterminate></mwc-circular-progress>
   </div>
   <div v-else>
-    <div class="column">
-      <span class="title" style="margin-bottom: 16px">Installed apps</span>
-      <span v-if="$store.getters[`${ADMIN_UI_MODULE}/allApps`].length === 0"
-        >You don't have any apps installed yet</span
+    <div style="display: flex; flex: 1; flex-direction: column">
+      <span style="margin-bottom: 16px; font-size: 1.5em">Installed apps</span>
+      <div
+        v-if="$store.getters[`${ADMIN_UI_MODULE}/allApps`].length === 0"
+        style="
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        "
       >
+        <span style="margin-top: 160px"
+          >You don't have any apps installed yet</span
+        >
+      </div>
       <div
         v-else
         v-for="app in $store.getters[`${ADMIN_UI_MODULE}/allApps`]"
         :key="app.installed_app_id"
-        class="app-row column"
+        style="display: flex; flex-direction: column; margin-bottom: 16px"
       >
         <mwc-card style="width: auto">
-          <div class="row" style="flex: 1; padding: 8px">
-            <div class="column" style="flex: 1">
-              <span class="app-title">{{ app.installed_app_id }}</span>
+          <div
+            style="display: flex; flex-direction: row; flex: 1; padding: 8px"
+          >
+            <div style="flex: 1; display: flex; flex-direction: column">
+              <span style="font-size: 1.6em">{{ app.installed_app_id }}</span>
 
-              <div
-                class="cell-row row"
-                v-for="cellData in app.cell_data"
-                :key="[...cellData.cell_id[0], ...cellData.cell_id[1]]"
-                style="align-items: center"
-              >
-                <span>{{ cellData.cell_nick }}</span>
-                <span style="opacity: 0.7; margin-left: 8px">Dna Hash:</span
-                ><copyable-hash
-                  style="margin-left: 8px"
-                  :hash="serializeHash(cellData.cell_id[0])"
-                ></copyable-hash>
-              </div>
+              <table style="width: 350px; text-align: left; margin-top: 8px">
+                <tr>
+                  <th>Cell Nick</th>
+                  <th>Dna Hash</th>
+                </tr>
+
+                <tr
+                  style=""
+                  v-for="cellData in app.cell_data"
+                  :key="[...cellData.cell_id[0], ...cellData.cell_id[1]]"
+                >
+                  <td>
+                    <span>{{ cellData.cell_nick }}</span>
+                  </td>
+                  <td>
+                    <span style="opacity: 0.7; font-family: monospace"
+                      >{{
+                        serializeHash(cellData.cell_id[0]).substring(0, 12)
+                      }}...</span
+                    >
+                  </td>
+                </tr>
+              </table>
             </div>
 
-            <div class="column">
-              <div class="row center">
-                <span style="margin-right: 8px; opacity: 0.7">Public Key:</span>
-                <copyable-hash
-                  :hash="serializeHash(app.cell_data[0].cell_id[1])"
-                  style="margin-right: 16px"
-                ></copyable-hash>
+            <div
+              style="
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+              "
+            >
+              <div
+                style="
+                  display: flex;
+                  flex-direction: row;
+                  align-items: center;
+                  justify-content: center;
+                "
+              >
+                <span style="margin-right: 8px; opacity: 0.9"
+                  >Your Public Key:</span
+                >
+                <span
+                  style="
+                    margin-right: 16px;
+                    opacity: 0.7;
+                    font-family: monospace;
+                  "
+                  >{{
+                    serializeHash(app.cell_data[0].cell_id[1]).substring(0, 12)
+                  }}...</span
+                >
 
                 <sl-tag type="success" v-if="isAppRunning(app)">Running</sl-tag>
                 <sl-tag type="warning" v-if="isAppPaused(app)">Paused</sl-tag>
@@ -51,26 +94,36 @@
                   >Disabled</sl-tag
                 >
               </div>
-              <span
-                v-if="getReason(app)"
-                style="align-self: end; margin-top: 8px"
-              >
-                {{ getReason(app) }}</span
-              >
+              <div style="flex: 1; margin-top: 12px">
+                <span v-if="getReason(app)" style="max-width: 600px">
+                  {{ getReason(app) }}</span
+                >
+              </div>
 
-              <div class="row center" style="align-self: end; margin-top: 8px">
+              <div
+                style="
+                  display: flex;
+                  flex-direction: row;
+                  align-items: center;
+                  justify-content: center;
+                  margin-top: 8px;
+                  --mdc-theme-primary: rgb(90, 90, 90);
+                "
+              >
                 <mwc-button
-                  v-if="isAppRunning(app)"
-                  @click="$emit('openApp', app.installed_app_id)"
+                  @click="uninstallApp(app.installed_app_id)"
                   style="margin-left: 8px"
-                  label="Open"
+                  label="Uninstall"
+                  icon="delete"
                 >
                 </mwc-button>
+
                 <mwc-button
                   v-if="!isAppDisabled(app)"
                   @click="disableApp(app.installed_app_id)"
                   style="margin-left: 8px"
                   label="Disable"
+                  icon="archive"
                 >
                 </mwc-button>
                 <mwc-button
@@ -78,6 +131,7 @@
                   @click="enableApp(app.installed_app_id)"
                   style="margin-left: 8px"
                   label="Enable"
+                  icon="unarchive"
                 >
                 </mwc-button>
                 <mwc-button
@@ -85,12 +139,16 @@
                   @click="startApp(app.installed_app_id)"
                   style="margin-left: 8px"
                   label="Start"
+                  icon="play_arrow"
                 >
                 </mwc-button>
+
                 <mwc-button
-                  @click="uninstallApp(app.installed_app_id)"
+                  v-if="isAppRunning(app)"
+                  @click="$emit('openApp', app.installed_app_id)"
                   style="margin-left: 8px"
-                  label="Uninstall"
+                  label="Open"
+                  icon="launch"
                 >
                 </mwc-button>
               </div>
@@ -104,8 +162,8 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { ActionTypes } from "@/store/actions";
-import { ADMIN_UI_MODULE } from "@/constants";
+import { ActionTypes } from "../store/actions";
+import { ADMIN_UI_MODULE } from "../constants";
 import { deserializeHash, serializeHash } from "@holochain-open-dev/core-types";
 import { DisabledAppReason, InstalledAppInfo } from "@holochain/conductor-api";
 import "@shoelace-style/shoelace/dist/themes/light.css";
@@ -148,9 +206,9 @@ export default defineComponent({
         ).disabled.reason;
 
         if (Object.keys(reason).includes("never_started")) {
-          return "This app was never started";
+          return "App was never started";
         } else if (Object.keys(reason).includes("user")) {
-          return "This app was disabled by the user";
+          return "App was disabled by the user";
         } else {
           return `There was an error with this app: ${
             (
@@ -181,37 +239,4 @@ export default defineComponent({
   },
 });
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-.app-row {
-  margin-bottom: 16px;
-}
-
-.app-title {
-  font-size: 1.3em;
-}
-
-.cell-row {
-  margin-top: 8px;
-}
-
-.column {
-  display: flex;
-  flex-direction: column;
-}
-
-.title {
-  font-size: 1.5em;
-}
-
-.row {
-  display: flex;
-  flex-direction: row;
-}
-
-.center {
-  align-items: center;
-  justify-content: center;
-}
-</style>
+<!-- We don't have scoped styles with classes because it becomes harder to export a reusable library -->

@@ -1,7 +1,6 @@
-import { createStore, Module } from "vuex";
+import { Module } from "vuex";
 import {
   AdminWebsocket,
-  AppBundle,
   AppWebsocket,
   InstalledAppInfo,
 } from "@holochain/conductor-api";
@@ -26,7 +25,16 @@ export function hcAdminVuexModule(
     },
     getters: {
       allApps(state) {
-        return state.installedApps.appsInfo;
+        // Sort apps alphabetically
+        return state.installedApps.appsInfo.sort((app1, app2) => {
+          if (app1.installed_app_id < app2.installed_app_id) {
+            return -1;
+          }
+          if (app1.installed_app_id > app2.installed_app_id) {
+            return 1;
+          }
+          return 0;
+        });
       },
     },
     mutations: {

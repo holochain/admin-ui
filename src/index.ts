@@ -1,10 +1,13 @@
 import { AdminWebsocket, AppWebsocket } from "@holochain/conductor-api";
 import { App } from "vue";
 import { Store } from "vuex";
-import InstalledApps from "@/components/InstalledApps.vue"; // @ is an alias to /src
+import InstalledApps from "./components/InstalledApps.vue"; // @ is an alias to /src
 import { hcAdminVuexModule } from "./store";
 import { ADMIN_UI_MODULE } from "./constants";
 import { ActionTypes } from "./store/actions";
+import "@material/mwc-button";
+import "@authentic/mwc-card";
+import "@material/mwc-circular-progress";
 
 export default {
   ActionTypes: ActionTypes,
