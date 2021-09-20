@@ -30,9 +30,9 @@
             style="display: flex; flex-direction: row; flex: 1; padding: 8px"
           >
             <div style="flex: 1; display: flex; flex-direction: column">
-              <span style="font-size: 1.3em">{{ app.installed_app_id }}</span>
+              <span style="font-size: 1.6em">{{ app.installed_app_id }}</span>
 
-              <table style="width: 350px; text-align: left; margin-top: 12px">
+              <table style="width: 350px; text-align: left; margin-top: 8px">
                 <tr>
                   <th>Cell Nick</th>
                   <th>Dna Hash</th>
@@ -47,9 +47,11 @@
                     <span>{{ cellData.cell_nick }}</span>
                   </td>
                   <td>
-                    <span style="opacity: 0.7; font-family: monospace;">{{
-                      serializeHash(cellData.cell_id[0]).substring(0,  14)
-                    }}</span>
+                    <span style="opacity: 0.7; font-family: monospace"
+                      >{{
+                        serializeHash(cellData.cell_id[0]).substring(0, 12)
+                      }}...</span
+                    >
                   </td>
                 </tr>
               </table>
@@ -73,9 +75,16 @@
                 <span style="margin-right: 8px; opacity: 0.9"
                   >Your Public Key:</span
                 >
-                <span style="margin-right: 16px; opacity: 0.7; font-family: monospace;">{{
-                  serializeHash(app.cell_data[0].cell_id[1]).substring(0,  14)
-                }}</span>
+                <span
+                  style="
+                    margin-right: 16px;
+                    opacity: 0.7;
+                    font-family: monospace;
+                  "
+                  >{{
+                    serializeHash(app.cell_data[0].cell_id[1]).substring(0, 12)
+                  }}...</span
+                >
 
                 <sl-tag type="success" v-if="isAppRunning(app)">Running</sl-tag>
                 <sl-tag type="warning" v-if="isAppPaused(app)">Paused</sl-tag>

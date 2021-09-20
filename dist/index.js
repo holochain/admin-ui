@@ -124,8 +124,8 @@ const _hoisted_9 = [
 const _hoisted_10 = { style: {"width":"auto"} };
 const _hoisted_11 = { style: {"display":"flex","flex-direction":"row","flex":"1","padding":"8px"} };
 const _hoisted_12 = { style: {"flex":"1","display":"flex","flex-direction":"column"} };
-const _hoisted_13 = { style: {"font-size":"1.3em"} };
-const _hoisted_14 = { style: {"width":"350px","text-align":"left","margin-top":"12px"} };
+const _hoisted_13 = { style: {"font-size":"1.6em"} };
+const _hoisted_14 = { style: {"width":"350px","text-align":"left","margin-top":"8px"} };
 const _hoisted_15 = /*#__PURE__*/createElementVNode("tr", null, [
   /*#__PURE__*/createElementVNode("th", null, "Cell Nick"),
   /*#__PURE__*/createElementVNode("th", null, "Dna Hash")
@@ -187,7 +187,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                 createElementVNode("span", null, toDisplayString(cellData.cell_nick), 1 /* TEXT */)
                               ]),
                               createElementVNode("td", null, [
-                                createElementVNode("span", _hoisted_16, toDisplayString(_ctx.serializeHash(cellData.cell_id[0]).substring(0,  14)), 1 /* TEXT */)
+                                createElementVNode("span", _hoisted_16, toDisplayString(_ctx.serializeHash(cellData.cell_id[0]).substring(0, 12)) + "...", 1 /* TEXT */)
                               ])
                             ]))
                           }), 128 /* KEYED_FRAGMENT */))
@@ -196,7 +196,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                       createElementVNode("div", _hoisted_17, [
                         createElementVNode("div", _hoisted_18, [
                           _hoisted_19,
-                          createElementVNode("span", _hoisted_20, toDisplayString(_ctx.serializeHash(app.cell_data[0].cell_id[1]).substring(0,  14)), 1 /* TEXT */),
+                          createElementVNode("span", _hoisted_20, toDisplayString(_ctx.serializeHash(app.cell_data[0].cell_id[1]).substring(0, 12)) + "...", 1 /* TEXT */),
                           (_ctx.isAppRunning(app))
                             ? (openBlock(), createElementBlock("sl-tag", _hoisted_21, "Running"))
                             : createCommentVNode("v-if", true),
