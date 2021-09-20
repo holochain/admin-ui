@@ -4,6 +4,7 @@ import { Store } from "vuex";
 import "@material/mwc-button";
 import "@authentic/mwc-card";
 import "@material/mwc-circular-progress";
+import "@material/mwc-snackbar";
 declare const _default: {
     ActionTypes: {
         fetchInstalledApps: string;

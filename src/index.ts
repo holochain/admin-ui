@@ -8,6 +8,7 @@ import { ActionTypes } from "./store/actions";
 import "@material/mwc-button";
 import "@authentic/mwc-card";
 import "@material/mwc-circular-progress";
+import "@material/mwc-snackbar";
 
 import { CopyableHash } from "./components/copyable-hash";
 

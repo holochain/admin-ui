@@ -5,10 +5,10 @@ import '@shoelace-style/shoelace/dist/components/tag/tag.js';
 import '@material/mwc-button';
 import '@authentic/mwc-card';
 import '@material/mwc-circular-progress';
+import '@material/mwc-snackbar';
 import { LitElement, html, css } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import '@material/mwc-icon-button';
-import '@material/mwc-snackbar';
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
