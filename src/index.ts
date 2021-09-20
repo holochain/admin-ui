@@ -9,7 +9,7 @@ import "@material/mwc-button";
 import "@authentic/mwc-card";
 import "@material/mwc-circular-progress";
 
-import { CopyableHash } from "@holochain-playground/elements";
+import { CopyableHash } from "./components/copyable-hash";
 
 export default {
   ActionTypes: ActionTypes,
@@ -21,7 +21,7 @@ export default {
       adminWebsocket: AdminWebsocket;
       store: Store<any>;
     }
-    ) {
+  ) {
     customElements.define("copyable-hash", CopyableHash);
     if (!options.adminWebsocket)
       throw new Error(

@@ -3,7 +3,7 @@
     v-if="$store.state.admin.installedApps.loading"
     style="flex: 1; display: flex; align-items: center; justify-content: center"
   >
-    <mwc-circular-progress></mwc-circular-progress>
+    <mwc-circular-progress indeterminate></mwc-circular-progress>
   </div>
   <div v-else>
     <div style="display: flex; flex: 1; flex-direction: column">

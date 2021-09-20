@@ -11,6 +11,9 @@
  * subject to an additional IP rights grant found at
  * http://polymer.github.io/PATENTS.txt
  */
+/**
+ * @module shady-render
+ */
 import { Template } from './template.js';
 /**
  * Removes the list of nodes from a Template safely. In addition to removing

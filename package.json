@@ -15,12 +15,11 @@
   "dependencies": {
     "@authentic/mwc-card": "^0.9.0",
     "@holochain-open-dev/core-types": "0.1.1",
-    "@holochain-playground/elements": "github:holochain-playground/elements#build",
     "@holochain/conductor-api": "0.2.0",
-    "@material/mwc-button": "^0.20.0",
-    "@material/mwc-circular-progress": "^0.20.0",
+    "@material/mwc-button": "^0.23.0",
+    "@material/mwc-circular-progress": "^0.23.0",
+    "@material/mwc-snackbar": "^0.23.0",
     "@shoelace-style/shoelace": "^2.0.0-beta.51",
-    "rollup-plugin-postcss": "^4.0.1",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0-0",
     "vuex": "^4.0.0-0"
@@ -53,6 +52,7 @@
     "prettier": "^2.2.1",
     "rimraf": "^3.0.2",
     "rollup": "^2.56.3",
+    "rollup-plugin-postcss": "^4.0.1",
     "rollup-plugin-css-only": "^3.1.0",
     "rollup-plugin-typescript2": "^0.30.0",
     "rollup-plugin-vue": "^6.0.0",

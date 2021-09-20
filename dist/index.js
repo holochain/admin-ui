@@ -5,7 +5,10 @@ import '@shoelace-style/shoelace/dist/components/tag/tag.js';
 import '@material/mwc-button';
 import '@authentic/mwc-card';
 import '@material/mwc-circular-progress';
-import { CopyableHash } from '@holochain-playground/elements';
+import { LitElement, html, css } from 'lit';
+import { property, query } from 'lit/decorators.js';
+import '@material/mwc-icon-button';
+import '@material/mwc-snackbar';
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -21,6 +24,13 @@ LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
 OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 ***************************************************************************** */
+
+function __decorate(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+}
 
 function __awaiter(thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -143,7 +153,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
 
   return (_ctx.$store.state.admin.installedApps.loading)
     ? (openBlock(), createElementBlock("div", _hoisted_1, [
-        createVNode(_component_mwc_circular_progress)
+        createVNode(_component_mwc_circular_progress, { indeterminate: "" })
       ]))
     : (openBlock(), createElementBlock("div", _hoisted_2, [
         createElementVNode("div", _hoisted_3, [
@@ -317,6 +327,66 @@ function hcAdminVuexModule(adminWebsocket, appWebsocket) {
         },
     };
 }
+
+class CopyableHash extends LitElement {
+    constructor() {
+        super(...arguments);
+        this.sliceLength = 8;
+    }
+    copyHash() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield navigator.clipboard.writeText(this.hash);
+            this._copyNotification.show();
+        });
+    }
+    render() {
+        return html `
+      <mwc-snackbar
+        id="copy-notification"
+        labelText="Hash copied to clipboard"
+      ></mwc-snackbar>
+      <div class="row center-content">
+        <span style="font-family: monospace;"
+          >${this.hash.substring(0, this.sliceLength)}...</span
+        >
+        <mwc-icon-button
+          style="--mdc-icon-button-size	: 24px; --mdc-icon-size: 20px;"
+          icon="content_copy"
+          @click=${() => this.copyHash()}
+        ></mwc-icon-button>
+      </div>
+    `;
+    }
+    static get styles() {
+        return css `
+      .row {
+        display: flex;
+        flex-direction: row;
+      }
+      .column {
+        display: flex;
+        flex-direction: column;
+      }
+      .fill {
+        flex: 1;
+      }
+      .center-content {
+        align-items: center;
+        justify-content: center;
+        display: flex;
+      }
+    `;
+    }
+}
+__decorate([
+    property({ type: String })
+], CopyableHash.prototype, "hash", void 0);
+__decorate([
+    property({ type: Number })
+], CopyableHash.prototype, "sliceLength", void 0);
+__decorate([
+    query("#copy-notification")
+], CopyableHash.prototype, "_copyNotification", void 0);
 
 var index = {
     ActionTypes: ActionTypes,
