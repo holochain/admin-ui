@@ -3,10 +3,8 @@ import { createStore } from "vuex";
 import App from "./App.vue";
 import { AdminWebsocket, AppWebsocket } from "@holochain/conductor-api";
 import HcAdminPlugin from "./index";
-import { CopyableHash } from "@holochain-playground/elements";
 
 async function setup() {
-  customElements.define("copyable-hash", CopyableHash);
   const adminWebsocket = await AdminWebsocket.connect(`ws://localhost:8889`);
 
   const appWebsocket = await connectAppWebsocket(adminWebsocket);

@@ -5,6 +5,7 @@ import '@shoelace-style/shoelace/dist/components/tag/tag.js';
 import '@material/mwc-button';
 import '@authentic/mwc-card';
 import '@material/mwc-circular-progress';
+import { CopyableHash } from '@holochain-playground/elements';
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -114,17 +115,17 @@ const _hoisted_6 = { style: {"display":"flex","flex-direction":"row","flex":"1",
 const _hoisted_7 = { style: {"flex":"1","display":"flex","flex-direction":"column"} };
 const _hoisted_8 = { style: {"font-size":"1.3em"} };
 const _hoisted_9 = /*#__PURE__*/createElementVNode("span", { style: {"opacity":"0.7","margin-left":"8px"} }, "Dna Hash:", -1 /* HOISTED */);
-const _hoisted_10 = { style: {"display":"flex","flex-direction":"column"} };
-const _hoisted_11 = { style: {"display":"flex","flex-direction":"column","align-items":"center","justify-content":"center"} };
+const _hoisted_10 = { style: {"display":"flex","flex-direction":"column","align-items":"flex-end"} };
+const _hoisted_11 = { style: {"display":"flex","flex-direction":"row","align-items":"center","justify-content":"center"} };
 const _hoisted_12 = /*#__PURE__*/createElementVNode("span", { style: {"margin-right":"8px","opacity":"0.7"} }, "Public Key:", -1 /* HOISTED */);
 const _hoisted_13 = /*#__PURE__*/createTextVNode("Running");
 const _hoisted_14 = /*#__PURE__*/createTextVNode("Paused");
 const _hoisted_15 = /*#__PURE__*/createTextVNode("Disabled");
 const _hoisted_16 = {
   key: 0,
-  style: {"align-self":"end","margin-top":"8px"}
+  style: {"margin-top":"8px","max-width":"600px"}
 };
-const _hoisted_17 = { style: {"display":"flex","flex-direction":"row","align-items":"center","justify-content":"center","align-self":"end","margin-top":"8px"} };
+const _hoisted_17 = { style: {"display":"flex","flex-direction":"row","align-items":"center","justify-content":"center","margin-top":"8px"} };
 
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   const _component_mwc_circular_progress = resolveComponent("mwc-circular-progress");
@@ -211,43 +212,51 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                             ? (openBlock(), createElementBlock("span", _hoisted_16, toDisplayString(_ctx.getReason(app)), 1 /* TEXT */))
                             : createCommentVNode("v-if", true),
                           createElementVNode("div", _hoisted_17, [
-                            (_ctx.isAppRunning(app))
-                              ? (openBlock(), createBlock(_component_mwc_button, {
-                                  key: 0,
-                                  onClick: $event => (_ctx.$emit('openApp', app.installed_app_id)),
-                                  style: {"margin-left":"8px"},
-                                  label: "Open"
-                                }, null, 8 /* PROPS */, ["onClick"]))
-                              : createCommentVNode("v-if", true),
+                            createVNode(_component_mwc_button, {
+                              onClick: $event => (_ctx.uninstallApp(app.installed_app_id)),
+                              style: {"margin-left":"8px","--mdc-theme-primary":"#fc0303"},
+                              label: "Uninstall",
+                              raised: "",
+                              icon: "delete"
+                            }, null, 8 /* PROPS */, ["onClick"]),
                             (!_ctx.isAppDisabled(app))
                               ? (openBlock(), createBlock(_component_mwc_button, {
-                                  key: 1,
+                                  key: 0,
                                   onClick: $event => (_ctx.disableApp(app.installed_app_id)),
-                                  style: {"margin-left":"8px"},
-                                  label: "Disable"
+                                  style: {"margin-left":"8px","--mdc-theme-primary":"#fcf403"},
+                                  label: "Disable",
+                                  raised: "",
+                                  icon: "archive"
                                 }, null, 8 /* PROPS */, ["onClick"]))
                               : createCommentVNode("v-if", true),
                             (_ctx.isAppDisabled(app))
                               ? (openBlock(), createBlock(_component_mwc_button, {
-                                  key: 2,
+                                  key: 1,
                                   onClick: $event => (_ctx.enableApp(app.installed_app_id)),
-                                  style: {"margin-left":"8px"},
-                                  label: "Enable"
+                                  style: {"margin-left":"8px","--mdc-theme-primary":"#3dfc03"},
+                                  label: "Enable",
+                                  icon: "unarchive"
                                 }, null, 8 /* PROPS */, ["onClick"]))
                               : createCommentVNode("v-if", true),
                             (_ctx.isAppPaused(app))
                               ? (openBlock(), createBlock(_component_mwc_button, {
-                                  key: 3,
+                                  key: 2,
                                   onClick: $event => (_ctx.startApp(app.installed_app_id)),
-                                  style: {"margin-left":"8px"},
-                                  label: "Start"
+                                  style: {"margin-left":"8px","--mdc-theme-primary":"#3dfc03"},
+                                  label: "Start",
+                                  icon: "play_arrow"
                                 }, null, 8 /* PROPS */, ["onClick"]))
                               : createCommentVNode("v-if", true),
-                            createVNode(_component_mwc_button, {
-                              onClick: $event => (_ctx.uninstallApp(app.installed_app_id)),
-                              style: {"margin-left":"8px"},
-                              label: "Uninstall"
-                            }, null, 8 /* PROPS */, ["onClick"])
+                            (_ctx.isAppRunning(app))
+                              ? (openBlock(), createBlock(_component_mwc_button, {
+                                  key: 3,
+                                  onClick: $event => (_ctx.$emit('openApp', app.installed_app_id)),
+                                  style: {"margin-left":"8px"},
+                                  label: "Open",
+                                  raised: "",
+                                  icon: "launch"
+                                }, null, 8 /* PROPS */, ["onClick"]))
+                              : createCommentVNode("v-if", true)
                           ])
                         ])
                       ])
@@ -304,6 +313,7 @@ var index = {
     ActionTypes: ActionTypes,
     ADMIN_UI_MODULE,
     install(app, options) {
+        customElements.define("copyable-hash", CopyableHash);
         if (!options.adminWebsocket)
             throw new Error(`Failed to load the plugin: no "adminWebsocket" was provided in the plugin options`);
         if (!options.appWebsocket)

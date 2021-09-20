@@ -43,11 +43,17 @@
               </div>
             </div>
 
-            <div style="display: flex; flex-direction: column">
+            <div
+              style="
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+              "
+            >
               <div
                 style="
                   display: flex;
-                  flex-direction: column;
+                  flex-direction: row;
                   align-items: center;
                   justify-content: center;
                 "
@@ -66,7 +72,7 @@
               </div>
               <span
                 v-if="getReason(app)"
-                style="align-self: end; margin-top: 8px"
+                style="margin-top: 8px; max-width: 600px"
               >
                 {{ getReason(app) }}</span
               >
@@ -77,42 +83,51 @@
                   flex-direction: row;
                   align-items: center;
                   justify-content: center;
-                  align-self: end;
                   margin-top: 8px;
                 "
               >
                 <mwc-button
-                  v-if="isAppRunning(app)"
-                  @click="$emit('openApp', app.installed_app_id)"
-                  style="margin-left: 8px"
-                  label="Open"
+                  @click="uninstallApp(app.installed_app_id)"
+                  style="margin-left: 8px; --mdc-theme-primary: #fc0303"
+                  label="Uninstall"
+                  raised
+                  icon="delete"
                 >
                 </mwc-button>
+
                 <mwc-button
                   v-if="!isAppDisabled(app)"
                   @click="disableApp(app.installed_app_id)"
-                  style="margin-left: 8px"
+                  style="margin-left: 8px; --mdc-theme-primary: #fcf403;"
                   label="Disable"
+                  raised
+                  icon="archive"
                 >
                 </mwc-button>
                 <mwc-button
                   v-if="isAppDisabled(app)"
                   @click="enableApp(app.installed_app_id)"
-                  style="margin-left: 8px"
+                  style="margin-left: 8px; --mdc-theme-primary: #3dfc03"
                   label="Enable"
+                  icon="unarchive"
                 >
                 </mwc-button>
                 <mwc-button
                   v-if="isAppPaused(app)"
                   @click="startApp(app.installed_app_id)"
-                  style="margin-left: 8px"
+                  style="margin-left: 8px; --mdc-theme-primary: #3dfc03"
                   label="Start"
+                  icon="play_arrow"
                 >
                 </mwc-button>
+
                 <mwc-button
-                  @click="uninstallApp(app.installed_app_id)"
+                  v-if="isAppRunning(app)"
+                  @click="$emit('openApp', app.installed_app_id)"
                   style="margin-left: 8px"
-                  label="Uninstall"
+                  label="Open"
+                  raised
+                  icon="launch"
                 >
                 </mwc-button>
               </div>

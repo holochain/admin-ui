@@ -9,6 +9,8 @@ import "@material/mwc-button";
 import "@authentic/mwc-card";
 import "@material/mwc-circular-progress";
 
+import { CopyableHash } from "@holochain-playground/elements";
+
 export default {
   ActionTypes: ActionTypes,
   ADMIN_UI_MODULE,
@@ -19,7 +21,8 @@ export default {
       adminWebsocket: AdminWebsocket;
       store: Store<any>;
     }
-  ) {
+    ) {
+    customElements.define("copyable-hash", CopyableHash);
     if (!options.adminWebsocket)
       throw new Error(
         `Failed to load the plugin: no "adminWebsocket" was provided in the plugin options`
