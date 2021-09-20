@@ -109,6 +109,7 @@
                   @click="enableApp(app.installed_app_id)"
                   style="margin-left: 8px; --mdc-theme-primary: #3dfc03"
                   label="Enable"
+                  raised
                   icon="unarchive"
                 >
                 </mwc-button>
@@ -117,6 +118,7 @@
                   @click="startApp(app.installed_app_id)"
                   style="margin-left: 8px; --mdc-theme-primary: #3dfc03"
                   label="Start"
+                  raised
                   icon="play_arrow"
                 >
                 </mwc-button>

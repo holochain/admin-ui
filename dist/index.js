@@ -235,6 +235,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                   onClick: $event => (_ctx.enableApp(app.installed_app_id)),
                                   style: {"margin-left":"8px","--mdc-theme-primary":"#3dfc03"},
                                   label: "Enable",
+                                  raised: "",
                                   icon: "unarchive"
                                 }, null, 8 /* PROPS */, ["onClick"]))
                               : createCommentVNode("v-if", true),
@@ -244,6 +245,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                   onClick: $event => (_ctx.startApp(app.installed_app_id)),
                                   style: {"margin-left":"8px","--mdc-theme-primary":"#3dfc03"},
                                   label: "Start",
+                                  raised: "",
                                   icon: "play_arrow"
                                 }, null, 8 /* PROPS */, ["onClick"]))
                               : createCommentVNode("v-if", true),
