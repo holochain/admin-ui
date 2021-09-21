@@ -2,6 +2,8 @@ import { AdminWebsocket, AppWebsocket } from "@holochain/conductor-api";
 import { App } from "vue";
 import { Store } from "vuex";
 import "@material/mwc-button";
+import "@material/mwc-icon-button";
+import "@material/mwc-dialog";
 import "@authentic/mwc-card";
 import "@material/mwc-circular-progress";
 declare const _default: {

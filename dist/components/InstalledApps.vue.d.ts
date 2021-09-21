@@ -4,6 +4,7 @@ import "@shoelace-style/shoelace/dist/themes/light.css";
 import "@shoelace-style/shoelace/dist/components/tag/tag.js";
 declare const _default: import("vue").DefineComponent<{}, {}, {
     ADMIN_UI_MODULE: string;
+    showInfoDialogForAppId: string | undefined;
 }, {}, {
     deserializeHash: typeof deserializeHash;
     serializeHash: typeof serializeHash;
