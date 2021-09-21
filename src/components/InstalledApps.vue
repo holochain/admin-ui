@@ -72,6 +72,7 @@
                   flex-direction: row;
                   align-items: center;
                   justify-content: center;
+                  flex: 1;
                 "
               >
                 <span style="margin-right: 8px; opacity: 0.9"
@@ -93,11 +94,43 @@
                 <sl-tag type="danger" v-if="isAppDisabled(app)"
                   >Disabled</sl-tag
                 >
-              </div>
-              <div style="flex: 1; margin-top: 12px">
-                <span v-if="getReason(app)" style="max-width: 600px">
-                  {{ getReason(app) }}</span
+
+                <mwc-icon-button
+                  @click="showInfoDialogForAppId = app.installed_app_id"
+                  style="margin-left: 8px"
+                  v-if="getReason(app)"
+                  icon="info"
                 >
+                </mwc-icon-button>
+                <mwc-dialog
+                  :open="showInfoDialogForAppId"
+                  :heading="showInfoDialogForAppId"
+                  @closing="showInfoDialogForAppId = undefined"
+                >
+                  <div style="display: flex; flex-direction: column">
+                    <span
+                      >Status:
+                      <sl-tag type="success" v-if="isAppRunning(app)"
+                        >Running</sl-tag
+                      >
+                      <sl-tag type="warning" v-if="isAppPaused(app)"
+                        >Paused</sl-tag
+                      >
+                      <sl-tag type="danger" v-if="isAppDisabled(app)"
+                        >Disabled</sl-tag
+                      >
+                    </span>
+                    <span style="margin-top: 8px">
+                      {{ getReason(app) }}
+                    </span>
+                  </div>
+
+                  <mwc-button
+                    label="Ok"
+                    slot="primaryAction"
+                    dialogAction="close"
+                  ></mwc-button>
+                </mwc-dialog>
               </div>
 
               <div
@@ -171,9 +204,13 @@ import "@shoelace-style/shoelace/dist/components/tag/tag.js";
 
 export default defineComponent({
   name: "InstalledApps",
-  data() {
+  data(): {
+    ADMIN_UI_MODULE: string;
+    showInfoDialogForAppId: string | undefined;
+  } {
     return {
       ADMIN_UI_MODULE,
+      showInfoDialogForAppId: undefined,
     };
   },
   emits: ["openApp", "disableApp", "enableApp", "startApp", "uninstallApp"],

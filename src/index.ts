@@ -6,6 +6,8 @@ import { hcAdminVuexModule } from "./store";
 import { ADMIN_UI_MODULE } from "./constants";
 import { ActionTypes } from "./store/actions";
 import "@material/mwc-button";
+import "@material/mwc-icon-button";
+import "@material/mwc-dialog";
 import "@authentic/mwc-card";
 import "@material/mwc-circular-progress";
 
