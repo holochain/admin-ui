@@ -207,7 +207,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                 createElementVNode("span", null, toDisplayString(cellData.cell_nick), 1 /* TEXT */)
                               ]),
                               createElementVNode("td", null, [
-                                createElementVNode("span", _hoisted_16, toDisplayString(_ctx.serializeHash(cellData.cell_id[0]).substring(0, 12)) + "...", 1 /* TEXT */)
+                                createElementVNode("span", _hoisted_16, toDisplayString(_ctx.serializeHash(cellData.cell_id[0])), 1 /* TEXT */)
                               ])
                             ]))
                           }), 128 /* KEYED_FRAGMENT */))
@@ -216,7 +216,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                       createElementVNode("div", _hoisted_17, [
                         createElementVNode("div", _hoisted_18, [
                           _hoisted_19,
-                          createElementVNode("span", _hoisted_20, toDisplayString(_ctx.serializeHash(app.cell_data[0].cell_id[1]).substring(0, 12)) + "...", 1 /* TEXT */),
+                          createElementVNode("span", _hoisted_20, toDisplayString(_ctx.serializeHash(app.cell_data[0].cell_id[1])), 1 /* TEXT */),
                           (_ctx.isAppRunning(app))
                             ? (openBlock(), createElementBlock("sl-tag", _hoisted_21, "Running"))
                             : createCommentVNode("v-if", true),

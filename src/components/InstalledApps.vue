@@ -49,11 +49,9 @@
                     <span>{{ cellData.cell_nick }}</span>
                   </td>
                   <td>
-                    <span style="opacity: 0.7; font-family: monospace"
-                      >{{
-                        serializeHash(cellData.cell_id[0]).substring(0, 12)
-                      }}...</span
-                    >
+                    <span style="opacity: 0.7; font-family: monospace">{{
+                      serializeHash(cellData.cell_id[0])
+                    }}</span>
                   </td>
                 </tr>
               </table>
@@ -84,9 +82,7 @@
                     opacity: 0.7;
                     font-family: monospace;
                   "
-                  >{{
-                    serializeHash(app.cell_data[0].cell_id[1]).substring(0, 12)
-                  }}...</span
+                  >{{ serializeHash(app.cell_data[0].cell_id[1]) }}</span
                 >
 
                 <sl-tag type="success" v-if="isAppRunning(app)">Running</sl-tag>
@@ -120,7 +116,7 @@
                         >Disabled</sl-tag
                       >
                     </span>
-                    <span style="margin-top: 8px;">
+                    <span style="margin-top: 8px">
                       {{ getReason(app) }}
                     </span>
                   </div>
