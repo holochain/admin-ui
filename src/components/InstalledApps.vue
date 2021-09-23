@@ -34,7 +34,7 @@
             <div style="flex: 1; display: flex; flex-direction: column">
               <span style="font-size: 1.6em">{{ app.installed_app_id }}</span>
 
-              <table style="width: 350px; text-align: left; margin-top: 8px">
+              <table style="width: 550px; text-align: left; margin-top: 8px">
                 <tr>
                   <th>Cell Nick</th>
                   <th>Dna Hash</th>
@@ -70,7 +70,6 @@
                   flex-direction: row;
                   align-items: center;
                   justify-content: center;
-                  flex: 1;
                 "
               >
                 <span style="margin-right: 8px; opacity: 0.9"
@@ -129,6 +128,8 @@
                 </mwc-dialog>
               </div>
 
+              <div style="flex: 1"></div>
+              
               <div
                 style="
                   display: flex;

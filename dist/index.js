@@ -128,14 +128,14 @@ const _hoisted_10 = { style: {"width":"auto"} };
 const _hoisted_11 = { style: {"display":"flex","flex-direction":"row","flex":"1","padding":"8px"} };
 const _hoisted_12 = { style: {"flex":"1","display":"flex","flex-direction":"column"} };
 const _hoisted_13 = { style: {"font-size":"1.6em"} };
-const _hoisted_14 = { style: {"width":"350px","text-align":"left","margin-top":"8px"} };
+const _hoisted_14 = { style: {"width":"550px","text-align":"left","margin-top":"8px"} };
 const _hoisted_15 = /*#__PURE__*/createElementVNode("tr", null, [
   /*#__PURE__*/createElementVNode("th", null, "Cell Nick"),
   /*#__PURE__*/createElementVNode("th", null, "Dna Hash")
 ], -1 /* HOISTED */);
 const _hoisted_16 = { style: {"opacity":"0.7","font-family":"monospace"} };
 const _hoisted_17 = { style: {"display":"flex","flex-direction":"column","align-items":"flex-end"} };
-const _hoisted_18 = { style: {"display":"flex","flex-direction":"row","align-items":"center","justify-content":"center","flex":"1"} };
+const _hoisted_18 = { style: {"display":"flex","flex-direction":"row","align-items":"center","justify-content":"center"} };
 const _hoisted_19 = /*#__PURE__*/createElementVNode("span", { style: {"margin-right":"8px","opacity":"0.9"} }, "Your Public Key:", -1 /* HOISTED */);
 const _hoisted_20 = { style: {"margin-right":"16px","opacity":"0.7","font-family":"monospace"} };
 const _hoisted_21 = {
@@ -172,12 +172,13 @@ const _hoisted_32 = /*#__PURE__*/createElementVNode("mwc-button", {
   slot: "primaryAction",
   dialogAction: "close"
 }, null, -1 /* HOISTED */);
-const _hoisted_33 = { style: {"display":"flex","flex-direction":"row","align-items":"center","justify-content":"center","margin-top":"8px","--mdc-theme-primary":"rgb(90, 90, 90)"} };
-const _hoisted_34 = ["onClick"];
+const _hoisted_33 = /*#__PURE__*/createElementVNode("div", { style: {"flex":"1"} }, null, -1 /* HOISTED */);
+const _hoisted_34 = { style: {"display":"flex","flex-direction":"row","align-items":"center","justify-content":"center","margin-top":"8px","--mdc-theme-primary":"rgb(90, 90, 90)"} };
 const _hoisted_35 = ["onClick"];
 const _hoisted_36 = ["onClick"];
 const _hoisted_37 = ["onClick"];
 const _hoisted_38 = ["onClick"];
+const _hoisted_39 = ["onClick"];
 
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   return (_ctx.$store.state.admin.installedApps.loading)
@@ -257,13 +258,14 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                             _hoisted_32
                           ], 40 /* PROPS, HYDRATE_EVENTS */, _hoisted_25)
                         ]),
-                        createElementVNode("div", _hoisted_33, [
+                        _hoisted_33,
+                        createElementVNode("div", _hoisted_34, [
                           createElementVNode("mwc-button", {
                             onClick: $event => (_ctx.uninstallApp(app.installed_app_id)),
                             style: {"margin-left":"8px"},
                             label: "Uninstall",
                             icon: "delete"
-                          }, null, 8 /* PROPS */, _hoisted_34),
+                          }, null, 8 /* PROPS */, _hoisted_35),
                           (!_ctx.isAppDisabled(app))
                             ? (openBlock(), createElementBlock("mwc-button", {
                                 key: 0,
@@ -271,7 +273,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                 style: {"margin-left":"8px"},
                                 label: "Disable",
                                 icon: "archive"
-                              }, null, 8 /* PROPS */, _hoisted_35))
+                              }, null, 8 /* PROPS */, _hoisted_36))
                             : createCommentVNode("v-if", true),
                           (_ctx.isAppDisabled(app))
                             ? (openBlock(), createElementBlock("mwc-button", {
@@ -280,7 +282,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                 style: {"margin-left":"8px"},
                                 label: "Enable",
                                 icon: "unarchive"
-                              }, null, 8 /* PROPS */, _hoisted_36))
+                              }, null, 8 /* PROPS */, _hoisted_37))
                             : createCommentVNode("v-if", true),
                           (_ctx.isAppPaused(app))
                             ? (openBlock(), createElementBlock("mwc-button", {
@@ -289,7 +291,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                 style: {"margin-left":"8px"},
                                 label: "Start",
                                 icon: "play_arrow"
-                              }, null, 8 /* PROPS */, _hoisted_37))
+                              }, null, 8 /* PROPS */, _hoisted_38))
                             : createCommentVNode("v-if", true),
                           (_ctx.isAppRunning(app))
                             ? (openBlock(), createElementBlock("mwc-button", {
@@ -298,7 +300,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                 style: {"margin-left":"8px"},
                                 label: "Open",
                                 icon: "launch"
-                              }, null, 8 /* PROPS */, _hoisted_38))
+                              }, null, 8 /* PROPS */, _hoisted_39))
                             : createCommentVNode("v-if", true)
                         ])
                       ])
