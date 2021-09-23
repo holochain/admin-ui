@@ -7,7 +7,7 @@
   </div>
   <div v-else>
     <div style="display: flex; flex: 1; flex-direction: column">
-      <span style="margin-bottom: 16px; font-size: 1.5em">Installed apps</span>
+      <span style="margin-bottom: 16px; font-size: 1.5em">Installed Apps</span>
       <div
         v-if="$store.getters[`${ADMIN_UI_MODULE}/allApps`].length === 0"
         style="
@@ -29,41 +29,12 @@
       >
         <mwc-card style="width: auto">
           <div
-            style="display: flex; flex-direction: row; flex: 1; padding: 8px"
+            style="display: flex; flex-direction: column; flex: 1; padding: 8px"
           >
-            <div style="flex: 1; display: flex; flex-direction: column">
+            <div style="display: flex; flex-direction: row">
               <span style="font-size: 1.6em">{{ app.installed_app_id }}</span>
+              <span style="flex: 1"></span>
 
-              <table style="width: 550px; text-align: left; margin-top: 8px">
-                <tr>
-                  <th>Cell Nick</th>
-                  <th>Dna Hash</th>
-                </tr>
-
-                <tr
-                  style=""
-                  v-for="cellData in app.cell_data"
-                  :key="[...cellData.cell_id[0], ...cellData.cell_id[1]]"
-                >
-                  <td>
-                    <span>{{ cellData.cell_nick }}</span>
-                  </td>
-                  <td>
-                    <span style="opacity: 0.7; font-family: monospace">{{
-                      serializeHash(cellData.cell_id[0])
-                    }}</span>
-                  </td>
-                </tr>
-              </table>
-            </div>
-
-            <div
-              style="
-                display: flex;
-                flex-direction: column;
-                align-items: flex-end;
-              "
-            >
               <div
                 style="
                   display: flex;
@@ -127,8 +98,32 @@
                   ></mwc-button>
                 </mwc-dialog>
               </div>
+            </div>
 
-              <div style="flex: 1"></div>
+            <div
+              style="display: flex; flex-direction: row; align-items: flex-end"
+            >
+              <table style="flex: 1; text-align: left; margin-top: 8px">
+                <tr>
+                  <th>Cell Nick</th>
+                  <th>Dna Hash</th>
+                </tr>
+
+                <tr
+                  style=""
+                  v-for="cellData in app.cell_data"
+                  :key="[...cellData.cell_id[0], ...cellData.cell_id[1]]"
+                >
+                  <td>
+                    <span>{{ cellData.cell_nick }}</span>
+                  </td>
+                  <td>
+                    <span style="opacity: 0.7; font-family: monospace">{{
+                      serializeHash(cellData.cell_id[0])
+                    }}</span>
+                  </td>
+                </tr>
+              </table>
 
               <div
                 style="
