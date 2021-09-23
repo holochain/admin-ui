@@ -125,54 +125,54 @@ const _hoisted_9 = [
   _hoisted_8
 ];
 const _hoisted_10 = { style: {"width":"auto"} };
-const _hoisted_11 = { style: {"display":"flex","flex-direction":"row","flex":"1","padding":"8px"} };
-const _hoisted_12 = { style: {"flex":"1","display":"flex","flex-direction":"column"} };
+const _hoisted_11 = { style: {"display":"flex","flex-direction":"column","flex":"1","padding":"8px"} };
+const _hoisted_12 = { style: {"display":"flex","flex-direction":"row"} };
 const _hoisted_13 = { style: {"font-size":"1.6em"} };
-const _hoisted_14 = { style: {"width":"550px","text-align":"left","margin-top":"8px"} };
-const _hoisted_15 = /*#__PURE__*/createElementVNode("tr", null, [
-  /*#__PURE__*/createElementVNode("th", null, "Cell Nick"),
-  /*#__PURE__*/createElementVNode("th", null, "Dna Hash")
-], -1 /* HOISTED */);
-const _hoisted_16 = { style: {"opacity":"0.7","font-family":"monospace"} };
-const _hoisted_17 = { style: {"display":"flex","flex-direction":"column","align-items":"flex-end"} };
-const _hoisted_18 = { style: {"display":"flex","flex-direction":"row","align-items":"center","justify-content":"center"} };
-const _hoisted_19 = /*#__PURE__*/createElementVNode("span", { style: {"margin-right":"8px","opacity":"0.9"} }, "Your Public Key:", -1 /* HOISTED */);
-const _hoisted_20 = { style: {"margin-right":"16px","opacity":"0.7","font-family":"monospace"} };
-const _hoisted_21 = {
+const _hoisted_14 = /*#__PURE__*/createElementVNode("span", { style: {"flex":"1"} }, null, -1 /* HOISTED */);
+const _hoisted_15 = { style: {"display":"flex","flex-direction":"row","align-items":"center","justify-content":"center"} };
+const _hoisted_16 = /*#__PURE__*/createElementVNode("span", { style: {"margin-right":"8px","opacity":"0.9"} }, "Your Public Key:", -1 /* HOISTED */);
+const _hoisted_17 = { style: {"margin-right":"16px","opacity":"0.7","font-family":"monospace"} };
+const _hoisted_18 = {
   key: 0,
   type: "success"
 };
-const _hoisted_22 = {
+const _hoisted_19 = {
   key: 1,
   type: "warning"
 };
-const _hoisted_23 = {
+const _hoisted_20 = {
   key: 2,
   type: "danger"
 };
-const _hoisted_24 = ["onClick"];
-const _hoisted_25 = ["open", "heading"];
-const _hoisted_26 = { style: {"display":"flex","flex-direction":"column"} };
-const _hoisted_27 = /*#__PURE__*/createTextVNode("Status: ");
-const _hoisted_28 = {
+const _hoisted_21 = ["onClick"];
+const _hoisted_22 = ["open", "heading"];
+const _hoisted_23 = { style: {"display":"flex","flex-direction":"column"} };
+const _hoisted_24 = /*#__PURE__*/createTextVNode("Status: ");
+const _hoisted_25 = {
   key: 0,
   type: "success"
 };
-const _hoisted_29 = {
+const _hoisted_26 = {
   key: 1,
   type: "warning"
 };
-const _hoisted_30 = {
+const _hoisted_27 = {
   key: 2,
   type: "danger"
 };
-const _hoisted_31 = { style: {"margin-top":"8px"} };
-const _hoisted_32 = /*#__PURE__*/createElementVNode("mwc-button", {
+const _hoisted_28 = { style: {"margin-top":"8px"} };
+const _hoisted_29 = /*#__PURE__*/createElementVNode("mwc-button", {
   label: "Ok",
   slot: "primaryAction",
   dialogAction: "close"
 }, null, -1 /* HOISTED */);
-const _hoisted_33 = /*#__PURE__*/createElementVNode("div", { style: {"flex":"1"} }, null, -1 /* HOISTED */);
+const _hoisted_30 = { style: {"display":"flex","flex-direction":"row","align-items":"flex-end"} };
+const _hoisted_31 = { style: {"flex":"1","text-align":"left","margin-top":"8px"} };
+const _hoisted_32 = /*#__PURE__*/createElementVNode("tr", null, [
+  /*#__PURE__*/createElementVNode("th", null, "Cell Nick"),
+  /*#__PURE__*/createElementVNode("th", null, "Dna Hash")
+], -1 /* HOISTED */);
+const _hoisted_33 = { style: {"opacity":"0.7","font-family":"monospace"} };
 const _hoisted_34 = { style: {"display":"flex","flex-direction":"row","align-items":"center","justify-content":"center","margin-top":"8px","--mdc-theme-primary":"rgb(90, 90, 90)"} };
 const _hoisted_35 = ["onClick"];
 const _hoisted_36 = ["onClick"];
@@ -197,8 +197,54 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                     createElementVNode("div", _hoisted_11, [
                       createElementVNode("div", _hoisted_12, [
                         createElementVNode("span", _hoisted_13, toDisplayString(app.installed_app_id), 1 /* TEXT */),
-                        createElementVNode("table", _hoisted_14, [
-                          _hoisted_15,
+                        _hoisted_14,
+                        createElementVNode("div", _hoisted_15, [
+                          _hoisted_16,
+                          createElementVNode("span", _hoisted_17, toDisplayString(_ctx.serializeHash(app.cell_data[0].cell_id[1])), 1 /* TEXT */),
+                          (_ctx.isAppRunning(app))
+                            ? (openBlock(), createElementBlock("sl-tag", _hoisted_18, "Running"))
+                            : createCommentVNode("v-if", true),
+                          (_ctx.isAppPaused(app))
+                            ? (openBlock(), createElementBlock("sl-tag", _hoisted_19, "Paused"))
+                            : createCommentVNode("v-if", true),
+                          (_ctx.isAppDisabled(app))
+                            ? (openBlock(), createElementBlock("sl-tag", _hoisted_20, "Disabled"))
+                            : createCommentVNode("v-if", true),
+                          (_ctx.getReason(app))
+                            ? (openBlock(), createElementBlock("mwc-icon-button", {
+                                key: 3,
+                                onClick: $event => (_ctx.showInfoDialogForAppId = app.installed_app_id),
+                                style: {"margin-left":"8px"},
+                                icon: "info"
+                              }, null, 8 /* PROPS */, _hoisted_21))
+                            : createCommentVNode("v-if", true),
+                          createElementVNode("mwc-dialog", {
+                            open: _ctx.showInfoDialogForAppId,
+                            heading: _ctx.showInfoDialogForAppId,
+                            onClosing: _cache[0] || (_cache[0] = $event => (_ctx.showInfoDialogForAppId = undefined))
+                          }, [
+                            createElementVNode("div", _hoisted_23, [
+                              createElementVNode("span", null, [
+                                _hoisted_24,
+                                (_ctx.isAppRunning(app))
+                                  ? (openBlock(), createElementBlock("sl-tag", _hoisted_25, "Running"))
+                                  : createCommentVNode("v-if", true),
+                                (_ctx.isAppPaused(app))
+                                  ? (openBlock(), createElementBlock("sl-tag", _hoisted_26, "Paused"))
+                                  : createCommentVNode("v-if", true),
+                                (_ctx.isAppDisabled(app))
+                                  ? (openBlock(), createElementBlock("sl-tag", _hoisted_27, "Disabled"))
+                                  : createCommentVNode("v-if", true)
+                              ]),
+                              createElementVNode("span", _hoisted_28, toDisplayString(_ctx.getReason(app)), 1 /* TEXT */)
+                            ]),
+                            _hoisted_29
+                          ], 40 /* PROPS, HYDRATE_EVENTS */, _hoisted_22)
+                        ])
+                      ]),
+                      createElementVNode("div", _hoisted_30, [
+                        createElementVNode("table", _hoisted_31, [
+                          _hoisted_32,
                           (openBlock(true), createElementBlock(Fragment, null, renderList(app.cell_data, (cellData) => {
                             return (openBlock(), createElementBlock("tr", {
                               style: {},
@@ -208,57 +254,11 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                 createElementVNode("span", null, toDisplayString(cellData.cell_nick), 1 /* TEXT */)
                               ]),
                               createElementVNode("td", null, [
-                                createElementVNode("span", _hoisted_16, toDisplayString(_ctx.serializeHash(cellData.cell_id[0])), 1 /* TEXT */)
+                                createElementVNode("span", _hoisted_33, toDisplayString(_ctx.serializeHash(cellData.cell_id[0])), 1 /* TEXT */)
                               ])
                             ]))
                           }), 128 /* KEYED_FRAGMENT */))
-                        ])
-                      ]),
-                      createElementVNode("div", _hoisted_17, [
-                        createElementVNode("div", _hoisted_18, [
-                          _hoisted_19,
-                          createElementVNode("span", _hoisted_20, toDisplayString(_ctx.serializeHash(app.cell_data[0].cell_id[1])), 1 /* TEXT */),
-                          (_ctx.isAppRunning(app))
-                            ? (openBlock(), createElementBlock("sl-tag", _hoisted_21, "Running"))
-                            : createCommentVNode("v-if", true),
-                          (_ctx.isAppPaused(app))
-                            ? (openBlock(), createElementBlock("sl-tag", _hoisted_22, "Paused"))
-                            : createCommentVNode("v-if", true),
-                          (_ctx.isAppDisabled(app))
-                            ? (openBlock(), createElementBlock("sl-tag", _hoisted_23, "Disabled"))
-                            : createCommentVNode("v-if", true),
-                          (_ctx.getReason(app))
-                            ? (openBlock(), createElementBlock("mwc-icon-button", {
-                                key: 3,
-                                onClick: $event => (_ctx.showInfoDialogForAppId = app.installed_app_id),
-                                style: {"margin-left":"8px"},
-                                icon: "info"
-                              }, null, 8 /* PROPS */, _hoisted_24))
-                            : createCommentVNode("v-if", true),
-                          createElementVNode("mwc-dialog", {
-                            open: _ctx.showInfoDialogForAppId,
-                            heading: _ctx.showInfoDialogForAppId,
-                            onClosing: _cache[0] || (_cache[0] = $event => (_ctx.showInfoDialogForAppId = undefined))
-                          }, [
-                            createElementVNode("div", _hoisted_26, [
-                              createElementVNode("span", null, [
-                                _hoisted_27,
-                                (_ctx.isAppRunning(app))
-                                  ? (openBlock(), createElementBlock("sl-tag", _hoisted_28, "Running"))
-                                  : createCommentVNode("v-if", true),
-                                (_ctx.isAppPaused(app))
-                                  ? (openBlock(), createElementBlock("sl-tag", _hoisted_29, "Paused"))
-                                  : createCommentVNode("v-if", true),
-                                (_ctx.isAppDisabled(app))
-                                  ? (openBlock(), createElementBlock("sl-tag", _hoisted_30, "Disabled"))
-                                  : createCommentVNode("v-if", true)
-                              ]),
-                              createElementVNode("span", _hoisted_31, toDisplayString(_ctx.getReason(app)), 1 /* TEXT */)
-                            ]),
-                            _hoisted_32
-                          ], 40 /* PROPS, HYDRATE_EVENTS */, _hoisted_25)
                         ]),
-                        _hoisted_33,
                         createElementVNode("div", _hoisted_34, [
                           createElementVNode("mwc-button", {
                             onClick: $event => (_ctx.uninstallApp(app.installed_app_id)),
