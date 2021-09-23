@@ -7,7 +7,7 @@
   </div>
   <div v-else>
     <div style="display: flex; flex: 1; flex-direction: column">
-      <span style="margin-bottom: 16px; font-size: 1.5em">Installed apps</span>
+      <span style="margin-bottom: 16px; font-size: 1.5em">Installed Apps</span>
       <div
         v-if="$store.getters[`${ADMIN_UI_MODULE}/allApps`].length === 0"
         style="

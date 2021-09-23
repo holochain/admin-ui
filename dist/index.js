@@ -115,7 +115,7 @@ const _hoisted_3 = [
 ];
 const _hoisted_4 = { key: 1 };
 const _hoisted_5 = { style: {"display":"flex","flex":"1","flex-direction":"column"} };
-const _hoisted_6 = /*#__PURE__*/createElementVNode("span", { style: {"margin-bottom":"16px","font-size":"1.5em"} }, "Installed apps", -1 /* HOISTED */);
+const _hoisted_6 = /*#__PURE__*/createElementVNode("span", { style: {"margin-bottom":"16px","font-size":"1.5em"} }, "Installed Apps", -1 /* HOISTED */);
 const _hoisted_7 = {
   key: 0,
   style: {"flex":"1","display":"flex","align-items":"center","justify-content":"center"}
