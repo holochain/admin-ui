@@ -27,7 +27,7 @@
         :key="app.installed_app_id"
         style="display: flex; flex-direction: column; margin-bottom: 16px"
       >
-        <mwc-card style="width: auto">
+        <ui5-card style="width: auto">
           <div
             style="display: flex; flex-direction: column; flex: 1; padding: 8px"
           >
@@ -179,7 +179,7 @@
               </div>
             </div>
           </div>
-        </mwc-card>
+        </ui5-card>
       </div>
     </div>
   </div>

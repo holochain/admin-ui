@@ -8,8 +8,8 @@ import { ActionTypes } from "./store/actions";
 import "@material/mwc-button";
 import "@material/mwc-icon-button";
 import "@material/mwc-dialog";
-import "@authentic/mwc-card";
 import "@material/mwc-circular-progress";
+import "@ui5/webcomponents/dist/Card.js";
 
 export default {
   ActionTypes: ActionTypes,
