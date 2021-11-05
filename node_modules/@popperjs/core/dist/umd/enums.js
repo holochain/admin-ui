@@ -1,5 +1,5 @@
 /**
- * @popperjs/core v2.10.1 - MIT License
+ * @popperjs/core v2.10.2 - MIT License
  */
 
 (function (global, factory) {

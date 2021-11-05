@@ -185,7 +185,7 @@ const _hoisted_29 = /*#__PURE__*/createElementVNode("mwc-button", {
 const _hoisted_30 = { style: {"display":"flex","flex-direction":"row","align-items":"flex-end"} };
 const _hoisted_31 = { style: {"flex":"1","text-align":"left","margin-top":"8px"} };
 const _hoisted_32 = /*#__PURE__*/createElementVNode("tr", null, [
-  /*#__PURE__*/createElementVNode("th", null, "Cell Nick"),
+  /*#__PURE__*/createElementVNode("th", null, "Cell Role"),
   /*#__PURE__*/createElementVNode("th", null, "Dna Hash")
 ], -1 /* HOISTED */);
 const _hoisted_33 = { style: {"opacity":"0.7","font-family":"monospace"} };
@@ -267,7 +267,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                               key: [...cellData.cell_id[0], ...cellData.cell_id[1]]
                             }, [
                               createElementVNode("td", null, [
-                                createElementVNode("span", null, toDisplayString(cellData.cell_nick), 1 /* TEXT */)
+                                createElementVNode("span", null, toDisplayString(cellData.role_id), 1 /* TEXT */)
                               ]),
                               createElementVNode("td", null, [
                                 createElementVNode("span", _hoisted_33, toDisplayString(_ctx.serializeHash(cellData.cell_id[0])), 1 /* TEXT */)
@@ -331,7 +331,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
 script.render = render;
 script.__file = "src/components/InstalledApps.vue";
 
-function hcAdminVuexModule(adminWebsocket, appWebsocket) {
+function hcAdminVuexModule(adminWebsocket) {
     return {
         namespaced: true,
         state() {
@@ -4130,11 +4130,9 @@ var index = {
     install(app, options) {
         if (!options.adminWebsocket)
             throw new Error(`Failed to load the plugin: no "adminWebsocket" was provided in the plugin options`);
-        if (!options.appWebsocket)
-            throw new Error(`Failed to load the plugin: no "appWebsocket" was provided in the plugin options`);
         if (!options.store)
             throw new Error(`Failed to load the plugin: no Vuex "store" was provided in the plugin options`);
-        options.store.registerModule(ADMIN_UI_MODULE, hcAdminVuexModule(options.adminWebsocket, options.appWebsocket));
+        options.store.registerModule(ADMIN_UI_MODULE, hcAdminVuexModule(options.adminWebsocket));
         app.component("InstalledApps", script);
     },
 };

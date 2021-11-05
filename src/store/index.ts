@@ -1,17 +1,12 @@
 import { Module } from "vuex";
-import {
-  AdminWebsocket,
-  AppWebsocket,
-  InstalledAppInfo,
-} from "@holochain/conductor-api";
+import { AdminWebsocket, InstalledAppInfo } from "@holochain/conductor-api";
 
 export interface HcAdminState {
   installedApps: { loading: boolean; appsInfo: Array<InstalledAppInfo> };
 }
 
 export function hcAdminVuexModule(
-  adminWebsocket: AdminWebsocket,
-  appWebsocket: AppWebsocket
+  adminWebsocket: AdminWebsocket
 ): Module<HcAdminState, { admin: HcAdminState }> {
   return {
     namespaced: true,

@@ -105,7 +105,7 @@
             >
               <table style="flex: 1; text-align: left; margin-top: 8px">
                 <tr>
-                  <th>Cell Nick</th>
+                  <th>Cell Role</th>
                   <th>Dna Hash</th>
                 </tr>
 
@@ -115,7 +115,7 @@
                   :key="[...cellData.cell_id[0], ...cellData.cell_id[1]]"
                 >
                   <td>
-                    <span>{{ cellData.cell_nick }}</span>
+                    <span>{{ cellData.role_id }}</span>
                   </td>
                   <td>
                     <span style="opacity: 0.7; font-family: monospace">{{
