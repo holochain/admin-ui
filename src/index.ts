@@ -1,4 +1,4 @@
-import { AdminWebsocket, AppWebsocket } from "@holochain/conductor-api";
+import { AdminWebsocket } from "@holochain/conductor-api";
 import { App } from "vue";
 import { Store } from "vuex";
 import InstalledApps from "./components/InstalledApps.vue"; // @ is an alias to /src
@@ -17,7 +17,6 @@ export default {
   install(
     app: App,
     options: {
-      appWebsocket: AppWebsocket;
       adminWebsocket: AdminWebsocket;
       store: Store<any>;
     }
@@ -26,10 +25,6 @@ export default {
       throw new Error(
         `Failed to load the plugin: no "adminWebsocket" was provided in the plugin options`
       );
-    if (!options.appWebsocket)
-      throw new Error(
-        `Failed to load the plugin: no "appWebsocket" was provided in the plugin options`
-      );
     if (!options.store)
       throw new Error(
         `Failed to load the plugin: no Vuex "store" was provided in the plugin options`
@@ -37,7 +32,7 @@ export default {
 
     options.store.registerModule(
       ADMIN_UI_MODULE,
-      hcAdminVuexModule(options.adminWebsocket, options.appWebsocket)
+      hcAdminVuexModule(options.adminWebsocket)
     );
 
     app.component("InstalledApps", InstalledApps);
