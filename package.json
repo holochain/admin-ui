@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@holochain-open-dev/core-types": "0.1.1",
-    "@holochain/conductor-api": "github:holochain/holochain-conductor-api#update-to-113",
+    "@holochain/conductor-api": "0.2.4",
     "@material/mwc-button": "^0.25.1",
     "@material/mwc-circular-progress": "^0.25.1",
     "@material/mwc-dialog": "^0.25.1",
