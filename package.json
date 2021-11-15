@@ -10,7 +10,7 @@
     "test:unit": "vue-cli-service test:unit",
     "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint",
-    "publish-to-branch": "npm run build && gh-pages -d ./ -b build"
+    "publish-to-branch": "npm run build && rimraf node_modules && gh-pages -d ./ -b build && npm i"
   },
   "dependencies": {
     "@holochain-open-dev/core-types": "0.1.1",
