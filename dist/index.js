@@ -142,7 +142,7 @@ const _hoisted_9 = [
 const _hoisted_10 = { style: {"width":"auto"} };
 const _hoisted_11 = { style: {"display":"flex","flex-direction":"column","flex":"1","padding":"8px"} };
 const _hoisted_12 = { style: {"display":"flex","flex-direction":"row"} };
-const _hoisted_13 = { style: {"font-size":"1.6em"} };
+const _hoisted_13 = { style: {"font-size":"1.6em","width":"300px","text-overflow":"ellipsis","overflow":"hidden"} };
 const _hoisted_14 = /*#__PURE__*/createElementVNode("span", { style: {"flex":"1"} }, null, -1 /* HOISTED */);
 const _hoisted_15 = { style: {"display":"flex","flex-direction":"row","align-items":"center","justify-content":"center"} };
 const _hoisted_16 = /*#__PURE__*/createElementVNode("span", { style: {"margin-right":"8px","opacity":"0.9"} }, "Your Public Key:", -1 /* HOISTED */);
@@ -182,18 +182,19 @@ const _hoisted_29 = /*#__PURE__*/createElementVNode("mwc-button", {
   dialogAction: "close"
 }, null, -1 /* HOISTED */);
 const _hoisted_30 = { style: {"display":"flex","flex-direction":"row","align-items":"flex-end"} };
-const _hoisted_31 = { style: {"flex":"1","text-align":"left","margin-top":"8px"} };
+const _hoisted_31 = { style: {"text-align":"left","margin-top":"8px"} };
 const _hoisted_32 = /*#__PURE__*/createElementVNode("tr", null, [
   /*#__PURE__*/createElementVNode("th", null, "Cell Role"),
   /*#__PURE__*/createElementVNode("th", null, "Dna Hash")
 ], -1 /* HOISTED */);
 const _hoisted_33 = { style: {"opacity":"0.7","font-family":"monospace"} };
-const _hoisted_34 = { style: {"display":"flex","flex-direction":"row","align-items":"center","justify-content":"center","margin-top":"8px","--mdc-theme-primary":"rgb(90, 90, 90)"} };
-const _hoisted_35 = ["onClick"];
+const _hoisted_34 = /*#__PURE__*/createElementVNode("div", { style: {"flex":"1"} }, null, -1 /* HOISTED */);
+const _hoisted_35 = { style: {"display":"flex","flex-direction":"row","align-items":"center","justify-content":"center","margin-top":"8px","--mdc-theme-primary":"rgb(90, 90, 90)"} };
 const _hoisted_36 = ["onClick"];
 const _hoisted_37 = ["onClick"];
 const _hoisted_38 = ["onClick"];
 const _hoisted_39 = ["onClick"];
+const _hoisted_40 = ["onClick"];
 
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   return (_ctx.$store.state.admin.installedApps.loading)
@@ -266,7 +267,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                               key: [...cellData.cell_id[0], ...cellData.cell_id[1]]
                             }, [
                               createElementVNode("td", null, [
-                                createElementVNode("span", null, toDisplayString(cellData.role_id), 1 /* TEXT */)
+                                createElementVNode("span", null, toDisplayString(cellData.role_id.slice(0, 20)) + toDisplayString(cellData.role_id.length > 20 ? "..." : ""), 1 /* TEXT */)
                               ]),
                               createElementVNode("td", null, [
                                 createElementVNode("span", _hoisted_33, toDisplayString(_ctx.serializeHash(cellData.cell_id[0])), 1 /* TEXT */)
@@ -274,13 +275,14 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                             ]))
                           }), 128 /* KEYED_FRAGMENT */))
                         ]),
-                        createElementVNode("div", _hoisted_34, [
+                        _hoisted_34,
+                        createElementVNode("div", _hoisted_35, [
                           createElementVNode("mwc-button", {
                             onClick: $event => (_ctx.uninstallApp(app.installed_app_id)),
                             style: {"margin-left":"8px"},
                             label: "Uninstall",
                             icon: "delete"
-                          }, null, 8 /* PROPS */, _hoisted_35),
+                          }, null, 8 /* PROPS */, _hoisted_36),
                           (!_ctx.isAppDisabled(app))
                             ? (openBlock(), createElementBlock("mwc-button", {
                                 key: 0,
@@ -288,7 +290,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                 style: {"margin-left":"8px"},
                                 label: "Disable",
                                 icon: "archive"
-                              }, null, 8 /* PROPS */, _hoisted_36))
+                              }, null, 8 /* PROPS */, _hoisted_37))
                             : createCommentVNode("v-if", true),
                           (_ctx.isAppDisabled(app))
                             ? (openBlock(), createElementBlock("mwc-button", {
@@ -297,7 +299,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                 style: {"margin-left":"8px"},
                                 label: "Enable",
                                 icon: "unarchive"
-                              }, null, 8 /* PROPS */, _hoisted_37))
+                              }, null, 8 /* PROPS */, _hoisted_38))
                             : createCommentVNode("v-if", true),
                           (_ctx.isAppPaused(app))
                             ? (openBlock(), createElementBlock("mwc-button", {
@@ -306,7 +308,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                 style: {"margin-left":"8px"},
                                 label: "Start",
                                 icon: "play_arrow"
-                              }, null, 8 /* PROPS */, _hoisted_38))
+                              }, null, 8 /* PROPS */, _hoisted_39))
                             : createCommentVNode("v-if", true),
                           (_ctx.isAppRunning(app))
                             ? (openBlock(), createElementBlock("mwc-button", {
@@ -315,7 +317,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                 style: {"margin-left":"8px"},
                                 label: "Open",
                                 icon: "launch"
-                              }, null, 8 /* PROPS */, _hoisted_39))
+                              }, null, 8 /* PROPS */, _hoisted_40))
                             : createCommentVNode("v-if", true)
                         ])
                       ])
