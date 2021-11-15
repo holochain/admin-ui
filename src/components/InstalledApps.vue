@@ -32,7 +32,15 @@
             style="display: flex; flex-direction: column; flex: 1; padding: 8px"
           >
             <div style="display: flex; flex-direction: row">
-              <span style="font-size: 1.6em">{{ app.installed_app_id }}</span>
+              <span
+                style="
+                  font-size: 1.6em;
+                  width: 300px;
+                  text-overflow: ellipsis;
+                  overflow: hidden;
+                "
+                >{{ app.installed_app_id }}</span
+              >
               <span style="flex: 1"></span>
 
               <div
@@ -103,7 +111,7 @@
             <div
               style="display: flex; flex-direction: row; align-items: flex-end"
             >
-              <table style="flex: 1; text-align: left; margin-top: 8px">
+              <table style="text-align: left; margin-top: 8px">
                 <tr>
                   <th>Cell Role</th>
                   <th>Dna Hash</th>
@@ -115,7 +123,10 @@
                   :key="[...cellData.cell_id[0], ...cellData.cell_id[1]]"
                 >
                   <td>
-                    <span>{{ cellData.role_id }}</span>
+                    <span
+                      >{{ cellData.role_id.slice(0, 20)
+                      }}{{ cellData.role_id.length > 20 ? "..." : "" }}</span
+                    >
                   </td>
                   <td>
                     <span style="opacity: 0.7; font-family: monospace">{{
@@ -124,6 +135,8 @@
                   </td>
                 </tr>
               </table>
+
+              <div style="flex: 1"></div>
 
               <div
                 style="

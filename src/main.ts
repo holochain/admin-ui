@@ -5,7 +5,7 @@ import { AdminWebsocket, AppWebsocket } from "@holochain/conductor-api";
 import HcAdminPlugin from "./index";
 
 async function setup() {
-  const adminWebsocket = await AdminWebsocket.connect(`ws://localhost:8889`);
+  const adminWebsocket = await AdminWebsocket.connect(`ws://localhost:22324`);
 
   const appWebsocket = await connectAppWebsocket(adminWebsocket);
 
