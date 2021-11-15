@@ -9,7 +9,7 @@ import { getAnimationMode } from "@ui5/webcomponents-base/dist/config/AnimationM
 import ItemNavigation from "@ui5/webcomponents-base/dist/delegate/ItemNavigation.js";
 import { isSpace, isEnter } from "@ui5/webcomponents-base/dist/Keys.js";
 import MediaRange from "@ui5/webcomponents-base/dist/MediaRange.js";
-import { fetchI18nBundle, getI18nBundle } from "@ui5/webcomponents-base/dist/i18nBundle.js";
+import { getI18nBundle } from "@ui5/webcomponents-base/dist/i18nBundle.js";
 import "@ui5/webcomponents-icons/dist/slim-arrow-up.js";
 import "@ui5/webcomponents-icons/dist/slim-arrow-down.js";
 import "@ui5/webcomponents-icons/dist/slim-arrow-left.js";
@@ -235,14 +235,6 @@ const metadata = {
  * <li><code>ui5-tab-separator</code> - used to separate tabs with a vertical line</li>
  * </ul>
  *
- * <h3>Stable DOM Refs</h3>
- *
- * In the context of <code>ui5-tabcontainer</code>, you can provide a custom stable DOM refs for:
- * <ul>
- * <li>Each <code>ui5-tab</code>
- * Example: <code><ui5-tab stable-dom-ref="in-stock"></ui5-tab></code></li>
- * </ul>
- *
  * <h3>ES6 Module Import</h3>
  *
  * <code>import "@ui5/webcomponents/dist/TabContainer";</code>
@@ -305,8 +297,6 @@ class TabContainer extends UI5Element {
 		this._itemNavigation = new ItemNavigation(this, {
 			getItemsCallback: () => this._getTabs(),
 		});
-
-		this.i18nBundle = getI18nBundle("@ui5/webcomponents");
 	}
 
 	onBeforeRendering() {
@@ -320,6 +310,7 @@ class TabContainer extends UI5Element {
 				return this.getDomRef().querySelector(`#${item._id}`);
 			};
 			item._itemSelectCallback = this._onItemSelect.bind(this);
+			item._getRealDomRef = () => this.getDomRef().querySelector(`*[data-ui5-stable=${item.stableDomRef}]`);
 		});
 
 		if (!this._animationRunning) {
@@ -330,6 +321,10 @@ class TabContainer extends UI5Element {
 	onAfterRendering() {
 		this._scrollEnablement.scrollContainer = this._getHeaderScrollContainer();
 		this._updateScrolling();
+
+		this.items.forEach(item => {
+			item._getTabInStripDomRef = this.getDomRef().querySelector(`*[data-ui5-stable="${item.stableDomRef}"]`);
+		});
 	}
 
 	onEnterDOM() {
@@ -487,7 +482,7 @@ class TabContainer extends UI5Element {
 	}
 
 	async _onOverflowButtonClick(event) {
-		const button = this.overflowButton[0] || this.getDomRef().querySelector(".ui-tc__overflowButton > ui5-button");
+		const button = this.overflowButton[0] || this.getDomRef().querySelector(".ui-tc__overflowButton > [ui5-button]");
 
 		if (event.target !== button) {
 			return;
@@ -563,6 +558,8 @@ class TabContainer extends UI5Element {
 			root: {
 				"ui5-tc-root": true,
 				"ui5-tc--textOnly": this.textOnly,
+				"ui5-tc--withAdditonalText": this.withAdditonalText,
+				"ui5-tc--standardTabLayout": this.standardTabLayout,
 			},
 			header: {
 				"ui5-tc__header": true,
@@ -605,16 +602,24 @@ class TabContainer extends UI5Element {
 		return this.items.every(item => !item.icon);
 	}
 
+	get withAdditonalText() {
+		return this.items.some(item => !!item.additionalText);
+	}
+
+	get standardTabLayout() {
+		return this.tabLayout === TabLayout.Standard;
+	}
+
 	get previousIconACCName() {
-		return this.i18nBundle.getText(TABCONTAINER_PREVIOUS_ICON_ACC_NAME);
+		return TabContainer.i18nBundle.getText(TABCONTAINER_PREVIOUS_ICON_ACC_NAME);
 	}
 
 	get nextIconACCName() {
-		return this.i18nBundle.getText(TABCONTAINER_NEXT_ICON_ACC_NAME);
+		return TabContainer.i18nBundle.getText(TABCONTAINER_NEXT_ICON_ACC_NAME);
 	}
 
 	get overflowMenuTitle() {
-		return this.i18nBundle.getText(TABCONTAINER_OVERFLOW_MENU_TITLE);
+		return TabContainer.i18nBundle.getText(TABCONTAINER_OVERFLOW_MENU_TITLE);
 	}
 
 	get tabsAtTheBottom() {
@@ -639,7 +644,7 @@ class TabContainer extends UI5Element {
 	}
 
 	static async onDefine() {
-		await fetchI18nBundle("@ui5/webcomponents");
+		TabContainer.i18nBundle = await getI18nBundle("@ui5/webcomponents");
 	}
 }
 

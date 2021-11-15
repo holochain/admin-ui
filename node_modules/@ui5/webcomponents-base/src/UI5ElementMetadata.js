@@ -126,7 +126,7 @@ class UI5ElementMetadata {
 	 */
 	hasAttribute(propName) {
 		const propData = this.getProperties()[propName];
-		return propData.type !== Object && !propData.noAttribute;
+		return propData.type !== Object && !propData.noAttribute && !propData.multiple;
 	}
 
 	/**
@@ -210,6 +210,14 @@ class UI5ElementMetadata {
 	 */
 	isLanguageAware() {
 		return !!this.metadata.languageAware;
+	}
+
+	/**
+	 * Determines whether this UI5 Element has any theme dependant carachteristics.
+	 * @returns {boolean}
+	 */
+	 isThemeAware() {
+		return !!this.metadata.themeAware;
 	}
 
 	/**

@@ -6,23 +6,22 @@ import '@material/mwc-button';
 import '@material/mwc-icon-button';
 import '@material/mwc-dialog';
 import '@material/mwc-circular-progress';
-import { render as render$1 } from 'lit-html';
+import { noChange, render as render$1 } from 'lit-html';
 import { html } from 'lit-html/static.js';
 import 'lit-html/directives/repeat.js';
 import 'lit-html/directives/class-map.js';
-import 'lit-html/directives/style-map.js';
+import { directive, Directive, PartType } from 'lit-html/directive.js';
+import 'lit-html/directives/if-defined.js';
 import 'lit-html/directives/unsafe-html.js';
-import { ifDefined } from 'lit-html/directives/if-defined.js';
-import litRender$1, { html as html$1, classMap, svg } from '@ui5/webcomponents-base/dist/renderer/LitRenderer.js';
+import litRender$1, { html as html$1, classMap, ifDefined, svg } from '@ui5/webcomponents-base/dist/renderer/LitRenderer.js';
 import UI5Element$1 from '@ui5/webcomponents-base/dist/UI5Element.js';
 import { getIconDataSync, getIconData } from '@ui5/webcomponents-base/dist/asset-registries/Icons.js';
 import createStyleInHead$1 from '@ui5/webcomponents-base/dist/util/createStyleInHead.js';
 import { getI18nBundle as getI18nBundle$1 } from '@ui5/webcomponents-base/dist/i18nBundle.js';
-import { getI18nBundleData as getI18nBundleData$1, fetchI18nBundle as fetchI18nBundle$1 } from '@ui5/webcomponents-base/dist/asset-registries/i18n.js';
 import { isEnter, isSpace } from '@ui5/webcomponents-base/dist/Keys.js';
 import isLegacyBrowser$1 from '@ui5/webcomponents-base/dist/isLegacyBrowser.js';
 import { registerThemePropertiesLoader } from '@ui5/webcomponents-base/dist/asset-registries/Themes.js';
-import defaultThemeBase from '@ui5/webcomponents-theme-base/dist/generated/themes/sap_fiori_3/parameters-bundle.css.js';
+import defaultThemeBase from '@ui5/webcomponents-theming/dist/generated/themes/sap_fiori_3/parameters-bundle.css.js';
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -437,37 +436,38 @@ var fnMerge = function () {
 
 class EventProvider {
 	constructor() {
-		this._eventRegistry = {};
+		this._eventRegistry = new Map();
 	}
 
 	attachEvent(eventName, fnFunction) {
 		const eventRegistry = this._eventRegistry;
-		let eventListeners = eventRegistry[eventName];
+		const eventListeners = eventRegistry.get(eventName);
 
 		if (!Array.isArray(eventListeners)) {
-			eventRegistry[eventName] = [];
-			eventListeners = eventRegistry[eventName];
+			eventRegistry.set(eventName, [fnFunction]);
+			return;
 		}
 
-		eventListeners.push({
-			"function": fnFunction,
-		});
+		if (!eventListeners.includes(fnFunction)) {
+			eventListeners.push(fnFunction);
+		}
 	}
 
 	detachEvent(eventName, fnFunction) {
 		const eventRegistry = this._eventRegistry;
-		let eventListeners = eventRegistry[eventName];
+		const eventListeners = eventRegistry.get(eventName);
 
 		if (!eventListeners) {
 			return;
 		}
+		const indexOfFnToDetach = eventListeners.indexOf(fnFunction);
 
-		eventListeners = eventListeners.filter(event => {
-			return event["function"] !== fnFunction; // eslint-disable-line
-		});
+		if (indexOfFnToDetach !== -1) {
+			eventListeners.splice(indexOfFnToDetach, 1);
+		}
 
 		if (eventListeners.length === 0) {
-			delete eventRegistry[eventName];
+			eventRegistry.delete(eventName);
 		}
 	}
 
@@ -480,14 +480,14 @@ class EventProvider {
 	 */
 	fireEvent(eventName, data) {
 		const eventRegistry = this._eventRegistry;
-		const eventListeners = eventRegistry[eventName];
+		const eventListeners = eventRegistry.get(eventName);
 
 		if (!eventListeners) {
 			return [];
 		}
 
-		return eventListeners.map(event => {
-			return event["function"].call(this, data); // eslint-disable-line
+		return eventListeners.map(fn => {
+			return fn.call(this, data); // eslint-disable-line
 		});
 	}
 
@@ -504,24 +504,17 @@ class EventProvider {
 
 	isHandlerAttached(eventName, fnFunction) {
 		const eventRegistry = this._eventRegistry;
-		const eventListeners = eventRegistry[eventName];
+		const eventListeners = eventRegistry.get(eventName);
 
 		if (!eventListeners) {
 			return false;
 		}
 
-		for (let i = 0; i < eventListeners.length; i++) {
-			const event = eventListeners[i];
-			if (event["function"] === fnFunction) { // eslint-disable-line
-				return true;
-			}
-		}
-
-		return false;
+		return eventListeners.includes(fnFunction);
 	}
 
 	hasListeners(eventName) {
-		return !!this._eventRegistry[eventName];
+		return !!this._eventRegistry.get(eventName);
 	}
 }
 
@@ -554,102 +547,80 @@ const createStyleInHead = (cssText, attributes = {}) => {
 	return style;
 };
 
+const getStyleId = (name, value) => {
+	return value ? `${name}|${value}` : name;
+};
+
+const createStyle = (data, name, value = "") => {
+	const content = typeof data === "string" ? data : data.content;
+
+	if (document.adoptedStyleSheets) {
+		const stylesheet = new CSSStyleSheet();
+		stylesheet.replaceSync(content);
+		stylesheet._ui5StyleId = getStyleId(name, value); // set an id so that we can find the style later
+		document.adoptedStyleSheets = [...document.adoptedStyleSheets, stylesheet];
+	} else {
+		const attributes = {};
+		attributes[name] = value;
+		createStyleInHead(content, attributes);
+	}
+};
+
+const updateStyle = (data, name, value = "") => {
+	const content = typeof data === "string" ? data : data.content;
+
+	if (document.adoptedStyleSheets) {
+		document.adoptedStyleSheets.find(sh => sh._ui5StyleId === getStyleId(name, value)).replaceSync(content || "");
+	} else {
+		document.querySelector(`head>style[${name}="${value}"]`).textContent = content || "";
+	}
+};
+
+const hasStyle = (name, value = "") => {
+
+	if (document.adoptedStyleSheets) {
+		return !!document.adoptedStyleSheets.find(sh => sh._ui5StyleId === getStyleId(name, value));
+	}
+
+	return !!document.querySelector(`head>style[${name}="${value}"]`);
+};
+
+const removeStyle = (name, value = "") => {
+	if (document.adoptedStyleSheets) {
+		document.adoptedStyleSheets = document.adoptedStyleSheets.filter(sh => sh._ui5StyleId !== getStyleId(name, value));
+	} else {
+		const styleElement = document.querySelector(`head > style[${name}="${value}"]`);
+		if (styleElement) {
+			styleElement.parentElement.removeChild(styleElement);
+		}
+	}
+};
+
+const createOrUpdateStyle = (data, name, value = "") => {
+	if (hasStyle(name, value)) {
+		updateStyle(data, name, value);
+	} else {
+		createStyle(data, name, value);
+	}
+};
+
 const features = new Map();
 
 const getFeature = name => {
 	return features.get(name);
 };
 
-/**
- * CSS font face used for the texts provided by SAP.
- */
+var fontFaceCSS = {
+	packageName: "@ui5/webcomponents-base",
+	fileName: "FontFace.css",
+	content: `@font-face{font-family:"72";font-style:normal;font-weight:400;src:local("72"),url(https://ui5.sap.com/sdk/resources/sap/ui/core/themes/sap_fiori_3/fonts/72-Regular.woff2?ui5-webcomponents) format("woff2"),url(https://ui5.sap.com/sdk/resources/sap/ui/core/themes/sap_fiori_3/fonts/72-Regular.woff?ui5-webcomponents) format("woff")}@font-face{font-family:"72full";font-style:normal;font-weight:400;src:local('72-full'),url(https://ui5.sap.com/sdk/resources/sap/ui/core/themes/sap_fiori_3/fonts/72-Regular-full.woff2?ui5-webcomponents) format("woff2"),url(https://ui5.sap.com/sdk/resources/sap/ui/core/themes/sap_fiori_3/fonts/72-Regular-full.woff?ui5-webcomponents) format("woff")}@font-face{font-family:"72";font-style:normal;font-weight:700;src:local('72-Bold'),url(https://ui5.sap.com/sdk/resources/sap/ui/core/themes/sap_fiori_3/fonts/72-Bold.woff2?ui5-webcomponents) format("woff2"),url(https://ui5.sap.com/sdk/resources/sap/ui/core/themes/sap_fiori_3/fonts/72-Bold.woff?ui5-webcomponents) format("woff")}@font-face{font-family:"72full";font-style:normal;font-weight:700;src:local('72-Bold-full'),url(https://ui5.sap.com/sdk/resources/sap/ui/core/themes/sap_fiori_3/fonts/72-Bold-full.woff2?ui5-webcomponents) format("woff2"),url(https://ui5.sap.com/sdk/resources/sap/ui/core/themes/sap_fiori_3/fonts/72-Bold-full.woff?ui5-webcomponents) format("woff")}@font-face{font-family:"72Black";font-style:bold;font-weight:900;src:local('72Black'),url(https://openui5nightly.hana.ondemand.com/resources/sap/ui/core/themes/sap_horizon/fonts/72-Black.woff2?ui5-webcomponents) format("woff2"),url(https://openui5nightly.hana.ondemand.com/resources/sap/ui/core/themes/sap_horizon/fonts/72-Black.woff?ui5-webcomponents) format("woff")}`
+};
 
-/* CDN Locations */
-const font72RegularWoff = `https://ui5.sap.com/sdk/resources/sap/ui/core/themes/sap_fiori_3/fonts/72-Regular.woff?ui5-webcomponents`;
-const font72RegularWoff2 = `https://ui5.sap.com/sdk/resources/sap/ui/core/themes/sap_fiori_3/fonts/72-Regular.woff2?ui5-webcomponents`;
-
-const font72RegularFullWoff = `https://ui5.sap.com/sdk/resources/sap/ui/core/themes/sap_fiori_3/fonts/72-Regular-full.woff?ui5-webcomponents`;
-const font72RegularFullWoff2 = `https://ui5.sap.com/sdk/resources/sap/ui/core/themes/sap_fiori_3/fonts/72-Regular-full.woff2?ui5-webcomponents`;
-
-const font72BoldWoff = `https://ui5.sap.com/sdk/resources/sap/ui/core/themes/sap_fiori_3/fonts/72-Bold.woff?ui5-webcomponents`;
-const font72BoldWoff2 = `https://ui5.sap.com/sdk/resources/sap/ui/core/themes/sap_fiori_3/fonts/72-Bold.woff2?ui5-webcomponents`;
-
-const font72BoldFullWoff = `https://ui5.sap.com/sdk/resources/sap/ui/core/themes/sap_fiori_3/fonts/72-Bold-full.woff?ui5-webcomponents`;
-const font72BoldFullWoff2 = `https://ui5.sap.com/sdk/resources/sap/ui/core/themes/sap_fiori_3/fonts/72-Bold-full.woff2?ui5-webcomponents`;
-
-const fontFaceCSS = `
-	@font-face {
-		font-family: "72";
-		font-style: normal;
-		font-weight: 400;
-		src: local("72"),
-			url(${font72RegularWoff2}) format("woff2"),
-			url(${font72RegularWoff}) format("woff");
-	}
-	
-	@font-face {
-		font-family: "72full";
-		font-style: normal;
-		font-weight: 400;
-		src: local('72-full'),
-			url(${font72RegularFullWoff2}) format("woff2"),
-			url(${font72RegularFullWoff}) format("woff");
-		
-	}
-	
-	@font-face {
-		font-family: "72";
-		font-style: normal;
-		font-weight: 700;
-		src: local('72-Bold'),
-			url(${font72BoldWoff2}) format("woff2"),
-			url(${font72BoldWoff}) format("woff");
-	}
-	
-	@font-face {
-		font-family: "72full";
-		font-style: normal;
-		font-weight: 700;
-		src: local('72-Bold-full'),
-			url(${font72BoldFullWoff2}) format("woff2"),
-			url(${font72BoldFullWoff}) format("woff");
-	}
-`;
-
-/**
- * Some diacritics are supported by the 72 font:
- *  * Grave
- *  * Acute
- *  * Circumflex
- *  * Tilde
- *
- * However, the following diacritics and the combination of multiple diacritics (including the supported ones) are not supported:
- *  * Breve
- *  * Horn
- *  * Dot below
- *  * Hook above
- *
- *
- * Override for the characters that aren't covered by the '72' font to other system fonts
- *
- * U+0102-0103: A and a with Breve
- * U+01A0-01A1: O and o with Horn
- * U+01AF-01B0: U and u with Horn
- * U+1EA0-1EB7: A and a with diacritics that are not supported by the font and combination of multiple diacritics
- * U+1EB8-1EC7: E and e with diacritics that are not supported by the font and combination of multiple diacritics
- * U+1EC8-1ECB: I and i with diacritics that are not supported by the font and combination of multiple diacritics
- * U+1ECC-1EE3: O and o with diacritics that are not supported by the font and combination of multiple diacritics
- * U+1EE4-1EF1: U and u with diacritics that are not supported by the font and combination of multiple diacritics
- * U+1EF4-1EF7: Y and y with diacritics that are not supported by the font and combination of multiple diacritics
- *
- */
-const overrideFontFaceCSS = `
-	@font-face {
-		font-family: '72override';
-		unicode-range: U+0102-0103, U+01A0-01A1, U+01AF-01B0, U+1EA0-1EB7, U+1EB8-1EC7, U+1EC8-1ECB, U+1ECC-1EE3, U+1EE4-1EF1, U+1EF4-1EF7;
-		src: local('Arial'), local('Helvetica'), local('sans-serif');
-	}
-`;
+var overrideFontFaceCSS = {
+	packageName: "@ui5/webcomponents-base",
+	fileName: "OverrideFontFace.css",
+	content: `@font-face{font-family:'72override';unicode-range:U+0102-0103,U+01A0-01A1,U+01AF-01B0,U+1EA0-1EB7,U+1EB8-1EC7,U+1EC8-1ECB,U+1ECC-1EE3,U+1EE4-1EF1,U+1EF4-1EF7;src:local('Arial'),local('Helvetica'),local('sans-serif')}`
+};
 
 const insertFontFace = () => {
 	const OpenUI5Support = getFeature("OpenUI5Support");
@@ -664,46 +635,30 @@ const insertFontFace = () => {
 };
 
 const insertMainFontFace = () => {
-	if (!document.querySelector(`head>style[data-ui5-font-face]`)) {
-		createStyleInHead(fontFaceCSS, { "data-ui5-font-face": "" });
+	if (!hasStyle("data-ui5-font-face")) {
+		createStyle(fontFaceCSS, "data-ui5-font-face");
 	}
 };
 
 const insertOverrideFontFace = () => {
-	if (!document.querySelector(`head>style[data-ui5-font-face-override]`)) {
-		createStyleInHead(overrideFontFaceCSS, { "data-ui5-font-face-override": "" });
+	if (!hasStyle("data-ui5-font-face-override")) {
+		createStyle(overrideFontFaceCSS, "data-ui5-font-face-override");
 	}
 };
 
-const systemCSSVars = `
-	:root {
-		--_ui5_content_density:cozy;
-	}
-	
-	[data-ui5-compact-size],
-	.ui5-content-density-compact,
-	.sapUiSizeCompact {
-		--_ui5_content_density:compact;
-	}
-	
-	[dir="rtl"] {
-		--_ui5_dir:rtl;
-	}
-	
-	[dir="ltr"] {
-		--_ui5_dir:ltr;
-	}
-`;
+var systemCSSVars = {
+	packageName: "@ui5/webcomponents-base",
+	fileName: "SystemCSSVars.css",
+	content: `:root{--_ui5_content_density:cozy}.sapUiSizeCompact,.ui5-content-density-compact,[data-ui5-compact-size]{--_ui5_content_density:compact}[dir=rtl]{--_ui5_dir:rtl}[dir=ltr]{--_ui5_dir:ltr}`
+};
 
 const insertSystemCSSVars = () => {
-	if (document.querySelector(`head>style[data-ui5-system-css-vars]`)) {
-		return;
+	if (!hasStyle("data-ui5-system-css-vars")) {
+		createStyle(systemCSSVars, "data-ui5-system-css-vars");
 	}
-
-	createStyleInHead(systemCSSVars, { "data-ui5-system-css-vars": "" });
 };
 
-const assetParameters = {"themes":{"default":"sap_fiori_3","all":["sap_fiori_3","sap_fiori_3_dark","sap_belize","sap_belize_hcb","sap_belize_hcw","sap_fiori_3_hcb","sap_fiori_3_hcw"]},"languages":{"default":"en","all":["ar","bg","ca","cs","cy","da","de","el","en","en_GB","en_US_sappsd","en_US_saprigi","en_US_saptrc","es","es_MX","et","fi","fr","fr_CA","hi","hr","hu","in","it","iw","ja","kk","ko","lt","lv","ms","nl","no","pl","pt_PT","pt","ro","ru","sh","sk","sl","sv","th","tr","uk","vi","zh_CN","zh_TW"]},"locales":{"default":"en","all":["ar","ar_EG","ar_SA","bg","ca","cs","da","de","de_AT","de_CH","el","el_CY","en","en_AU","en_GB","en_HK","en_IE","en_IN","en_NZ","en_PG","en_SG","en_ZA","es","es_AR","es_BO","es_CL","es_CO","es_MX","es_PE","es_UY","es_VE","et","fa","fi","fr","fr_BE","fr_CA","fr_CH","fr_LU","he","hi","hr","hu","id","it","it_CH","ja","kk","ko","lt","lv","ms","nb","nl","nl_BE","pl","pt","pt_PT","ro","ru","ru_UA","sk","sl","sr","sv","th","tr","uk","vi","zh_CN","zh_HK","zh_SG","zh_TW"]}};
+const assetParameters = {"themes":{"default":"sap_fiori_3","all":["sap_fiori_3","sap_fiori_3_dark","sap_belize","sap_belize_hcb","sap_belize_hcw","sap_fiori_3_hcb","sap_fiori_3_hcw","sap_horizon","sap_horizon_exp"]},"languages":{"default":"en","all":["ar","bg","ca","cs","cy","da","de","el","en","en_GB","en_US_sappsd","en_US_saprigi","en_US_saptrc","es","es_MX","et","fi","fr","fr_CA","hi","hr","hu","in","it","iw","ja","kk","ko","lt","lv","ms","nl","no","pl","pt_PT","pt","ro","ru","sh","sk","sl","sv","th","tr","uk","vi","zh_CN","zh_TW"]},"locales":{"default":"en","all":["ar","ar_EG","ar_SA","bg","ca","cs","da","de","de_AT","de_CH","el","el_CY","en","en_AU","en_GB","en_HK","en_IE","en_IN","en_NZ","en_PG","en_SG","en_ZA","es","es_AR","es_BO","es_CL","es_CO","es_MX","es_PE","es_UY","es_VE","et","fa","fi","fr","fr_BE","fr_CA","fr_CH","fr_LU","he","hi","hr","hu","id","it","it_CH","ja","kk","ko","lt","lv","ms","nb","nl","nl_BE","pl","pt","pt_PT","ro","ru","ru_UA","sk","sl","sr","sv","th","tr","uk","vi","zh_CN","zh_HK","zh_SG","zh_TW"]}};
 
 const DEFAULT_THEME = assetParameters.themes.default;
 const DEFAULT_LANGUAGE = assetParameters.languages.default;
@@ -720,7 +675,6 @@ let initialConfig = {
 	noConflict: false, // no URL
 	formatSettings: {},
 	fetchDefaultLanguage: false,
-	assetsPath: "",
 };
 
 const getTheme$1 = () => {
@@ -798,6 +752,14 @@ const parseURLParameters = () => {
 	});
 };
 
+const normalizeParamValue = (param, value) => {
+	if (param === "theme" && value.includes("@")) { // the theme parameter might have @<URL-TO-THEME> in the value - strip this
+		return value.split("@")[0];
+	}
+
+	return value;
+};
+
 const applyURLParam = (key, value, paramType) => {
 	const lowerCaseValue = value.toLowerCase();
 	const param = key.split(`${paramType}-`)[1];
@@ -805,6 +767,9 @@ const applyURLParam = (key, value, paramType) => {
 	if (booleanMapping.has(value)) {
 		value = booleanMapping.get(lowerCaseValue);
 	}
+
+	value = normalizeParamValue(param, value);
+
 	initialConfig[param] = value;
 };
 
@@ -833,6 +798,274 @@ const initConfiguration = () => {
 	applyOpenUI5Configuration();
 
 	initialized = true;
+};
+
+const MAX_PROCESS_COUNT = 10;
+
+class RenderQueue {
+	constructor() {
+		this.list = []; // Used to store the web components in order
+		this.lookup = new Set(); // Used for faster search
+	}
+
+	add(webComponent) {
+		if (this.lookup.has(webComponent)) {
+			return;
+		}
+
+		this.list.push(webComponent);
+		this.lookup.add(webComponent);
+	}
+
+	remove(webComponent) {
+		if (!this.lookup.has(webComponent)) {
+			return;
+		}
+
+		this.list = this.list.filter(item => item !== webComponent);
+		this.lookup.delete(webComponent);
+	}
+
+	shift() {
+		const webComponent = this.list.shift();
+		if (webComponent) {
+			this.lookup.delete(webComponent);
+			return webComponent;
+		}
+	}
+
+	isEmpty() {
+		return this.list.length === 0;
+	}
+
+	isAdded(webComponent) {
+		return this.lookup.has(webComponent);
+	}
+
+	/**
+	 * Processes the whole queue by executing the callback on each component,
+	 * while also imposing restrictions on how many times a component may be processed.
+	 *
+	 * @param callback - function with one argument (the web component to be processed)
+	 */
+	process(callback) {
+		let webComponent;
+		const stats = new Map();
+
+		webComponent = this.shift();
+		while (webComponent) {
+			const timesProcessed = stats.get(webComponent) || 0;
+			if (timesProcessed > MAX_PROCESS_COUNT) {
+				throw new Error(`Web component processed too many times this task, max allowed is: ${MAX_PROCESS_COUNT}`);
+			}
+			callback(webComponent);
+			stats.set(webComponent, timesProcessed + 1);
+			webComponent = this.shift();
+		}
+	}
+}
+
+// This is needed as IE11 doesn't have Set.prototype.keys/values/entries, so [...mySet.values()] is not an option
+const setToArray = s => {
+	const arr = [];
+	s.forEach(item => {
+		arr.push(item);
+	});
+	return arr;
+};
+
+const Definitions = new Set();
+const Failures = new Set();
+let failureTimeout;
+
+const registerTag = tag => {
+	Definitions.add(tag);
+};
+
+const isTagRegistered = tag => {
+	return Definitions.has(tag);
+};
+
+const getAllRegisteredTags = () => {
+	return setToArray(Definitions);
+};
+
+const recordTagRegistrationFailure = tag => {
+	Failures.add(tag);
+	if (!failureTimeout) {
+		failureTimeout = setTimeout(() => {
+			displayFailedRegistrations();
+			failureTimeout = undefined;
+		}, 1000);
+	}
+};
+
+const displayFailedRegistrations = () => {
+	console.warn(`The following tags have already been defined by a different UI5 Web Components version: ${setToArray(Failures).join(", ")}`); // eslint-disable-line
+	Failures.clear();
+};
+
+const rtlAwareSet = new Set();
+
+const markAsRtlAware = klass => {
+	rtlAwareSet.add(klass);
+};
+
+const isRtlAware = klass => {
+	return rtlAwareSet.has(klass);
+};
+
+const registeredElements = new Set();
+const eventProvider$4 = new EventProvider();
+
+const invalidatedWebComponents = new RenderQueue(); // Queue for invalidated web components
+
+let renderTaskPromise,
+	renderTaskPromiseResolve;
+
+let mutationObserverTimer;
+
+let queuePromise;
+
+/**
+ * Schedules a render task (if not already scheduled) to render the component
+ *
+ * @param webComponent
+ * @returns {Promise}
+ */
+const renderDeferred = async webComponent => {
+	// Enqueue the web component
+	invalidatedWebComponents.add(webComponent);
+
+	// Schedule a rendering task
+	await scheduleRenderTask();
+};
+
+/**
+ * Renders a component synchronously and adds it to the registry of rendered components
+ *
+ * @param webComponent
+ */
+const renderImmediately = webComponent => {
+	eventProvider$4.fireEvent("beforeComponentRender", webComponent);
+	registeredElements.add(webComponent);
+	webComponent._render();
+};
+
+/**
+ * Cancels the rendering of a component, if awaiting to be rendered, and removes it from the registry of rendered components
+ *
+ * @param webComponent
+ */
+const cancelRender = webComponent => {
+	invalidatedWebComponents.remove(webComponent);
+	registeredElements.delete(webComponent);
+};
+
+/**
+ * Schedules a rendering task, if not scheduled already
+ */
+const scheduleRenderTask = async () => {
+	if (!queuePromise) {
+		queuePromise = new Promise(resolve => {
+			window.requestAnimationFrame(() => {
+				// Render all components in the queue
+
+				// console.log(`--------------------RENDER TASK START------------------------------`); // eslint-disable-line
+				invalidatedWebComponents.process(renderImmediately);
+				// console.log(`--------------------RENDER TASK END------------------------------`); // eslint-disable-line
+
+				// Resolve the promise so that callers of renderDeferred can continue
+				queuePromise = null;
+				resolve();
+
+				// Wait for Mutation observer before the render task is considered finished
+				if (!mutationObserverTimer) {
+					mutationObserverTimer = setTimeout(() => {
+						mutationObserverTimer = undefined;
+						if (invalidatedWebComponents.isEmpty()) {
+							_resolveTaskPromise();
+						}
+					}, 200);
+				}
+			});
+		});
+	}
+
+	await queuePromise;
+};
+
+/**
+ * return a promise that will be resolved once all invalidated web components are rendered
+ */
+const whenDOMUpdated = () => {
+	if (renderTaskPromise) {
+		return renderTaskPromise;
+	}
+
+	renderTaskPromise = new Promise(resolve => {
+		renderTaskPromiseResolve = resolve;
+		window.requestAnimationFrame(() => {
+			if (invalidatedWebComponents.isEmpty()) {
+				renderTaskPromise = undefined;
+				resolve();
+			}
+		});
+	});
+
+	return renderTaskPromise;
+};
+
+const whenAllCustomElementsAreDefined = () => {
+	const definedPromises = getAllRegisteredTags().map(tag => customElements.whenDefined(tag));
+	return Promise.all(definedPromises);
+};
+
+const renderFinished = async () => {
+	await whenAllCustomElementsAreDefined();
+	await whenDOMUpdated();
+};
+
+const _resolveTaskPromise = () => {
+	if (!invalidatedWebComponents.isEmpty()) {
+		// More updates are pending. Resolve will be called again
+		return;
+	}
+
+	if (renderTaskPromiseResolve) {
+		renderTaskPromiseResolve();
+		renderTaskPromiseResolve = undefined;
+		renderTaskPromise = undefined;
+	}
+};
+
+/**
+ * Re-renders all UI5 Elements on the page, with the option to specify filters to rerender only some components.
+ *
+ * Usage:
+ * reRenderAllUI5Elements() -> re-renders all components
+ * reRenderAllUI5Elements({tag: "ui5-button"}) -> re-renders only instances of ui5-button
+ * reRenderAllUI5Elements({rtlAware: true}) -> re-renders only rtlAware components
+ * reRenderAllUI5Elements({languageAware: true}) -> re-renders only languageAware components
+ * reRenderAllUI5Elements({themeAware: true}) -> re-renders only themeAware components
+ * reRenderAllUI5Elements({rtlAware: true, languageAware: true}) -> re-renders components that are rtlAware or languageAware
+ * etc...
+ *
+ * @public
+ * @param {Object|undefined} filters - Object with keys that can be "rtlAware" or "languageAware"
+ * @returns {Promise<void>}
+ */
+const reRenderAllUI5Elements = async filters => {
+	registeredElements.forEach(element => {
+		const tag = element.constructor.getMetadata().getTag();
+		const rtlAware = isRtlAware(element.constructor);
+		const languageAware = element.constructor.getMetadata().isLanguageAware();
+		const themeAware = element.constructor.getMetadata().isThemeAware();
+		if (!filters || (filters.tag === tag) || (filters.rtlAware && rtlAware) || (filters.languageAware && languageAware) || (filters.themeAware && themeAware)) {
+			renderDeferred(element);
+		}
+	});
+	await renderFinished();
 };
 
 const themeStyles = new Map();
@@ -879,26 +1112,9 @@ const isThemeRegistered = theme => {
 	return registeredThemes.has(theme);
 };
 
-/**
- * Creates/updates a style element holding all CSS Custom Properties
- * @param cssText
- * @param packageName
- */
-const createThemePropertiesStyleTag = (cssText, packageName) => {
-	const styleElement = document.head.querySelector(`style[data-ui5-theme-properties="${packageName}"]`);
-	if (styleElement) {
-		styleElement.textContent = cssText || "";	// in case of undefined
-	} else {
-		const attributes = {
-			"data-ui5-theme-properties": packageName,
-		};
-		createStyleInHead(cssText, attributes);
-	}
-};
-
 const getThemeMetadata = () => {
 	// Check if the class was already applied, most commonly to the link/style tag with the CSS Variables
-	let el = document.querySelector(".sapThemeMetaData-Base-baseLib");
+	let el = document.querySelector(".sapThemeMetaData-Base-baseLib") || document.querySelector(".sapThemeMetaData-UI5-sap-ui-core");
 	if (el) {
 		return getComputedStyle(el).backgroundImage;
 	}
@@ -906,6 +1122,7 @@ const getThemeMetadata = () => {
 	el = document.createElement("span");
 	el.style.display = "none";
 	el.classList.add("sapThemeMetaData-Base-baseLib");
+	el.classList.add("sapThemeMetaData-UI5-sap-ui-core");
 	document.body.appendChild(el);
 	const metadata = getComputedStyle(el).backgroundImage;
 	document.body.removeChild(el);
@@ -962,14 +1179,14 @@ const getThemeDesignerTheme = () => {
 	return processThemeMetadata(metadata);
 };
 
-const eventProvider$4 = new EventProvider();
+const eventProvider$3 = new EventProvider();
 const THEME_LOADED = "themeLoaded";
 
 const fireThemeLoaded = theme => {
-	return eventProvider$4.fireEvent(THEME_LOADED, theme);
+	return eventProvider$3.fireEvent(THEME_LOADED, theme);
 };
 
-const BASE_THEME_PACKAGE = "@ui5/webcomponents-theme-base";
+const BASE_THEME_PACKAGE = "@ui5/webcomponents-theming";
 
 const isThemeBaseRegistered = () => {
 	const registeredPackages = getRegisteredPackages();
@@ -982,14 +1199,11 @@ const loadThemeBase = async theme => {
 	}
 
 	const cssText = await getThemeProperties(BASE_THEME_PACKAGE, theme);
-	createThemePropertiesStyleTag(cssText, BASE_THEME_PACKAGE);
+	createOrUpdateStyle(cssText, "data-ui5-theme-properties", BASE_THEME_PACKAGE);
 };
 
 const deleteThemeBase = () => {
-	const styleElement = document.head.querySelector(`style[data-ui5-theme-properties="${BASE_THEME_PACKAGE}"]`);
-	if (styleElement) {
-		styleElement.parentElement.removeChild(styleElement);
-	}
+	removeStyle("data-ui5-theme-properties", BASE_THEME_PACKAGE);
 };
 
 const loadComponentPackages = async theme => {
@@ -1000,7 +1214,7 @@ const loadComponentPackages = async theme => {
 		}
 
 		const cssText = await getThemeProperties(packageName, theme);
-		createThemePropertiesStyleTag(cssText, packageName);
+		createOrUpdateStyle(cssText, "data-ui5-theme-properties", packageName);
 	});
 };
 
@@ -1051,7 +1265,7 @@ const getTheme = () => {
 };
 
 let booted = false;
-const eventProvider$3 = new EventProvider();
+const eventProvider$2 = new EventProvider();
 
 const boot = async () => {
 	if (booted) {
@@ -1068,7 +1282,7 @@ const boot = async () => {
 	OpenUI5Support && OpenUI5Support.attachListeners();
 	insertFontFace();
 	insertSystemCSSVars();
-	await eventProvider$3.fireEventAsync("boot");
+	await eventProvider$2.fireEventAsync("boot");
 	booted = true;
 };
 
@@ -1083,6 +1297,18 @@ const boot = async () => {
  */
 class DataType {
 	static isValid(value) {
+	}
+
+	static attributeToProperty(attributeValue) {
+		return attributeValue;
+	}
+
+	static propertyToAttribute(propertyValue) {
+		return `${propertyValue}`;
+	}
+
+	static valuesAreEqual(value1, value2) {
+		return value1 === value2;
 	}
 
 	static generateTypeAccessors(types) {
@@ -1341,7 +1567,7 @@ class UI5ElementMetadata {
 	 */
 	hasAttribute(propName) {
 		const propData = this.getProperties()[propName];
-		return propData.type !== Object && !propData.noAttribute;
+		return propData.type !== Object && !propData.noAttribute && !propData.multiple;
 	}
 
 	/**
@@ -1425,6 +1651,14 @@ class UI5ElementMetadata {
 	 */
 	isLanguageAware() {
 		return !!this.metadata.languageAware;
+	}
+
+	/**
+	 * Determines whether this UI5 Element has any theme dependant carachteristics.
+	 * @returns {boolean}
+	 */
+	 isThemeAware() {
+		return !!this.metadata.themeAware;
 	}
 
 	/**
@@ -1553,249 +1787,46 @@ const executeTemplate = (template, component) => {
 	return template(component, tagsToScope, scope);
 };
 
-const MAX_PROCESS_COUNT = 10;
-
-class RenderQueue {
-	constructor() {
-		this.list = []; // Used to store the web components in order
-		this.lookup = new Set(); // Used for faster search
-	}
-
-	add(webComponent) {
-		if (this.lookup.has(webComponent)) {
-			return;
-		}
-
-		this.list.push(webComponent);
-		this.lookup.add(webComponent);
-	}
-
-	remove(webComponent) {
-		if (!this.lookup.has(webComponent)) {
-			return;
-		}
-
-		this.list = this.list.filter(item => item !== webComponent);
-		this.lookup.delete(webComponent);
-	}
-
-	shift() {
-		const webComponent = this.list.shift();
-		if (webComponent) {
-			this.lookup.delete(webComponent);
-			return webComponent;
-		}
-	}
-
-	isEmpty() {
-		return this.list.length === 0;
-	}
-
-	isAdded(webComponent) {
-		return this.lookup.has(webComponent);
-	}
-
-	/**
-	 * Processes the whole queue by executing the callback on each component,
-	 * while also imposing restrictions on how many times a component may be processed.
-	 *
-	 * @param callback - function with one argument (the web component to be processed)
-	 */
-	process(callback) {
-		let webComponent;
-		const stats = new Map();
-
-		webComponent = this.shift();
-		while (webComponent) {
-			const timesProcessed = stats.get(webComponent) || 0;
-			if (timesProcessed > MAX_PROCESS_COUNT) {
-				throw new Error(`Web component processed too many times this task, max allowed is: ${MAX_PROCESS_COUNT}`);
-			}
-			callback(webComponent);
-			stats.set(webComponent, timesProcessed + 1);
-			webComponent = this.shift();
-		}
-	}
-}
-
-// This is needed as IE11 doesn't have Set.prototype.keys/values/entries, so [...mySet.values()] is not an option
-const setToArray = s => {
-	const arr = [];
-	s.forEach(item => {
-		arr.push(item);
-	});
-	return arr;
-};
-
-const Definitions = new Set();
-const Failures = new Set();
-let failureTimeout;
-
-const registerTag = tag => {
-	Definitions.add(tag);
-};
-
-const isTagRegistered = tag => {
-	return Definitions.has(tag);
-};
-
-const getAllRegisteredTags = () => {
-	return setToArray(Definitions);
-};
-
-const recordTagRegistrationFailure = tag => {
-	Failures.add(tag);
-	if (!failureTimeout) {
-		failureTimeout = setTimeout(() => {
-			displayFailedRegistrations();
-			failureTimeout = undefined;
-		}, 1000);
-	}
-};
-
-const displayFailedRegistrations = () => {
-	console.warn(`The following tags have already been defined by a different UI5 Web Components version: ${setToArray(Failures).join(", ")}`); // eslint-disable-line
-	Failures.clear();
-};
-
-const rtlAwareSet = new Set();
-
-const markAsRtlAware = klass => {
-	rtlAwareSet.add(klass);
-};
-
-const registeredElements = new Set();
-const eventProvider$2 = new EventProvider();
-
-const invalidatedWebComponents = new RenderQueue(); // Queue for invalidated web components
-
-let renderTaskPromise,
-	renderTaskPromiseResolve;
-
-let mutationObserverTimer;
-
-let queuePromise;
+const getSharedResourcesInstance = () => getSingletonElementInstance("ui5-shared-resources", document.head);
 
 /**
- * Schedules a render task (if not already scheduled) to render the component
+ * Use this method to initialize/get resources that you would like to be shared among UI5 Web Components runtime instances.
+ * The data will be accessed via a singleton "ui5-shared-resources" HTML element in the "head" element of the page.
  *
- * @param webComponent
- * @returns {Promise}
+ * @public
+ * @param namespace Unique ID of the resource, may contain "." to denote hierarchy
+ * @param initialValue Object or primitive that will be used as an initial value if the resource does not exist
+ * @returns {*}
  */
-const renderDeferred = async webComponent => {
-	// Enqueue the web component
-	invalidatedWebComponents.add(webComponent);
+const getSharedResource = (namespace, initialValue) => {
+	const parts = namespace.split(".");
+	let current = getSharedResourcesInstance();
 
-	// Schedule a rendering task
-	await scheduleRenderTask();
-};
-
-/**
- * Renders a component synchronously and adds it to the registry of rendered components
- *
- * @param webComponent
- */
-const renderImmediately = webComponent => {
-	eventProvider$2.fireEvent("beforeComponentRender", webComponent);
-	registeredElements.add(webComponent);
-	webComponent._render();
-};
-
-/**
- * Cancels the rendering of a component, if awaiting to be rendered, and removes it from the registry of rendered components
- *
- * @param webComponent
- */
-const cancelRender = webComponent => {
-	invalidatedWebComponents.remove(webComponent);
-	registeredElements.delete(webComponent);
-};
-
-/**
- * Schedules a rendering task, if not scheduled already
- */
-const scheduleRenderTask = async () => {
-	if (!queuePromise) {
-		queuePromise = new Promise(resolve => {
-			window.requestAnimationFrame(() => {
-				// Render all components in the queue
-
-				// console.log(`--------------------RENDER TASK START------------------------------`); // eslint-disable-line
-				invalidatedWebComponents.process(renderImmediately);
-				// console.log(`--------------------RENDER TASK END------------------------------`); // eslint-disable-line
-
-				// Resolve the promise so that callers of renderDeferred can continue
-				queuePromise = null;
-				resolve();
-
-				// Wait for Mutation observer before the render task is considered finished
-				if (!mutationObserverTimer) {
-					mutationObserverTimer = setTimeout(() => {
-						mutationObserverTimer = undefined;
-						if (invalidatedWebComponents.isEmpty()) {
-							_resolveTaskPromise();
-						}
-					}, 200);
-				}
-			});
-		});
+	for (let i = 0; i < parts.length; i++) {
+		const part = parts[i];
+		const lastPart = i === parts.length - 1;
+		if (!Object.prototype.hasOwnProperty.call(current, part)) {
+			current[part] = lastPart ? initialValue : {};
+		}
+		current = current[part];
 	}
 
-	await queuePromise;
+	return current;
 };
 
-/**
- * return a promise that will be resolved once all invalidated web components are rendered
- */
-const whenDOMUpdated = () => {
-	if (renderTaskPromise) {
-		return renderTaskPromise;
-	}
-
-	renderTaskPromise = new Promise(resolve => {
-		renderTaskPromiseResolve = resolve;
-		window.requestAnimationFrame(() => {
-			if (invalidatedWebComponents.isEmpty()) {
-				renderTaskPromise = undefined;
-				resolve();
-			}
-		});
-	});
-
-	return renderTaskPromise;
-};
-
-const whenAllCustomElementsAreDefined = () => {
-	const definedPromises = getAllRegisteredTags().map(tag => customElements.whenDefined(tag));
-	return Promise.all(definedPromises);
-};
-
-const renderFinished = async () => {
-	await whenAllCustomElementsAreDefined();
-	await whenDOMUpdated();
-};
-
-const _resolveTaskPromise = () => {
-	if (!invalidatedWebComponents.isEmpty()) {
-		// More updates are pending. Resolve will be called again
-		return;
-	}
-
-	if (renderTaskPromiseResolve) {
-		renderTaskPromiseResolve();
-		renderTaskPromiseResolve = undefined;
-		renderTaskPromise = undefined;
-	}
-};
-
-const eventProvider$1 = new EventProvider();
+const eventProvider$1 = getSharedResource("CustomStyle.eventProvider", new EventProvider());
 const CUSTOM_CSS_CHANGE = "CustomCSSChange";
 
 const attachCustomCSSChange = listener => {
 	eventProvider$1.attachEvent(CUSTOM_CSS_CHANGE, listener);
 };
 
-const customCSSFor = {};
+const customCSSFor = getSharedResource("CustomStyle.customCSSFor", {});
+attachCustomCSSChange(tag => {
+	{
+		reRenderAllUI5Elements({ tag });
+	}
+});
 
 const getCustomCSS = tag => {
 	return customCSSFor[tag] ? customCSSFor[tag].join("") : "";
@@ -1803,10 +1834,12 @@ const getCustomCSS = tag => {
 
 const getStylesString = styles => {
 	if (Array.isArray(styles)) {
-		return flatten(styles.filter(style => !!style)).join(" ");
+		return flatten(styles.filter(style => !!style)).map(style => {
+			return typeof style === "string" ? style : style.content;
+		}).join(" ");
 	}
 
-	return styles;
+	return typeof styles === "string" ? styles : styles.content;
 };
 
 const flatten = arr => {
@@ -1873,7 +1906,7 @@ const isLegacyBrowser = () => !!window.ShadyDOM;
  * @param forStaticArea
  */
 const updateShadowRoot = (element, forStaticArea = false) => {
-	let styleToPrepend;
+	let styleStrOrHrefsArr;
 	const template = forStaticArea ? "staticAreaTemplate" : "template";
 	const shadowRoot = forStaticArea ? element.staticAreaItem.shadowRoot : element.shadowRoot;
 	const renderResult = executeTemplate(element.constructor[template], element);
@@ -1881,183 +1914,15 @@ const updateShadowRoot = (element, forStaticArea = false) => {
 	if (document.adoptedStyleSheets) { // Chrome
 		shadowRoot.adoptedStyleSheets = getConstructableStyle(element.constructor, forStaticArea);
 	} else if (!isLegacyBrowser()) { // FF, Safari
-		styleToPrepend = getEffectiveStyle(element.constructor, forStaticArea);
+		styleStrOrHrefsArr = getEffectiveStyle(element.constructor, forStaticArea);
 	}
 
-	element.constructor.render(renderResult, shadowRoot, styleToPrepend, { host: element });
+	element.constructor.render(renderResult, shadowRoot, styleStrOrHrefsArr, { host: element });
 };
 
 const GLOBAL_CONTENT_DENSITY_CSS_VAR = "--_ui5_content_density";
 
 const getEffectiveContentDensity = el => getComputedStyle(el).getPropertyValue(GLOBAL_CONTENT_DENSITY_CSS_VAR);
-
-/**
- *
- * @class
- * @author SAP SE
- * @private
- */
-class StaticAreaItem extends HTMLElement {
-	constructor() {
-		super();
-		this._rendered = false;
-		this.attachShadow({ mode: "open" });
-	}
-
-	/**
-	 * @protected
-	 * @param ownerElement The UI5Element instance that owns this static area item
-	 */
-	setOwnerElement(ownerElement) {
-		this.ownerElement = ownerElement;
-		this.classList.add(this.ownerElement._id); // used for getting the popover in the tests
-	}
-
-	/**
-	 * Updates the shadow root of the static area item with the latest state, if rendered
-	 * @protected
-	 */
-	update() {
-		if (this._rendered) {
-			this._updateContentDensity();
-			updateShadowRoot(this.ownerElement, true);
-		}
-	}
-
-	/**
-	 * Sets the correct content density based on the owner element's state
-	 * @private
-	 */
-	_updateContentDensity() {
-		if (getEffectiveContentDensity(this.ownerElement) === "compact") {
-			this.classList.add("sapUiSizeCompact");
-			this.classList.add("ui5-content-density-compact");
-		} else {
-			this.classList.remove("sapUiSizeCompact");
-			this.classList.remove("ui5-content-density-compact");
-		}
-	}
-
-	/**
-	 * @protected
-	 * Returns reference to the DOM element where the current fragment is added.
-	 */
-	async getDomRef() {
-		this._updateContentDensity();
-		if (!this._rendered) {
-			this._rendered = true;
-			updateShadowRoot(this.ownerElement, true);
-		}
-		await renderFinished(); // Wait for the content of the ui5-static-area-item to be rendered
-		return this.shadowRoot;
-	}
-
-	/**
-	 * @protected
-	 * @param refName
-	 * @returns {Element}
-	 */
-	getStableDomRef(refName) {
-		return this.shadowRoot.querySelector(`[data-ui5-stable=${refName}]`);
-	}
-
-	static getTag() {
-		const pureTag = "ui5-static-area-item";
-		const suffix = getEffectiveScopingSuffixForTag(pureTag);
-		if (!suffix) {
-			return pureTag;
-		}
-
-		return `${pureTag}-${suffix}`;
-	}
-
-	static createInstance() {
-		if (!customElements.get(StaticAreaItem.getTag())) {
-			customElements.define(StaticAreaItem.getTag(), StaticAreaItem);
-		}
-
-		return document.createElement(this.getTag());
-	}
-}
-
-const observers = new WeakMap(); // We want just one observer per node, store them here -> DOM nodes are keys
-
-/**
- * Default implementation with MutationObserver for browsers with native support
- */
-let _createObserver = (node, callback, options) => {
-	const observer = new MutationObserver(callback);
-	observer.observe(node, options);
-	return observer;
-};
-
-/**
- * Default implementation with MutationObserver for browsers with native support
- */
-let _destroyObserver = observer => {
-	observer.disconnect();
-};
-
-/**
- * @param node
- * @param callback
- * @param options
- */
-const observeDOMNode = (node, callback, options) => {
-	const observer = _createObserver(node, callback, options);
-	observers.set(node, observer);
-};
-
-/**
- * @param node
- */
-const unobserveDOMNode = node => {
-	const observer = observers.get(node);
-	if (observer) {
-		_destroyObserver(observer);
-		observers.delete(node);
-	}
-};
-
-// Fire these events even with noConflict: true
-const excludeList = [
-	"value-changed",
-];
-
-const shouldFireOriginalEvent = eventName => {
-	return excludeList.includes(eventName);
-};
-
-let noConflict;
-
-const shouldNotFireOriginalEvent = eventName => {
-	const nc = getNoConflict();
-	return !(nc.events && nc.events.includes && nc.events.includes(eventName));
-};
-
-const getNoConflict = () => {
-	if (noConflict === undefined) {
-		noConflict = getNoConflict$1();
-	}
-
-	return noConflict;
-};
-
-const skipOriginalEvent = eventName => {
-	const nc = getNoConflict();
-
-	// Always fire these events
-	if (shouldFireOriginalEvent(eventName)) {
-		return false;
-	}
-
-	// Read from the configuration
-	if (nc === true) {
-		return true;
-	}
-
-	return !shouldNotFireOriginalEvent(eventName);
-};
 
 const eventProvider = new EventProvider();
 const LANG_CHANGE = "languageChange";
@@ -2170,18 +2035,174 @@ const getEffectiveDir = element => {
 	return getRTL() ? "rtl" : undefined;
 };
 
-class Integer extends DataType {
-	static isValid(value) {
-		return Number.isInteger(value);
+/**
+ *
+ * @class
+ * @author SAP SE
+ * @private
+ */
+class StaticAreaItem extends HTMLElement {
+	constructor() {
+		super();
+		this._rendered = false;
+		this.attachShadow({ mode: "open" });
+	}
+
+	/**
+	 * @protected
+	 * @param ownerElement The UI5Element instance that owns this static area item
+	 */
+	setOwnerElement(ownerElement) {
+		this.ownerElement = ownerElement;
+		this.classList.add(this.ownerElement._id); // used for getting the popover in the tests
+	}
+
+	/**
+	 * Updates the shadow root of the static area item with the latest state, if rendered
+	 * @protected
+	 */
+	update() {
+		if (this._rendered) {
+			this._updateContentDensity();
+			this._updateDirection();
+			updateShadowRoot(this.ownerElement, true);
+		}
+	}
+
+	/**
+	 * Sets the correct content density based on the owner element's state
+	 * @private
+	 */
+	_updateContentDensity() {
+		if (getEffectiveContentDensity(this.ownerElement) === "compact") {
+			this.classList.add("sapUiSizeCompact");
+			this.classList.add("ui5-content-density-compact");
+		} else {
+			this.classList.remove("sapUiSizeCompact");
+			this.classList.remove("ui5-content-density-compact");
+		}
+	}
+
+	_updateDirection() {
+		const dir = getEffectiveDir(this.ownerElement);
+		if (dir) {
+			this.setAttribute("dir", dir);
+		} else {
+			this.removeAttribute("dir");
+		}
+	}
+
+	/**
+	 * @protected
+	 * Returns reference to the DOM element where the current fragment is added.
+	 */
+	async getDomRef() {
+		this._updateContentDensity();
+		if (!this._rendered) {
+			this._rendered = true;
+			updateShadowRoot(this.ownerElement, true);
+		}
+		await renderFinished(); // Wait for the content of the ui5-static-area-item to be rendered
+		return this.shadowRoot;
+	}
+
+	static getTag() {
+		const pureTag = "ui5-static-area-item";
+		const suffix = getEffectiveScopingSuffixForTag(pureTag);
+		if (!suffix) {
+			return pureTag;
+		}
+
+		return `${pureTag}-${suffix}`;
+	}
+
+	static createInstance() {
+		if (!customElements.get(StaticAreaItem.getTag())) {
+			customElements.define(StaticAreaItem.getTag(), StaticAreaItem);
+		}
+
+		return document.createElement(this.getTag());
 	}
 }
 
-class Float extends DataType {
-	static isValid(value) {
-		// Assuming that integers are floats as well!
-		return Number(value) === value;
+const observers = new WeakMap(); // We want just one observer per node, store them here -> DOM nodes are keys
+
+/**
+ * Default implementation with MutationObserver for browsers with native support
+ */
+let _createObserver = (node, callback, options) => {
+	const observer = new MutationObserver(callback);
+	observer.observe(node, options);
+	return observer;
+};
+
+/**
+ * Default implementation with MutationObserver for browsers with native support
+ */
+let _destroyObserver = observer => {
+	observer.disconnect();
+};
+
+/**
+ * @param node
+ * @param callback
+ * @param options
+ */
+const observeDOMNode = (node, callback, options) => {
+	const observer = _createObserver(node, callback, options);
+	observers.set(node, observer);
+};
+
+/**
+ * @param node
+ */
+const unobserveDOMNode = node => {
+	const observer = observers.get(node);
+	if (observer) {
+		_destroyObserver(observer);
+		observers.delete(node);
 	}
-}
+};
+
+// Fire these events even with noConflict: true
+const excludeList = [
+	"value-changed",
+];
+
+const shouldFireOriginalEvent = eventName => {
+	return excludeList.includes(eventName);
+};
+
+let noConflict;
+
+const shouldNotFireOriginalEvent = eventName => {
+	const nc = getNoConflict();
+	return !(nc.events && nc.events.includes && nc.events.includes(eventName));
+};
+
+const getNoConflict = () => {
+	if (noConflict === undefined) {
+		noConflict = getNoConflict$1();
+	}
+
+	return noConflict;
+};
+
+const skipOriginalEvent = eventName => {
+	const nc = getNoConflict();
+
+	// Always fire these events
+	if (shouldFireOriginalEvent(eventName)) {
+		return false;
+	}
+
+	// Read from the configuration
+	if (nc === true) {
+		return true;
+	}
+
+	return !shouldNotFireOriginalEvent(eventName);
+};
 
 // Note: disabled is present in IE so we explicitly allow it here.
 // Others, such as title/hidden, we explicitly override, so valid too
@@ -2257,7 +2278,7 @@ function _invalidate(changeInfo) {
 
 	this._changedState.push(changeInfo);
 	renderDeferred(this);
-	this._eventProvider.fireEvent("change", { ...changeInfo, target: this });
+	this._eventProvider.fireEvent("invalidate", { ...changeInfo, target: this });
 }
 
 /**
@@ -2316,7 +2337,6 @@ class UI5Element extends HTMLElement {
 	async connectedCallback() {
 		this.setAttribute(this.constructor.getMetadata().getPureTag(), "");
 
-		const needsShadowDOM = this.constructor._needsShadowDOM();
 		const slotsAreManaged = this.constructor.getMetadata().slotsAreManaged();
 
 		this._inDOM = true;
@@ -2325,10 +2345,6 @@ class UI5Element extends HTMLElement {
 			// always register the observer before yielding control to the main thread (await)
 			this._startObservingDOMChildren();
 			await this._processChildren();
-		}
-
-		if (needsShadowDOM && !this.shadowRoot) { // Workaround for Firefox74 bug
-			await Promise.resolve();
 		}
 
 		if (!this._inDOM) { // Component removed from DOM while _processChildren was running
@@ -2348,7 +2364,6 @@ class UI5Element extends HTMLElement {
 	 * @private
 	 */
 	disconnectedCallback() {
-		const needsShadowDOM = this.constructor._needsShadowDOM();
 		const slotsAreManaged = this.constructor.getMetadata().slotsAreManaged();
 
 		this._inDOM = false;
@@ -2357,13 +2372,11 @@ class UI5Element extends HTMLElement {
 			this._stopObservingDOMChildren();
 		}
 
-		if (needsShadowDOM) {
-			if (this._fullyConnected) {
-				if (typeof this.onExitDOM === "function") {
-					this.onExitDOM();
-				}
-				this._fullyConnected = false;
+		if (this._fullyConnected) {
+			if (typeof this.onExitDOM === "function") {
+				this.onExitDOM();
 			}
+			this._fullyConnected = false;
 		}
 
 		if (this.staticAreaItem && this.staticAreaItem.parentElement) {
@@ -2473,7 +2486,7 @@ class UI5Element extends HTMLElement {
 
 			// Listen for any invalidation on the child if invalidateOnChildChange is true or an object (ignore when false or not set)
 			if (child.isUI5Element && slotData.invalidateOnChildChange) {
-				child._attachChange(this._getChildChangeListener(slotName));
+				child.attachInvalidate(this._getChildChangeListener(slotName));
 			}
 
 			// Listen for the slotchange event if the child is a slot itself
@@ -2533,7 +2546,7 @@ class UI5Element extends HTMLElement {
 
 		children.forEach(child => {
 			if (child && child.isUI5Element) {
-				child._detachChange(this._getChildChangeListener(slotName));
+				child.detachInvalidate(this._getChildChangeListener(slotName));
 			}
 
 			if (isSlot(child)) {
@@ -2548,20 +2561,20 @@ class UI5Element extends HTMLElement {
 	 * Attach a callback that will be executed whenever the component is invalidated
 	 *
 	 * @param callback
-	 * @protected
+	 * @public
 	 */
-	_attachChange(callback) {
-		this._eventProvider.attachEvent("change", callback);
+	attachInvalidate(callback) {
+		this._eventProvider.attachEvent("invalidate", callback);
 	}
 
 	/**
 	 * Detach the callback that is executed whenever the component is invalidated
 	 *
 	 * @param callback
-	 * @protected
+	 * @public
 	 */
-	_detachChange(callback) {
-		this._eventProvider.detachEvent("change", callback);
+	detachInvalidate(callback) {
+		this._eventProvider.detachEvent("invalidate", callback);
 	}
 
 	/**
@@ -2598,12 +2611,8 @@ class UI5Element extends HTMLElement {
 			const propertyTypeClass = properties[nameInCamelCase].type;
 			if (propertyTypeClass === Boolean) {
 				newValue = newValue !== null;
-			}
-			if (propertyTypeClass === Integer) {
-				newValue = parseInt(newValue);
-			}
-			if (propertyTypeClass === Float) {
-				newValue = parseFloat(newValue);
+			} else if (isDescendantOf(propertyTypeClass, DataType)) {
+				newValue = propertyTypeClass.attributeToProperty(newValue);
 			}
 			this[nameInCamelCase] = newValue;
 		}
@@ -2616,22 +2625,24 @@ class UI5Element extends HTMLElement {
 		if (!this.constructor.getMetadata().hasAttribute(name)) {
 			return;
 		}
-
-		if (typeof newValue === "object") {
-			return;
-		}
-
+		const properties = this.constructor.getMetadata().getProperties();
+		const propertyTypeClass = properties[name].type;
 		const attrName = camelToKebabCase(name);
 		const attrValue = this.getAttribute(attrName);
-		if (typeof newValue === "boolean") {
+
+		if (propertyTypeClass === Boolean) {
 			if (newValue === true && attrValue === null) {
 				this.setAttribute(attrName, "");
 			} else if (newValue === false && attrValue !== null) {
 				this.removeAttribute(attrName);
 			}
-		} else if (attrValue !== newValue) {
-			this.setAttribute(attrName, newValue);
-		}
+		} else if (isDescendantOf(propertyTypeClass, DataType)) {
+			this.setAttribute(attrName, propertyTypeClass.propertyToAttribute(newValue));
+		} else if (typeof newValue !== "object") {
+			if (attrValue !== newValue) {
+				this.setAttribute(attrName, newValue);
+			}
+		} // else { return; } // old object handling
 	}
 
 	/**
@@ -2831,25 +2842,27 @@ class UI5Element extends HTMLElement {
 
 	/**
 	 * Returns the DOM Element inside the Shadow Root that corresponds to the opening tag in the UI5 Web Component's template
+	 * *Note:* For logical (abstract) elements (items, options, etc...), returns the part of the parent's DOM that represents this option
 	 * Use this method instead of "this.shadowRoot" to read the Shadow DOM, if ever necessary
+	 *
 	 * @public
 	 */
 	getDomRef() {
+		// If a component set _getRealDomRef to its children, use the return value of this function
+		if (typeof this._getRealDomRef === "function") {
+			return this._getRealDomRef();
+		}
+
 		if (!this.shadowRoot || this.shadowRoot.children.length === 0) {
 			return;
 		}
 
-		this._assertShadowRootStructure();
-
-		return this.shadowRoot.children.length === 1
-			? this.shadowRoot.children[0] : this.shadowRoot.children[1];
-	}
-
-	_assertShadowRootStructure() {
-		const expectedChildrenCount = document.adoptedStyleSheets || isLegacyBrowser() ? 1 : 2;
-		if (this.shadowRoot.children.length !== expectedChildrenCount) {
+		const children = [...this.shadowRoot.children].filter(child => !["link", "style"].includes(child.localName));
+		if (children.length !== 1) {
 			console.warn(`The shadow DOM for ${this.constructor.getMetadata().getTag()} does not have a top level element, the getDomRef() method might not work as expected`); // eslint-disable-line
 		}
+
+		return children[0];
 	}
 
 	/**
@@ -2873,17 +2886,6 @@ class UI5Element extends HTMLElement {
 	async getFocusDomRefAsync() {
 		await this._waitForDomRef();
 		return this.getFocusDomRef();
-	}
-
-	/**
-	 * Use this method in order to get a reference to an element in the shadow root of the web component or the static area item of the component
-	 * @public
-	 * @method
-	 * @param {String} refName Defines the name of the stable DOM ref
-	 */
-	getStableDomRef(refName) {
-		const staticAreaResult = this.staticAreaItem && this.staticAreaItem.getStableDomRef(refName);
-		return staticAreaResult || this.getDomRef().querySelector(`[data-ui5-stable=${refName}]`);
 	}
 
 	/**
@@ -3075,6 +3077,8 @@ class UI5Element extends HTMLElement {
 					const oldState = this._state[prop];
 					if (propData.multiple && propData.compareValues) {
 						isDifferent = !arraysAreEqual(oldState, value);
+					} else if (isDescendantOf(propData.type, DataType)) {
+						isDifferent = !propData.type.valuesAreEqual(oldState, value);
 					} else {
 						isDifferent = oldState !== value;
 					}
@@ -3245,9 +3249,77 @@ class UI5Element extends HTMLElement {
 	}
 }
 
-const litRender = (templateResult, domNode, styles, { host } = {}) => {
-	if (styles) {
-		templateResult = html`<style>${styles}</style>${templateResult}`;
+/**
+ * @license
+ * Copyright 2018 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+class StyleMapDirective extends Directive {
+	constructor(partInfo) {
+		var _a;
+		super(partInfo);
+		if (partInfo.type !== PartType.ATTRIBUTE ||
+			partInfo.name !== 'style' ||
+			((_a = partInfo.strings) === null || _a === void 0 ? void 0 : _a.length) > 2) {
+			throw new Error('The `styleMap` directive must be used in the `style` attribute ' +
+				'and must be the only part in the attribute.');
+		}
+	}
+	render(styleInfo) {
+		return "";
+	}
+	update(part, [styleInfo]) {
+		const { style } = part.element;
+		if (this._previousStyleProperties === undefined) {
+			this._previousStyleProperties = new Set();
+			for (const name in styleInfo) {
+				this._previousStyleProperties.add(name);
+			}
+			// return this.render(styleInfo);
+		}
+		// Remove old properties that no longer exist in styleInfo
+		// We use forEach() instead of for-of so that re don't require down-level
+		// iteration.
+		this._previousStyleProperties.forEach((name) => {
+			// If the name isn't in styleInfo or it's null/undefined
+			if (styleInfo[name] == null) {
+				this._previousStyleProperties.delete(name);
+				if (name.includes('-')) {
+					style.removeProperty(name);
+				}
+				else {
+					// Note reset using empty string (vs null) as IE11 does not always
+					// reset via null (https://developer.mozilla.org/en-US/docs/Web/API/ElementCSSInlineStyle/style#setting_styles)
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					style[name] = '';
+				}
+			}
+		});
+		// Add or update properties
+		for (const name in styleInfo) {
+			const value = styleInfo[name];
+			if (value != null) {
+				this._previousStyleProperties.add(name);
+				if (name.includes('-')) {
+					style.setProperty(name, value);
+				}
+				else {
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					style[name] = value;
+				}
+			}
+		}
+		return noChange;
+	}
+}
+
+directive(StyleMapDirective);
+
+const litRender = (templateResult, domNode, styleStrOrHrefsArr, { host } = {}) => {
+	if (typeof styleStrOrHrefsArr === "string") {
+		templateResult = html`<style>${styleStrOrHrefsArr}</style>${templateResult}`;
+	} else if (Array.isArray(styleStrOrHrefsArr) && styleStrOrHrefsArr.length) {
+		templateResult = html`${styleStrOrHrefsArr.map(href => html`<link type="text/css" rel="stylesheet" href="${href}">`)}${templateResult}`;
 	}
 	render$1(templateResult, domNode, { host });
 };
@@ -3578,6 +3650,7 @@ class I18nBundle {
 	/**
 	 * Returns a text in the currently loaded language
 	 *
+	 * @public
 	 * @param {Object|String} textObj key/defaultText pair or just the key
 	 * @param params Values for the placeholders
 	 * @returns {*}
@@ -3601,7 +3674,7 @@ class I18nBundle {
 	}
 }
 
-const getI18nBundle = packageName => {
+const getI18nBundleSync = packageName => {
 	if (I18nBundleInstances.has(packageName)) {
 		return I18nBundleInstances.get(packageName);
 	}
@@ -3611,30 +3684,108 @@ const getI18nBundle = packageName => {
 	return i18nBundle;
 };
 
-const main$1 = (context, tags, suffix) => {
-	const block0 = (context) => { return html$1`<div class="${classMap(context.classes)}" dir="${ifDefined(context.effectiveDir)}" role="region" aria-labelledby="${ifDefined(context.ariaLabelledByCard)}">${ context.hasHeader ? block1() : undefined }<div role="group" aria-label="${ifDefined(context.ariaCardContentLabel)}"><slot></slot></div><span id="${ifDefined(context._id)}-desc" class="ui5-hidden-text">${ifDefined(context.ariaCardRoleDescription)}</span></div>`; };
-const block1 = (context) => { return html$1`<div class="ui5-card-header-root"><slot name="header"></slot></div>`; };
+/**
+ * Fetches and returns the I18nBundle instance for the given package
+ *
+ * @public
+ * @param packageName
+ * @returns {Promise<I18nBundle>}
+ */
+const getI18nBundle = async packageName => {
 
-
-	return block0(context);
+	await fetchI18nBundle(packageName);
+	return getI18nBundleSync(packageName);
 };
 
-const main = (context, tags, suffix) => {
-	const block0 = (context) => { return html$1`<svg class="ui5-icon-root" tabindex="${ifDefined(context.tabIndex)}" dir="${ifDefined(context._dir)}" viewBox="0 0 512 512" role="${ifDefined(context.effectiveAccessibleRole)}" focusable="false" preserveAspectRatio="xMidYMid meet" aria-label="${ifDefined(context.effectiveAccessibleName)}" aria-hidden=${ifDefined(context.effectiveAriaHidden)} xmlns="http://www.w3.org/2000/svg" @focusin=${context._onfocusin} @focusout=${context._onfocusout} @keydown=${context._onkeydown} @keyup=${context._onkeyup} @click=${context._onclick}>${blockSVG1(context)}</svg>`; };
-const block1 = (context) => { return svg`<title id="${ifDefined(context._id)}-tooltip">${ifDefined(context.effectiveAccessibleName)}</title>`; };
+const findNodeOwner = node => {
+	if (!(node instanceof HTMLElement)) {
+		throw new Error("Argument node should be of type HTMLElement");
+	}
 
-const blockSVG1 = (context) => {return svg`${ context.hasIconTooltip ? block1(context) : undefined }<g role="presentation"><path d="${ifDefined(context.pathData)}"/></g>`};
+	const ownerTypes = [HTMLHtmlElement, HTMLIFrameElement];
+	let currentShadowRootFlag = true;
+	let currentCustomElementFlag = true;
 
-	return block0(context);
+	while (node) {
+		if (node.toString() === "[object ShadowRoot]") {
+			// Web Component
+			// or the shadow root of web component with attached shadow root
+			if (currentShadowRootFlag) {
+				currentShadowRootFlag = false;
+			}
+			if (!currentCustomElementFlag && !currentShadowRootFlag) {
+				return node;
+			}
+		} else if (node.tagName && node.tagName.indexOf("-") > -1) {
+			if (currentCustomElementFlag) {
+				currentCustomElementFlag = false;
+			} else {
+				return node;
+			}
+		} else if (ownerTypes.indexOf(node.constructor) > -1) {
+			// Document or Iframe reached
+			return node;
+		}
+
+		node = node.parentNode || node.host;
+	}
 };
 
-var defaultTheme = ":root{--_ui5_calendar_height:24.5rem;--_ui5_calendar_width:20.5rem;--_ui5_calendar_padding:0.75rem;--_ui5_calendar_header_height:3rem;--_ui5_calendar_header_arrow_button_width:2.5rem;--_ui5_calendar_header_padding:0.25rem 0;--_ui5_checkbox_root_side_padding:.6875rem;--_ui5_checkbox_icon_size:1rem;--_ui5_checkbox_partially_icon_size:.75rem;--_ui5_custom_list_item_height:3rem;--_ui5_custom_list_item_rb_min_width:2.75rem;--_ui5_day_picker_item_width:2.25rem;--_ui5_day_picker_item_height:2.875rem;--_ui5_day_picker_empty_height:3rem;--_ui5_datetime_picker_width:40.0625rem;--_ui5_datetime_picker_height:25rem;--_ui5_datetime_timeview_phonemode_width:19.5rem;--_ui5_datetime_timeview_padding:1rem;--_ui5_dialog_content_min_height:2.75rem;--_ui5_input_inner_padding:0 0.625rem;--_ui5_input_inner_padding_with_icon:0 0.25rem 0 0.625rem;--_ui5_input_value_state_icon_padding:var(--_ui5-input-icon-padding);--_ui5_list_no_data_height:3rem;--_ui5_list_item_cb_margin_right:0;--_ui5_list_item_title_size:var(--sapFontLargeSize);--_ui5_list_item_img_size:3rem;--_ui5_list_item_img_margin:0.5rem 0.75rem 0.5rem 0rem;--_ui5_list_item_base_height:2.75rem;--_ui5_list_item_icon_size:1.125rem;--_ui5_group_header_list_item_height:2.75rem;--_ui5_list_busy_row_height:3rem;--_ui5_month_picker_item_height:3rem;--_ui5_popup_default_header_height:2.75rem;--_ui5_year_picker_item_height:3rem;--_ui5_tokenizer_root_padding:0.1875rem;--_ui5_token_height:1.625rem;--_ui5_token_icon_padding:0.25rem 0.5rem;--_ui5_token_wrapper_right_padding:0.3125rem;--_ui5_tl_bubble_padding:1rem;--_ui5_tl_indicator_before_bottom:-1.625rem;--_ui5_tl_padding:1rem 1rem 1rem .5rem;--_ui5_tl_li_margin_bottom:1.625rem;--_ui5_switch_text_on_left:calc(-100% + 1.9125rem);--_ui5_switch_slide_transform:translateX(100%) translateX(-1.875rem);--_ui5_switch_rtl_transform:translateX(1.875rem) translateX(-100%);--_ui5_switch_text_right:calc(-100% + 1.9125rem);--_ui5_tc_item_text:3rem;--_ui5_tc_item_text_text_only:3rem;--_ui5_tc_item_text_line_height:normal;--_ui5_tc_item_icon_size:1.5rem;--_ui5_tc_item_add_text_margin_top:0.625rem;--_ui5_textarea_padding:0.5625rem 0.6875rem;--_ui5_radio_button_height:2.75rem;--_ui5_radio_button_label_side_padding:.875rem;--_ui5_radio_button_focus_dist:.5rem;--_ui5_radio_button_inner_size:2.75rem;--_ui5_radio_button_svg_size:1.375rem;--_ui5_radio_button_label_width:calc(100% - 2.75rem);--_ui5_radio_button_rtl_focus_right:0.5rem;--_ui5-responsive_popover_header_height:2.75rem;--_ui5_shellbar_logo_outline_offset:-0.0625rem;--ui5_side_navigation_item_height:2.75rem;--_ui5_load_more_text_height:2.75rem;--_ui5_load_more_text_font_size:var(--sapFontMediumSize);--_ui5_load_more_desc_padding:0.375rem 2rem 0.875rem 2rem;--_ui5-tree-indent-step:1.5rem;--_ui5-tree-toggle-box-width:2.75rem;--_ui5-tree-toggle-box-height:2.25rem;--_ui5-tree-toggle-icon-size:1.0625rem;--_ui5_segmented_btn_border_radius:0.375rem}.sapUiSizeCompact,.ui5-content-density-compact,:root,[data-ui5-compact-size]{--_ui5_datetime_timeview_width:17rem;--_ui5_list_item_selection_btn_margin_top:calc(var(--_ui5_checkbox_wrapper_padding)*-1);--_ui5_token_icon_size:.75rem;--_ui5_token_wrapper_left_padding:0}.sapUiSizeCompact,.ui5-content-density-compact,[data-ui5-compact-size]{--_ui5_button_base_height:1.625rem;--_ui5_button_base_padding:0.4375rem;--_ui5_button_base_min_width:2rem;--_ui5_button_icon_font_size:1rem;--_ui5_calendar_height:18rem;--_ui5_calendar_width:17.75rem;--_ui5_calendar_padding:0.5rem;--_ui5_calendar_header_height:2rem;--_ui5_calendar_header_arrow_button_width:2rem;--_ui5_calendar_header_padding:0;--_ui5_checkbox_root_side_padding:var(--_ui5_checkbox_wrapped_focus_padding);--_ui5_checkbox_wrapped_content_margin_top:var(--_ui5_checkbox_compact_wrapped_label_margin_top);--_ui5_checkbox_wrapped_focus_left_top_bottom_position:var(--_ui5_checkbox_compact_focus_position);--_ui5_checkbox_width_height:var(--_ui5_checkbox_compact_width_height);--_ui5_checkbox_wrapper_padding:var(--_ui5_checkbox_compact_wrapper_padding);--_ui5_checkbox_focus_position:var(--_ui5_checkbox_compact_focus_position);--_ui5_checkbox_inner_width_height:var(--_ui5_checkbox_compact_inner_size);--_ui5_checkbox_icon_size:.75rem;--_ui5_checkbox_partially_icon_size:.5rem;--_ui5_color-palette-item-height:1.25rem;--_ui5_color-palette-item-focus-height:1rem;--_ui5_color-palette-item-container-sides-padding:0.1875rem;--_ui5_color-palette-item-container-rows-padding:0.8125rem;--_ui5_color-palette-item-hover-height:1.65rem;--_ui5_color-palette-item-hover-margin:0.3125rem;--_ui5_color-palette-row-width:12rem;--_ui5_color-palette-row-height:7.5rem;--_ui5_custom_list_item_height:2rem;--_ui5_custom_list_item_rb_min_width:2rem;--_ui5_daypicker_weeknumbers_container_padding_top:2rem;--_ui5_day_picker_item_width:2rem;--_ui5_day_picker_item_height:2rem;--_ui5_day_picker_empty_height:2.125rem;--_ui5_datetime_picker_height:17rem;--_ui5_datetime_picker_width:34.0625rem;--_ui5_datetime_timeview_phonemode_width:18.5rem;--_ui5_datetime_timeview_padding:0.5rem;--_ui5_dialog_content_min_height:2.5rem;--_ui5_input_height:var(--_ui5_input_compact_height);--_ui5_input_inner_padding:0 0.5rem;--_ui5_input_icon_min_width:var(--_ui5_input_compact_min_width);--_ui5_input_icon_padding:.25rem .5rem;--_ui5_input_value_state_icon_padding:.1875rem .5rem;--_ui5_popup_default_header_height:2.5rem;--_ui5_textarea_padding:.1875rem .5rem;--_ui5_list_no_data_height:2rem;--_ui5_list_item_cb_margin_right:.5rem;--_ui5_list_item_title_size:var(--sapFontSize);--_ui5_list_item_img_margin:0.55rem 0.75rem 0.5rem 0rem;--_ui5_list_item_base_height:2rem;--_ui5_list_item_icon_size:1rem;--_ui5_list_busy_row_height:2rem;--_ui5_month_picker_item_height:2rem;--_ui5_panel_header_height:2rem;--_ui5_year_picker_item_height:2rem;--_ui5_tokenizer_root_padding:0.125rem;--_ui5_token_height:1.125rem;--_ui5_token_icon_padding:0.1rem 0.25rem;--_ui5_token_wrapper_right_padding:0.25rem;--_ui5_tl_bubble_padding:.5rem;--_ui5_tl_indicator_before_bottom:-.5rem;--_ui5_tl_padding:.5rem;--_ui5_tl_li_margin_bottom:.5rem;--_ui5_wheelslider_item_width:64px;--_ui5_wheelslider_item_height:32px;--_ui5_wheelslider_height:224px;--_ui5_wheelslider_selection_frame_margin_top:calc(var(--_ui5_wheelslider_item_height)*2);--_ui5_wheelslider_arrows_visibility:visible;--_ui5_wheelslider_mobile_selection_frame_margin_top:128px;--_ui5_switch_height:var(--_ui5_switch_compact_height);--_ui5_switch_width:var(--_ui5_switch_compact_width);--_ui5_switch_handle_height:var(--_ui5_switch_handle_compact_height);--_ui5_switch_handle_width:var(--_ui5_switch_handle_compact_width);--_ui5_switch_text_on_left:calc(-100% + 1.5625rem);--_ui5_switch_slide_transform:translateX(100%) translateX(-1.5rem);--_ui5_switch_no_label_width:var(--_ui5_switch_compact_no_label_width);--_ui5_switch_track_no_label_height:var(--_ui5_switch_track_compact_no_label_height);--_ui5_switch_rtl_transform:translateX(-100%) translateX(1.5rem);--_ui5_switch_text_right:calc(-100% + 1.5625rem);--_ui5_tc_item_text:2rem;--_ui5_tc_item_text_line_height:1.325rem;--_ui5_tc_item_icon_size:1rem;--_ui5_tc_item_add_text_margin_top:0.3125rem;--_ui5_tc_header_height:var(--_ui5_tc_header_height_compact);--_ui5_radio_button_min_width:var(--_ui5_radio_button_min_width_compact);--_ui5_radio_button_height:2rem;--_ui5_radio_button_label_side_padding:.5rem;--_ui5_radio_button_focus_dist:.375rem;--_ui5_radio_button_inner_size:2rem;--_ui5_radio_button_svg_size:1rem;--_ui5_radio_button_label_width:calc(100% - 2rem + 1px);--_ui5_radio_button_rtl_focus_right:0.375rem;--_ui5-responsive_popover_header_height:2.5rem;--ui5_side_navigation_item_height:2rem;--_ui5_slider_handle_height:1.25rem;--_ui5_slider_handle_width:1.25rem;--_ui5_slider_handle_top:-0.6425rem;--_ui5_slider_handle_margin_left:-0.7825rem;--_ui5_slider_tooltip_height:1rem;--_ui5_slider_tooltip_padding:0.25rem;--_ui5_slider_tooltip_bottom:1.825rem;--_ui5_slider_progress_outline_offset:-0.625rem;--_ui5_slider_outer_height:1.3125rem;--_ui5_load_more_text_height:2.625rem;--_ui5_load_more_text_font_size:var(--sapFontSize);--_ui5_load_more_desc_padding:0 2rem 0.875rem 2rem;--_ui5-tree-indent-step:0.5rem;--_ui5-tree-toggle-box-width:2rem;--_ui5-tree-toggle-box-height:1.5rem;--_ui5-tree-toggle-icon-size:0.8125rem}:root{--ui5-avatar-initials-color:var(--sapContent_ImagePlaceholderForegroundColor);--ui5-avatar-initials-border:none;--ui5-avatar-accent1:var(--sapAccentColor1);--ui5-avatar-accent2:var(--sapAccentColor2);--ui5-avatar-accent3:var(--sapAccentColor3);--ui5-avatar-accent4:var(--sapAccentColor4);--ui5-avatar-accent5:var(--sapAccentColor5);--ui5-avatar-accent6:var(--sapAccentColor6);--ui5-avatar-accent7:var(--sapAccentColor7);--ui5-avatar-accent8:var(--sapAccentColor8);--ui5-avatar-accent9:var(--sapAccentColor9);--ui5-avatar-accent10:var(--sapAccentColor10);--ui5-avatar-placeholder:var(--sapContent_ImagePlaceholderBackground);--_ui5_avatar_outline:1px dotted var(--sapContent_FocusColor);--_ui5_avatar_focus_offset:1px;--_ui5_avatar_focus_width:1px;--_ui5_avatar_focus_color:var(--sapContent_FocusColor);--ui5-badge-font-size:0.75em;--ui5-badge-color-scheme-1-background:var(--sapLegendBackgroundColor1);--ui5-badge-color-scheme-1-border:var(--sapAccentColor1);--ui5-badge-color-scheme-1-color:var(--sapAccentColor1);--ui5-badge-color-scheme-2-background:var(--sapLegendBackgroundColor2);--ui5-badge-color-scheme-2-border:var(--sapAccentColor2);--ui5-badge-color-scheme-2-color:var(--sapAccentColor2);--ui5-badge-color-scheme-3-background:var(--sapLegendBackgroundColor3);--ui5-badge-color-scheme-3-border:var(--sapAccentColor3);--ui5-badge-color-scheme-3-color:var(--sapAccentColor3);--ui5-badge-color-scheme-4-background:var(--sapLegendBackgroundColor5);--ui5-badge-color-scheme-4-border:var(--sapAccentColor4);--ui5-badge-color-scheme-4-color:var(--sapAccentColor4);--ui5-badge-color-scheme-5-background:var(--sapLegendBackgroundColor20);--ui5-badge-color-scheme-5-border:var(--sapAccentColor5);--ui5-badge-color-scheme-5-color:var(--sapAccentColor5);--ui5-badge-color-scheme-6-background:var(--sapLegendBackgroundColor6);--ui5-badge-color-scheme-6-border:var(--sapAccentColor6);--ui5-badge-color-scheme-6-color:var(--sapAccentColor6);--ui5-badge-color-scheme-7-background:var(--sapLegendBackgroundColor7);--ui5-badge-color-scheme-7-border:var(--sapAccentColor7);--ui5-badge-color-scheme-7-color:var(--sapAccentColor7);--ui5-badge-color-scheme-8-background:var(--sapLegendBackgroundColor8);--ui5-badge-color-scheme-8-border:var(--sapAccentColor8);--ui5-badge-color-scheme-8-color:var(--sapAccentColor8);--ui5-badge-color-scheme-9-background:var(--sapLegendBackgroundColor10);--ui5-badge-color-scheme-9-border:var(--sapAccentColor10);--ui5-badge-color-scheme-9-color:var(--sapAccentColor10);--ui5-badge-color-scheme-10-background:var(--sapLegendBackgroundColor9);--ui5-badge-color-scheme-10-border:var(--sapAccentColor9);--ui5-badge-color-scheme-10-color:var(--sapAccentColor9);--_ui5_button_base_min_width:2.5rem;--_ui5_button_base_min_compact_width:2rem;--_ui5_button_base_height:2.5rem;--_ui5_button_compact_height:1.625rem;--_ui5_button_border_radius:var(--sapButton_BorderCornerRadius);--_ui5_button_base_padding:0.6875rem;--_ui5_button_compact_padding:0.4375rem;--_ui5_button_base_icon_margin:0.563rem;--_ui5_button_icon_font_size:1.375rem;--_ui5_button_outline:1px dotted var(--sapContent_FocusColor);--_ui5_button_outline_offset:-0.1875rem;--_ui5_button_emphasized_font_weight:normal;--_ui5_button_text_shadow:var(--sapContent_TextShadow);--_ui5_button_focus_offset:1px;--_ui5_button_focus_width:1px;--_ui5_button_focus_color:var(--sapContent_FocusColor);--_ui5_button_positive_border_focus_hover_color:var(--sapContent_FocusColor);--_ui5_button_positive_focus_border_color:var(--sapButton_Accept_BorderColor);--_ui5_button_negative_focus_border_color:var(--sapButton_Reject_BorderColor);--_ui5_button_emphasized_focused_border_color:var(--sapButton_Emphasized_BorderColor);--_ui5_button_base_min_width:2.25rem;--_ui5_button_base_height:2.25rem;--_ui5_button_base_padding:0.5625rem;--_ui5_button_base_icon_only_padding:0.5625rem;--_ui5_button_base_icon_margin:0.375rem;--_ui5_button_icon_font_size:1rem;--_ui5_button_emphasized_font_weight:bold;--_ui5_button_text_shadow:none;--_ui5_card_box_shadow:var(--sapContent_Shadow0);--_ui5_card_border_color:var(--sapTile_BorderColor);--_ui5_card_content_padding:1rem;--_ui5_card_header_hover_bg:var(--sapList_Hover_Background);--_ui5_card_header_active_bg:var(--_ui5_card_header_hover_bg);--_ui5_card_header_border_color:var(--sapTile_SeparatorColor);--_ui5_card_header_focus_border:1px dotted var(--sapContent_FocusColor);--ui5_carousel_button_size:2.5rem;--ui5_carousel_height:0.25rem;--ui5_carousel_width:0.25rem;--ui5_carousel_margin:0 0.375rem;--ui5_carousel_border:1px solid var(--sapContent_ForegroundBorderColor);--ui5_carousel_dot_border:none;--ui5_carousel_dot_background:var(--sapContent_NonInteractiveIconColor);--_ui5_checkbox_wrapper_padding:.8125rem;--_ui5_checkbox_width_height:3rem;--_ui5_checkbox_hover_background:var(--sapField_Hover_Background);--_ui5_checkbox_inner_width_height:1.375rem;--_ui5_checkbox_inner_border:solid .125rem var(--sapField_BorderColor);--_ui5_checkbox_inner_border_radius:0;--_ui5_checkbox_inner_error_border:0.125rem solid var(--sapField_InvalidColor);--_ui5_checkbox_inner_warning_border:0.125rem solid var(--sapField_WarningColor);--_ui5_checkbox_inner_information_border:0.125rem solid var(--sapField_InformationColor);--_ui5_checkbox_inner_success_border:var(--sapField_BorderWidth) solid var(--sapField_SuccessColor);--_ui5_checkbox_inner_readonly_border:0.125rem solid var(--sapField_ReadOnly_BorderColor);--_ui5_checkbox_checkmark_warning_color:var(--sapField_TextColor);--_ui5_checkbox_checkmark_color:var(--sapSelectedColor);--_ui5_checkbox_wrapped_focus_padding:.375rem;--_ui5_checkbox_wrapped_content_margin_top:.125rem;--_ui5_checkbox_wrapped_focus_left_top_bottom_position:.5625rem;--_ui5_checkbox_focus_position:.6875rem;--_ui5_checkbox_focus_outline:1px dotted var(--sapContent_FocusColor);--_ui5_checkbox_compact_wrapper_padding:.5rem;--_ui5_checkbox_compact_width_height:2rem;--_ui5_checkbox_compact_inner_size:1rem;--_ui5_checkbox_compact_focus_position:.375rem;--_ui5_checkbox_compact_wrapped_label_margin_top:-1px;--_ui5_checkbox_wrapper_padding:.6875rem;--_ui5_checkbox_width_height:2.75rem;--_ui5_checkbox_inner_border:.0625rem solid var(--sapField_BorderColor);--_ui5_checkbox_focus_position:0.5625rem;--_ui5_checkbox_inner_border_radius:.125rem;--_ui5_checkbox_wrapped_content_margin_top:0;--_ui5_checkbox_wrapped_focus_padding:.5rem;--_ui5_checkbox_inner_readonly_border:1px solid var(--sapField_ReadOnly_BorderColor);--_ui5_checkbox_compact_wrapped_label_margin_top:-0.125rem;--_ui5_color-palette-item-height:1.75rem;--_ui5_color-palette-item-container-sides-padding:0.3125rem;--_ui5_color-palette-item-container-rows-padding:0.6875rem;--_ui5_color-palette-item-focus-height:1.5rem;--_ui5_color-palette-item-container-padding:var(--_ui5_color-palette-item-container-sides-padding) var(--_ui5_color-palette-item-container-rows-padding);--_ui5_color-palette-item-hover-height:2.25rem;--_ui5_color-palette-item-margin:calc(var(--_ui5_color-palette-item-hover-height) - var(--_ui5_color-palette-item-height));--_ui5_color-palette-item-hover-margin:calc(var(--_ui5_color-palette-item-margin)/2);--_ui5_color-palette-row-width:14.5rem;--_ui5_color-palette-row-height:9.5rem;--_ui5_datepicker_icon_border:none;--_ui5_daypicker_item_margin:2px;--_ui5_daypicker_item_border:none;--_ui5_daypicker_item_selected_border_color:var(--sapList_Background);--_ui5_daypicker_item_outline_width:1px;--_ui5_daypicker_item_outline_offset:1px;--_ui5_daypicker_daynames_container_height:2rem;--_ui5_daypicker_weeknumbers_container_padding_top:2rem;--_ui5_daypicker_item_selected_hover_background_color:var(--sapContent_Selected_Background);--_ui5_daypicker_item_othermonth_background_color:var(--sapList_Background);--_ui5_daypicker_item_othermonth_color:var(--sapContent_LabelColor);--_ui5_daypicker_item_othermonth_hover_color:var(--sapContent_LabelColor);--_ui5_daypicker_item_border_radius:0;--_ui5_daypicker_item_now_inner_border_radius:0;--_ui5_daypicker_dayname_color:var(--sapContent_LabelColor);--_ui5_daypicker_weekname_color:var(--sapContent_LabelColor);--_ui5_daypicker_item_now_selected_focus_after_width:calc(100% - 0.125rem);--_ui5_daypicker_item_now_selected_focus_after_height:calc(100% - 0.125rem);--_ui5_daypicker_item_selected_hover_background_color:var(--sapActiveColor_Lighten3);--_ui5_daypicker_item_border_radius:0.25rem;--_ui5_daypicker_item_now_inner_border_radius:0.125rem;--_ui5_dialog_resize_handle_color:var(--sapButton_Lite_TextColor);--_ui5_dialog_header_focus_width:0.0625rem;--_ui5_dialog_header_focus_offset:-0.1875rem;--ui5-group-header-listitem-background-color:var(--sapList_GroupHeaderBackground);--_ui5_input_width:13.125rem;--_ui5_input_height:2.5rem;--_ui5_input_compact_height:1.625rem;--_ui5_input_state_border_width:0.125rem;--_ui5-input-information_border_width:0.125rem;--_ui5_input_error_font_weight:normal;--_ui5_input_focus_border_width:1px;--_ui5_input_error_warning_border_style:solid;--_ui5_input_error_warning_font_style:inherit;--_ui5_input_disabled_color:var(--sapContent_DisabledTextColor);--_ui5_input_disabled_font_weight:normal;--_ui5_input_disabled_border_color:var(--sapField_BorderColor);--_ui5_input_disabled_background:var(--sapField_Background);--_ui5_input_icon_padding:0.625rem .6875rem;--_ui5_input_disabled_opacity:0.5;--_ui5_input_icon_min_width:2.375rem;--_ui5_input_compact_min_width:2rem;--_ui5_input_height:2.25rem;--_ui5_input_disabled_opacity:0.4;--_ui5_input_icon_padding:.5625rem .6875rem;--_ui5_link_opacity:0.5;--_ui5_link_opacity:0.4;--_ui5_link_text_decoration:none;--_ui5_link_hover_text_decoration:underline;--ui5_list_footer_text_color:var(--sapPageFooter_TextColor);--ui5_list_footer_text_color:var(--sapTextColor);--ui5-listitem-background-color:var(--sapList_Background);--ui5-listitem-border-bottom:1px solid var(--sapList_BorderColor);--ui5-listitem-selected-border-bottom:1px solid var(--sapList_SelectionBorderColor);--_ui5_listitembase_focus_width:1px;--_ui5-listitembase_disabled_opacity:0.5;--_ui5_product_switch_item_border:none;--_ui5_monthpicker_item_border_radius:0;--_ui5_monthpicker_item_border:none;--_ui5_monthpicker_item_margin:1px;--_ui5_monthpicker_item_focus_after_width:calc(100% - 0.375rem);--_ui5_monthpicker_item_focus_after_height:calc(100% - 0.375rem);--_ui5_monthpicker_item_focus_after_border:1px dotted var(--sapContent_FocusColor);--_ui5_monthpicker_item_focus_after_offset:2px;--_ui5_monthpicker_item_border_radius:0.25rem;--_ui5_messagestrip_icon_width:2.5rem;--_ui5_messagestrip_border_radius:0.1875rem;--_ui5_messagestrip_button_border_width:0;--_ui5_messagestrip_button_border_style:none;--_ui5_messagestrip_button_border_color:transparent;--_ui5_messagestrip_button_border_radius:0;--_ui5_messagestrip_padding:0.4375rem 2.5rem 0.4375rem 2.5rem;--_ui5_messagestrip_padding_no_icon:0.4375rem 2.5rem 0.4375rem 1rem;--_ui5_messagestrip_button_height:1.625rem;--_ui5_messagestrip_border_width:1px;--_ui5_messagestrip_close_button_border:none;--_ui5_messagestrip_close_button_size:1.625rem;--_ui5_messagestrip_icon_top:0.4375rem;--_ui5_messagestrip_focus_width:1px;--_ui5_messagestrip_focus_offset:-2px;--_ui5_panel_focus_border:1px dotted var(--sapContent_FocusColor);--_ui5_panel_header_height:3rem;--_ui5_panel_button_root_width:3rem;--_ui5_panel_header_height:2.75rem;--_ui5_panel_button_root_width:2.75rem;--_ui5_popup_content_padding:.4375em;--_ui5_progress_indicator_value_state_none:var(--sapNeutralElementColor);--_ui5_progress_indicator_value_state_error:var(--sapNegativeElementColor);--_ui5_progress_indicator_value_state_warning:var(--sapCriticalElementColor);--_ui5_progress_indicator_value_state_success:var(--sapPositiveElementColor);--_ui5_progress_indicator_value_state_information:var(--sapInformativeElementColor);--_ui5_progress_indicator_color:var(--sapTextColor);--_ui5_progress_indicator_bar_color:var(--sapContent_ContrastTextColor);--_ui5_progress_indicator_border:0.0625rem solid var(--sapField_BorderColor);--_ui5_progress_indicator_bar_border_max:none;--_ui5_progress_indicator_icon_visibility:none;--_ui5_radio_button_min_width:2.75rem;--_ui5_radio_button_min_width_compact:2rem;--_ui5_radio_button_hover_fill:var(--sapField_Hover_Background);--_ui5_radio_button_border_width:1px;--_ui5_radio_button_checked_fill:var(--sapSelectedColor);--_ui5_radio_button_checked_error_fill:var(--sapField_InvalidColor);--_ui5_radio_button_checked_warning_fill:var(--sapField_TextColor);--_ui5_radio_button_warning_error_border_dash:0;--_ui5_select_disabled_background:var(--sapField_Background);--_ui5_select_disabled_border_color:var(--sapField_BorderColor);--_ui5_select_state_error_warning_border_style:solid;--_ui5_select_state_error_warning_border_width:0.125rem;--_ui5_select_hover_icon_left_border:1px solid transparent;--_ui5_select_rtl_hover_icon_left_border:none;--_ui5_select_rtl_hover_icon_right_border:none;--_ui5_select_focus_width:1px;--_ui5_switch_height:2.75rem;--_ui5_switch_width:3.875rem;--_ui5_switch_no_label_width:3.25rem;--_ui5_switch_outline:1px;--_ui5_switch_compact_height:2rem;--_ui5_switch_compact_width:3.5rem;--_ui5_switch_compact_no_label_width:2.5rem;--_ui5_switch_track_height:1.375rem;--_ui5_switch_track_no_label_height:1.25rem;--_ui5_switch_track_compact_no_label_height:1rem;--_ui5_switch_track_hover_border_color:var(--_ui5_switch_track_checked_border_color);--_ui5_switch_track_hover_background_color:var(--sapButton_Track_Background);--_ui5_switch_track_hover_checked_background_color:var(--sapButton_Track_Selected_Background);--_ui5_switch_track_border_radius:0.75rem;--_ui5_switch_track_disabled_checked_bg:var(--_ui5_switch_track_checked_bg);--_ui5_switch_track_disabled_border_color:var(--sapContent_ForegroundBorderColor);--_ui5_switch_track_disabled_semantic_checked_bg:var(--sapSuccessBackground);--_ui5_switch_track_disabled_semantic_checked_border_color:var(--sapSuccessBorderColor);--_ui5_switch_track_disabled_semantic_bg:var(--sapErrorBackground);--_ui5_switch_track_disabled_semantic_border_color:var(--sapErrorBorderColor);--_ui5_switch_handle_width:2rem;--_ui5_switch_handle_height:2rem;--_ui5_switch_handle_border_width:1px;--_ui5_switch_handle_border_radius:1rem;--_ui5_switch_handle_bg:var(--sapButton_TokenBackground);--_ui5_switch_handle_checked_bg:var(--sapButton_Selected_Background);--_ui5_switch_handle_checked_border_color:var(--sapButton_Selected_BorderColor);--_ui5_switch_handle_semantic_hover_bg:var(--sapErrorBackground);--_ui5_switch_handle_semantic_checked_hover_bg:var(--sapSuccessBackground);--_ui5_switch_handle_semantic_hover_border_color:var(--sapErrorBorderColor);--_ui5_switch_handle_semantic_checked_hover_border_color:var(--sapSuccessBorderColor);--_ui5_switch_handle_compact_width:1.625rem;--_ui5_switch_handle_compact_height:1.625rem;--_ui5_switch_handle_disabled_bg:var(--_ui5_switch_handle_bg);--_ui5_switch_handle_disabled_checked_bg:var(--_ui5_switch_handle_checked_bg);--_ui5_switch_handle_disabled_border_color:var(--sapContent_ForegroundBorderColor);--_ui5_switch_handle_disabled_semantic_checked_bg:var(--sapButton_Background);--_ui5_switch_handle_disabled_semantic_checked_border_color:var(--sapSuccessBorderColor);--_ui5_switch_handle_disabled_semantic_border_color:var(--sapErrorBorderColor);--_ui5_switch_text_on_semantic_color:var(--sapPositiveElementColor);--_ui5_switch_text_off_semantic_color:var(--sapNegativeElementColor);--_ui5_switch_text_disabled_color:var(--sapTextColor);--_ui5_tc_header_height:4.6875rem;--_ui5_tc_header_height_compact:3.6875rem;--_ui5_tc_header_height_text_only:3rem;--_ui5_tc_header_height_text_only_compact:2rem;--_ui5_tc_header_box_shadow:inset 0 -0.25rem 0 -0.125rem var(--sapObjectHeader_BorderColor);--_ui5_tc_header_border_bottom:0.125rem solid var(--sapObjectHeader_Background);--_ui5_tc_headerItem_color:var(--sapGroup_TitleTextColor);--_ui5_tc_headeritem_text_selected_color:var(--sapSelectedColor);--_ui5_tc_headerItem_neutral_color:var(--sapNeutralColor);--_ui5_tc_headerItem_positive_color:var(--sapPositiveColor);--_ui5_tc_headerItem_negative_color:var(--sapNegativeColor);--_ui5_tc_headerItem_critical_color:var(--sapCriticalColor);--_ui5_tc_headerItem_neutral_border_color:var(--_ui5_tc_headerItem_neutral_color);--_ui5_tc_headerItem_positive_border_color:var(--_ui5_tc_headerItem_positive_color);--_ui5_tc_headerItem_negative_border_color:var(--_ui5_tc_headerItem_negative_color);--_ui5_tc_headerItem_critical_border_color:var(--_ui5_tc_headerItem_critical_color);--_ui5_tc_headerItem_neutral_selected_border_color:var(--_ui5_tc_headerItem_neutral_color);--_ui5_tc_headerItem_positive_selected_border_color:var(--_ui5_tc_headerItem_positive_color);--_ui5_tc_headerItem_negative_selected_border_color:var(--_ui5_tc_headerItem_negative_color);--_ui5_tc_headerItem_critical_selected_border_color:var(--_ui5_tc_headerItem_critical_color);--_ui5_tc_headerItemContent_border_bottom:0.125rem solid var(--sapSelectedColor);--_ui5_tc_headerItem_focus_border:1px dotted var(--sapContent_FocusColor);--_ui5_tc_headerItemSemanticIcon_display:none;--_ui5_tc_overflowItem_neutral_color:var(--sapNeutralColor);--_ui5_tc_overflowItem_positive_color:var(--sapPositiveColor);--_ui5_tc_overflowItem_negative_color:var(--sapNegativeColor);--_ui5_tc_overflowItem_critical_color:var(--sapCriticalColor);--_ui5_tc_headerItemIcon_border:1px solid var(--sapHighlightColor);--_ui5_tc_headerItemIcon_color:var(--sapHighlightColor);--_ui5_tc_headerItemIcon_selected_background:var(--sapHighlightColor);--_ui5_tc_headerItemIcon_selected_color:var(--sapGroup_ContentBackground);--_ui5_tc_headerItemIcon_positive_selected_background:var(--sapPositiveColor);--_ui5_tc_headerItemIcon_negative_selected_background:var(--sapNegativeColor);--_ui5_tc_headerItemIcon_critical_selected_background:var(--sapCriticalColor);--_ui5_tc_headerItemIcon_neutral_selected_background:var(--sapNeutralColor);--_ui5_tc_headerItemIcon_semantic_selected_color:var(--sapGroup_ContentBackground);--_ui5_tc_content_border_bottom:0.125rem solid var(--sapObjectHeader_BorderColor);--_ui5_tc_header_box_shadow:var(--sapContent_HeaderShadow);--_ui5_tc_header_border_bottom:0.0625rem solid var(--sapObjectHeader_Background);--_ui5_tc_headerItem_color:var(--sapContent_LabelColor);--_ui5_tc_headerItemContent_border_bottom:0.188rem solid var(--sapSelectedColor);--_ui5_tc_overflowItem_default_color:var(--sapHighlightColor);--_ui5_tc_overflowItem_current_color:CurrentColor;--_ui5_tc_content_border_bottom:0.0625rem solid var(--sapObjectHeader_BorderColor);--_ui5_textarea_focus_after_width:1px;--_ui5_textarea_warning_border_style:solid;--_ui5_textarea_state_border_width:0.125rem;--_ui5_time_picker_border:0.0625rem solid transparent;--_ui5_toast_vertical_offset:3rem;--_ui5_toast_horizontal_offset:2rem;--_ui5_toast_background:var(--sapList_Background);--_ui5_toast_shadow:var(--sapContent_Shadow2);--_ui5_wheelslider_item_text_size:var(--sapFontSize);--_ui5_wheelslider_selected_item_hover_background_color:var(--sapList_BorderColor);--_ui5_wheelslider_label_text_size:var(--sapFontSmallSize);--_ui5_wheelslider_selection_frame_margin_top:calc(var(--_ui5_wheelslider_item_height)*2);--_ui5_wheelslider_mobile_selection_frame_margin_top:calc(var(--_ui5_wheelslider_item_height)*4);--_ui5_wheelslider_label_text_color:var(--sapContent_LabelColor);--_ui5_wheelslider_height:240px;--_ui5_wheelslider_mobile_height:432px;--_ui5_wheelslider_item_width:48px;--_ui5_wheelslider_item_height:46px;--_ui5_wheelslider_arrows_visibility:hidden;--_ui5_wheelslider_item_background_color:var(--sapLegend_WorkingBackground);--_ui5_wheelslider_item_text_color:var(--sapTextColor);--_ui_wheelslider_item_hover_color:var(--sapButton_Emphasized_Hover_BorderColor);--_ui5_wheelslider_item_border_color:var(--sapList_Background);--_ui5_wheelslider_item_hovered_border_color:var(--sapList_Background);--_ui5_wheelslider_collapsed_item_text_color:var(--_ui5_wheelslider_item_border_color);--_ui5_wheelslider_selected_item_background_color:var(--sapContent_Selected_Background);--_ui5_wheelslider_selected_item_hover_background_color:var(--sapButton_Emphasized_Hover_BorderColor);--_ui5_wheelslider_active_item_background_color:var(--sapContent_Selected_Background);--_ui5_wheelslider_active_item_text_color:var(--sapContent_Selected_TextColor);--_ui5_wheelslider_selection_frame_color:var(--sapList_SelectionBorderColor);--_ui_wheelslider_item_border_radius:var(--_ui5_button_border_radius);--_ui5_toggle_button_pressed_focussed:var(--sapButton_Selected_BorderColor);--_ui5_toggle_button_pressed_focussed_hovered:var(--sapButton_Selected_BorderColor);--_ui5_yearpicker_item_selected_focus:var(--sapContent_Selected_Background);--_ui5_yearpicker_item_border:none;--_ui5_yearpicker_item_border_radius:0;--_ui5_yearpicker_item_margin:1px;--_ui5_yearpicker_item_focus_after_width:calc(100% - 0.375rem);--_ui5_yearpicker_item_focus_after_height:calc(100% - 0.375rem);--_ui5_yearpicker_item_focus_after_border:1px dotted var(--sapContent_FocusColor);--_ui5_yearpicker_item_focus_after_offset:2px;--_ui5_yearpicker_item_border_radius:0.25rem;--_ui5_calendar_header_arrow_button_border:none;--_ui5_calendar_header_arrow_button_border_radius:0.25rem;--_ui5_calendar_header_middle_button_width:6.25rem;--_ui5_calendar_header_middle_button_flex:1 1 auto;--_ui5_calendar_header_middle_button_focus_border_radius:0.25rem;--_ui5_calendar_header_middle_button_focus_border:none;--_ui5_calendar_header_middle_button_focus_after_display:block;--_ui5_calendar_header_middle_button_focus_after_width:calc(100% - 0.25rem);--_ui5_calendar_header_middle_button_focus_after_height:calc(100% - 0.25rem);--_ui5_calendar_header_middle_button_focus_after_top_offset:1px;--_ui5_calendar_header_middle_button_focus_after_left_offset:1px;--_ui5_calendar_header_middle_button_focus_after_width:calc(100% - 0.375rem);--_ui5_calendar_header_middle_button_focus_after_height:calc(100% - 0.375rem);--_ui5_calendar_header_middle_button_focus_after_top_offset:0.125rem;--_ui5_calendar_header_middle_button_focus_after_left_offset:0.125rem;--ui5_table_header_row_outline_width:1px;--ui5_table_multiselect_column_width:2.75rem;--ui5_table_row_outline_width:1px;--_ui5_load_more_padding:0;--_ui5_load_more_border:1px top solid transparent;--_ui5_load_more_border_radius:none;--_ui5_load_more_outline_width:1px;--ui5_title_level_1Size:1.625rem;--ui5_title_level_2Size:1.375rem;--ui5_title_level_3Size:1.250rem;--ui5_title_level_4Size:1.125rem;--ui5_title_level_5Size:1rem;--ui5_title_level_6Size:0.875rem;--_ui5_token_background:var(--sapButton_Background);--_ui5_token_border_radius:0.125rem;--_ui5_token_text_color:var(--sapButton_TextColor);--_ui5_token_background:var(--sapButton_TokenBackground);--_ui5_token_border_radius:0.25rem;--_ui5_token_focus_outline_width:0.0625rem;--_ui5_token_text_color:var(--sapTextColor);--_ui5_token_icon_color:var(--sapContent_IconColor);--_ui5_value_state_message_border:none;--_ui5-multi_combobox_token_margin_top:3px;--_ui5-multi_combobox_token_margin_top:1px;--_ui5_slider_progress_container_background:var(--sapField_BorderColor);--_ui5_slider_progress_border:none;--_ui5_slider_inner_height:0.25rem;--_ui5_slider_outer_height:1.6875rem;--_ui5_slider_progress_border_radius:0.25rem;--_ui5_slider_progress_background:var(--sapActiveColor);--_ui5_slider_handle_height:1.625rem;--_ui5_slider_handle_width:1.625rem;--_ui5_slider_handle_border:solid 0.125rem var(--sapField_BorderColor);--_ui5_slider_handle_background:var(--sapButton_Background);--_ui5_range_slider_handle_background:hsla(0,0%,100%,0.25);--_ui5_slider_handle_top:-0.825rem;--_ui5_slider_handle_margin_left:-0.9725rem;--_ui5_slider_handle_hover_background:var(--sapButton_Hover_Background);--_ui5_slider_handle_hover_border:var(--sapButton_Hover_BorderColor);--_ui5_slider_handle_outline:1px dotted var(--sapContent_FocusColor);--_ui5_slider_handle_outline_offset:0.075rem;--_ui5_range_slider_handle_hover_background:hsla(0,0%,100%,0.25);--_ui5_slider_progress_outline:0.0625rem dotted var(--sapContent_FocusColor);--_ui5_slider_progress_outline_offset:-0.8125rem;--_ui5_slider_tickmark_color:#89919a;--_ui5_slider_tickmark_top:-0.375rem;--_ui5_slider_disabled_opacity:0.4;--_ui5_slider_tooltip_fontsize:var(--sapFontSmallSize);--_ui5_slider_tooltip_color:var(--sapContent_LabelColor);--_ui5_slider_tooltip_background:var(--sapField_Background);--_ui5_slider_tooltip_border_radius:var(--sapElement_BorderCornerRadius);--_ui5_slider_tooltip_border_color:var(--sapField_BorderColor);--_ui5_slider_tooltip_padding:0.4125rem;--_ui5_slider_tooltip_height:1rem;--_ui5_slider_tooltip_box_shadow:none;--_ui5_slider_tooltip_min_width:2rem;--_ui5_slider_tooltip_bottom:2rem;--_ui5_slider_label_fontsize:var(--sapFontSmallSize);--_ui5_slider_label_color:var(--sapContent_LabelColor);--_ui5_slider_inner_min_width:4rem}";
+const getEffectiveAriaLabelText = el => {
+	if (!el.accessibleNameRef) {
+		if (el.accessibleName) {
+			return el.accessibleName;
+		}
 
-registerThemePropertiesLoader("@ui5/webcomponents-theme-base", "sap_fiori_3", () => defaultThemeBase);
+		return undefined;
+	}
+
+	return getAriaLabelledByTexts(el);
+};
+
+/**
+ *
+ * @param {HTMLElement} el Defines the HTMLElement, for which you need to get all related texts
+ * @param {HTMLElement} ownerDocument (Optional) Defines the HTMLElement(might document or custom element) where the you want to search for the texts.
+ * @param {String} readyIds (Optional) Defines a string of elements ids. The text of these elements will be returned. If used you should provide either el or ownerDocument
+ */
+const getAriaLabelledByTexts = (el, ownerDocument, readyIds = "") => {
+	const ids = (readyIds && readyIds.split(" ")) || el.accessibleNameRef.split(" ");
+	const owner = ownerDocument || findNodeOwner(el);
+	let result = "";
+
+	ids.forEach((elementId, index) => {
+		const element = owner.querySelector(`[id='${elementId}']`);
+		result += `${element ? element.textContent : ""}`;
+
+		if (index < ids.length - 1) {
+			result += " ";
+		}
+	});
+
+	return result;
+};
+
+/* eslint no-unused-vars: 0 */
+
+const block0$1 = (context, tags, suffix) => html$1`<div class="${classMap(context.classes)}" dir="${ifDefined(context.effectiveDir)}" role="region" aria-label="${ifDefined(context._getAriaLabel)}">${ context._hasHeader ? block1$1() : undefined }<div role="group" aria-label="${ifDefined(context._ariaCardContentLabel)}"><slot></slot></div></div>`;
+const block1$1 = (context, tags, suffix) => html$1`<div class="ui5-card-header-root"><slot name="header"></slot></div>`;
+
+/* eslint no-unused-vars: 0 */
+
+const block0 = (context, tags, suffix) => html$1`<svg class="ui5-icon-root" tabindex="${ifDefined(context.tabIndex)}" dir="${ifDefined(context._dir)}" viewBox="0 0 512 512" role="${ifDefined(context.effectiveAccessibleRole)}" focusable="false" preserveAspectRatio="xMidYMid meet" aria-label="${ifDefined(context.effectiveAccessibleName)}" aria-hidden=${ifDefined(context.effectiveAriaHidden)} xmlns="http://www.w3.org/2000/svg" @focusin=${context._onfocusin} @focusout=${context._onfocusout} @keydown=${context._onkeydown} @keyup=${context._onkeyup} @click=${context._onclick}>${blockSVG1(context)}</svg>`;
+const block1 = (context, tags, suffix) => svg`<title id="${ifDefined(context._id)}-tooltip">${ifDefined(context.effectiveAccessibleName)}</title>`;
+
+const blockSVG1 = (context, tags, suffix) => svg`${ context.hasIconTooltip ? block1(context) : undefined }<g role="presentation"><path d="${ifDefined(context.pathData)}"/></g>`;
+
+var defaultTheme = {packageName:"@ui5/webcomponents",fileName:"themes/sap_fiori_3/parameters-bundle.css",content:":root{--_ui5_calendar_height:24.5rem;--_ui5_calendar_width:20.5rem;--_ui5_calendar_padding:0.75rem;--_ui5_calendar_header_height:3rem;--_ui5_calendar_header_arrow_button_width:2.5rem;--_ui5_calendar_header_padding:0.25rem 0;--_ui5_checkbox_root_side_padding:.6875rem;--_ui5_checkbox_icon_size:1rem;--_ui5_checkbox_partially_icon_size:.75rem;--_ui5_custom_list_item_height:3rem;--_ui5_custom_list_item_rb_min_width:2.75rem;--_ui5_day_picker_item_width:2.25rem;--_ui5_day_picker_item_height:2.875rem;--_ui5_day_picker_empty_height:3rem;--_ui5_day_picker_item_justify_content:space-between;--_ui5_color-palette-item-height:1.75rem;--_ui5_color-palette-item-hover-height:2.375rem;--_ui5_color-palette-item-margin:calc(var(--_ui5_color-palette-item-hover-height)/2 - var(--_ui5_color-palette-item-height)/2);--_ui5_color-palette-row-width:12rem;--_ui5_datetime_picker_width:40.0625rem;--_ui5_datetime_picker_height:25rem;--_ui5_datetime_timeview_phonemode_width:19.5rem;--_ui5_datetime_timeview_padding:1rem;--_ui5_dialog_content_min_height:2.75rem;--_ui5_input_inner_padding:0 0.625rem;--_ui5_input_inner_padding_with_icon:0 0.25rem 0 0.625rem;--_ui5_input_value_state_icon_padding:var(--_ui5-input-icon-padding);--_ui5_list_no_data_height:3rem;--_ui5_list_item_cb_margin_right:0;--_ui5_list_item_title_size:var(--sapFontLargeSize);--_ui5_list_item_img_size:3rem;--_ui5_list_item_img_margin:0.5rem 0.75rem 0.5rem 0rem;--_ui5_list_item_base_height:2.75rem;--_ui5_list_item_icon_size:1.125rem;--_ui5_group_header_list_item_height:2.75rem;--_ui5_list_busy_row_height:3rem;--_ui5_month_picker_item_height:3rem;--_ui5_popup_default_header_height:2.75rem;--_ui5_year_picker_item_height:3rem;--_ui5_tokenizer_root_padding:0.1875rem;--_ui5_token_height:1.625rem;--_ui5_token_icon_padding:0.25rem 0.5rem;--_ui5_token_wrapper_right_padding:0.3125rem;--_ui5_tl_bubble_padding:1rem;--_ui5_tl_indicator_before_bottom:-1.625rem;--_ui5_tl_padding:1rem 1rem 1rem .5rem;--_ui5_tl_li_margin_bottom:1.625rem;--_ui5_switch_focus_width_size_horizon_exp:calc(100% + 4px);--_ui5_switch_focus_height_size_horizon_exp:calc(100% + 4px);--_ui5_switch_text_on_left:calc(-100% + 1.9125rem);--_ui5_switch_slide_transform:translateX(100%) translateX(-1.875rem);--_ui5_switch_rtl_transform:translateX(1.875rem) translateX(-100%);--_ui5_switch_text_right:calc(-100% + 1.9125rem);--_ui5_tc_item_text:3rem;--_ui5_tc_item_height:4.75rem;--_ui5_tc_item_text_only_height:2.75rem;--_ui5_tc_item_text_only_with_additional_text_height:3.75rem;--_ui5_tc_item_text_line_height:normal;--_ui5_tc_item_icon_circle_size:2.75rem;--_ui5_tc_item_icon_size:1.25rem;--_ui5_tc_item_add_text_margin_top:0.375rem;--_ui5_textarea_padding:0.5625rem 0.6875rem;--_ui5_radio_button_height:2.75rem;--_ui5_radio_button_label_side_padding:.875rem;--_ui5_radio_button_focus_dist:.5rem;--_ui5_radio_button_inner_size:2.75rem;--_ui5_radio_button_svg_size:1.375rem;--_ui5_radio_button_label_width:calc(100% - 2.75rem);--_ui5_radio_button_rtl_focus_right:0.5rem;--_ui5-responsive_popover_header_height:2.75rem;--ui5_side_navigation_item_height:2.75rem;--_ui5_load_more_text_height:2.75rem;--_ui5_load_more_text_font_size:var(--sapFontMediumSize);--_ui5_load_more_desc_padding:0.375rem 2rem 0.875rem 2rem;--_ui5-tree-indent-step:1.5rem;--_ui5-tree-toggle-box-width:2.75rem;--_ui5-tree-toggle-box-height:2.25rem;--_ui5-tree-toggle-icon-size:1.0625rem;--_ui5_timeline_tli_indicator_before_bottom:-1.625rem;--_ui5_timeline_tli_indicator_before_right:-1.625rem;--_ui5_timeline_tli_indicator_before_without_icon_bottom:-1.875rem;--_ui5_timeline_tli_indicator_before_without_icon_right:-1.9375rem;--_ui5_segmented_btn_border_radius:0.375rem}.sapUiSizeCompact,.ui5-content-density-compact,:root,[data-ui5-compact-size]{--_ui5_datetime_timeview_width:17rem;--_ui5_list_item_selection_btn_margin_top:calc(var(--_ui5_checkbox_wrapper_padding)*-1);--_ui5_token_icon_size:.75rem;--_ui5_token_wrapper_left_padding:0}.sapUiSizeCompact,.ui5-content-density-compact,[data-ui5-compact-size]{--_ui5_button_base_height:1.625rem;--_ui5_button_base_padding:0.4375rem;--_ui5_button_base_min_width:2rem;--_ui5_button_icon_font_size:1rem;--_ui5_calendar_height:18rem;--_ui5_calendar_width:17.75rem;--_ui5_calendar_padding:0.5rem;--_ui5_calendar_header_height:2rem;--_ui5_calendar_header_arrow_button_width:2rem;--_ui5_calendar_header_padding:0;--_ui5_checkbox_root_side_padding:var(--_ui5_checkbox_wrapped_focus_padding);--_ui5_checkbox_wrapped_content_margin_top:var(--_ui5_checkbox_compact_wrapped_label_margin_top);--_ui5_checkbox_wrapped_focus_left_top_bottom_position:var(--_ui5_checkbox_compact_focus_position);--_ui5_checkbox_width_height:var(--_ui5_checkbox_compact_width_height);--_ui5_checkbox_wrapper_padding:var(--_ui5_checkbox_compact_wrapper_padding);--_ui5_checkbox_focus_position:var(--_ui5_checkbox_compact_focus_position);--_ui5_checkbox_inner_width_height:var(--_ui5_checkbox_compact_inner_size);--_ui5_checkbox_icon_size:.75rem;--_ui5_checkbox_partially_icon_size:.5rem;--_ui5_color-palette-item-height:1.25rem;--_ui5_color-palette-item-focus-height:1rem;--_ui5_color-palette-item-container-sides-padding:0.1875rem;--_ui5_color-palette-item-container-rows-padding:0.8125rem;--_ui5_color-palette-item-hover-height:1.625rem;--_ui5_color-palette-item-margin:calc(var(--_ui5_color-palette-item-hover-height)/2 - var(--_ui5_color-palette-item-height)/2);--_ui5_color-palette-row-width:8.125rem;--_ui5_color-palette-item-hover-margin:0;--_ui5_color-palette-row-height:7.5rem;--_ui5_color-palette-button-height:2rem;--_ui5_custom_list_item_height:2rem;--_ui5_custom_list_item_rb_min_width:2rem;--_ui5_daypicker_weeknumbers_container_padding_top:2rem;--_ui5_day_picker_item_width:2rem;--_ui5_day_picker_item_height:2rem;--_ui5_day_picker_empty_height:2.125rem;--_ui5_day_picker_item_justify_content:flex-end;--_ui5_datetime_picker_height:17rem;--_ui5_datetime_picker_width:34.0625rem;--_ui5_datetime_timeview_phonemode_width:18.5rem;--_ui5_datetime_timeview_padding:0.5rem;--_ui5_dialog_content_min_height:2.5rem;--_ui5_input_height:var(--_ui5_input_compact_height);--_ui5_input_inner_padding:0 0.5rem;--_ui5_input_icon_min_width:var(--_ui5_input_compact_min_width);--_ui5_input_icon_padding:.25rem .5rem;--_ui5_input_value_state_icon_padding:.1875rem .5rem;--_ui5_popup_default_header_height:2.5rem;--_ui5_textarea_padding:.1875rem .5rem;--_ui5_list_no_data_height:2rem;--_ui5_list_item_cb_margin_right:.5rem;--_ui5_list_item_title_size:var(--sapFontSize);--_ui5_list_item_img_margin:0.55rem 0.75rem 0.5rem 0rem;--_ui5_list_item_base_height:2rem;--_ui5_list_item_icon_size:1rem;--_ui5_list_busy_row_height:2rem;--_ui5_month_picker_item_height:2rem;--_ui5_panel_header_height:2rem;--_ui5_year_picker_item_height:2rem;--_ui5_tokenizer_root_padding:0.125rem;--_ui5_token_height:1.125rem;--_ui5_token_icon_padding:0.1rem 0.25rem;--_ui5_token_wrapper_right_padding:0.25rem;--_ui5_tl_bubble_padding:.5rem;--_ui5_tl_indicator_before_bottom:-.5rem;--_ui5_tl_padding:.5rem;--_ui5_tl_li_margin_bottom:.5rem;--_ui5_wheelslider_item_width:64px;--_ui5_wheelslider_item_height:32px;--_ui5_wheelslider_height:224px;--_ui5_wheelslider_selection_frame_margin_top:calc(var(--_ui5_wheelslider_item_height)*2);--_ui5_wheelslider_arrows_visibility:visible;--_ui5_wheelslider_mobile_selection_frame_margin_top:128px;--_ui5_switch_height:var(--_ui5_switch_compact_height);--_ui5_switch_width:var(--_ui5_switch_compact_width);--_ui5_switch_handle_height:var(--_ui5_switch_handle_compact_height);--_ui5_switch_handle_width:var(--_ui5_switch_handle_compact_width);--_ui5_switch_text_on_left:calc(-100% + 1.5625rem);--_ui5_switch_slide_transform:translateX(100%) translateX(-1.5rem);--_ui5_switch_no_label_width:var(--_ui5_switch_compact_no_label_width);--_ui5_switch_no_label_width_horizon:var(--_ui5_switch_compact_no_label_width_horizon);--_ui5_switch_rtl_transform:translateX(-100%) translateX(1.5rem);--_ui5_switch_text_right:calc(-100% + 1.5625rem);--_ui5_switch_root_outline_top_bottom:var(--_ui5_switch_compact_root_outline_top_bottom);--_ui5_switch_root_outline_left_right:var(--_ui5_switch_compact_root_outline_left_right);--_ui5_switch_root_outline_top_bottom_horizon:var(--_ui5_switch_compact_root_outline_top_bottom_horizon);--_ui5_switch_root_outline_left_right_horizon:var(--_ui5_switch_compact_root_outline_left_right_horizon);--_ui5_switch_root_outline_top_bottom_hcb:var(--_ui5_switch_compact_root_outline_top_bottom_hcb);--_ui5_switch_root_outline_left_right_hcb:var(--_ui5_switch_compact_root_outline_left_right_hcb);--_ui5_tc_item_text:2rem;--_ui5_tc_item_text_line_height:1.325rem;--_ui5_tc_item_add_text_margin_top:0.3125rem;--_ui5_tc_header_height:var(--_ui5_tc_header_height_compact);--_ui5_tc_item_height:4rem;--_ui5_tc_item_icon_circle_size:2rem;--_ui5_tc_item_icon_size:1rem;--_ui5_radio_button_min_width:var(--_ui5_radio_button_min_width_compact);--_ui5_radio_button_height:2rem;--_ui5_radio_button_label_side_padding:.5rem;--_ui5_radio_button_focus_dist:.375rem;--_ui5_radio_button_inner_size:2rem;--_ui5_radio_button_svg_size:1rem;--_ui5_radio_button_label_width:calc(100% - 2rem + 1px);--_ui5_radio_button_rtl_focus_right:0.375rem;--_ui5-responsive_popover_header_height:2.5rem;--ui5_side_navigation_item_height:2rem;--_ui5_slider_handle_height:1.25rem;--_ui5_slider_handle_width:1.25rem;--_ui5_slider_handle_top:-0.6425rem;--_ui5_slider_handle_margin_left:-0.7825rem;--_ui5_slider_tooltip_height:1rem;--_ui5_slider_tooltip_padding:0.25rem;--_ui5_slider_tooltip_bottom:1.825rem;--_ui5_slider_progress_outline_offset:-0.625rem;--_ui5_slider_outer_height:1.3125rem;--_ui5_load_more_text_height:2.625rem;--_ui5_load_more_text_font_size:var(--sapFontSize);--_ui5_load_more_desc_padding:0 2rem 0.875rem 2rem;--_ui5-tree-indent-step:0.5rem;--_ui5-tree-toggle-box-width:2rem;--_ui5-tree-toggle-box-height:1.5rem;--_ui5-tree-toggle-icon-size:0.8125rem;--_ui5_timeline_tli_indicator_before_bottom:-0.5rem;--_ui5_timeline_tli_indicator_before_right:-0.5rem;--_ui5_timeline_tli_indicator_before_without_icon_bottom:-0.75rem;--_ui5_timeline_tli_indicator_before_without_icon_right:-0.8125rem}:root{--ui5-avatar-initials-color:var(--sapContent_ImagePlaceholderForegroundColor);--ui5-avatar-initials-border:none;--ui5-avatar-accent1:var(--sapAccentColor1);--ui5-avatar-accent2:var(--sapAccentColor2);--ui5-avatar-accent3:var(--sapAccentColor3);--ui5-avatar-accent4:var(--sapAccentColor4);--ui5-avatar-accent5:var(--sapAccentColor5);--ui5-avatar-accent6:var(--sapAccentColor6);--ui5-avatar-accent7:var(--sapAccentColor7);--ui5-avatar-accent8:var(--sapAccentColor8);--ui5-avatar-accent9:var(--sapAccentColor9);--ui5-avatar-accent10:var(--sapAccentColor10);--ui5-avatar-placeholder:var(--sapContent_ImagePlaceholderBackground);--ui5-avatar-accent1-color:var(--ui5-avatar-initials-color);--ui5-avatar-accent2-color:var(--ui5-avatar-initials-color);--ui5-avatar-accent3-color:var(--ui5-avatar-initials-color);--ui5-avatar-accent4-color:var(--ui5-avatar-initials-color);--ui5-avatar-accent5-color:var(--ui5-avatar-initials-color);--ui5-avatar-accent6-color:var(--ui5-avatar-initials-color);--ui5-avatar-accent7-color:var(--ui5-avatar-initials-color);--ui5-avatar-accent8-color:var(--ui5-avatar-initials-color);--ui5-avatar-accent9-color:var(--ui5-avatar-initials-color);--ui5-avatar-accent10-color:var(--ui5-avatar-initials-color);--ui5-avatar-placeholder-color:var(--ui5-avatar-initials-color);--_ui5_avatar_outline:var(--sapContent_FocusWidth) var(--sapContent_FocusStyle) var(--sapContent_FocusColor);--_ui5_avatar_focus_offset:1px;--_ui5_avatar_focus_width:1px;--_ui5_avatar_focus_color:var(--sapContent_FocusColor);--_ui5_avatar_fontsize_XS:0.75rem;--_ui5_avatar_fontsize_M:1.625rem;--_ui5_avatar_fontsize_L:2rem;--_ui5_avatar_fontsize_XL:2.75rem;--_ui5_avatar_fontsize_XS:1rem;--_ui5_avatar_fontsize_S:1.125rem;--_ui5_avatar_fontsize_M:1.5rem;--_ui5_avatar_fontsize_L:2.25rem;--_ui5_avatar_fontsize_XL:3rem;--ui5-badge-font-size:0.75em;--_ui5-badge-height:1rem;--_ui5-badge-border:0.0625em solid;--_ui5-badge-left-border:1px solid;--_ui5-badge-border-radius:0.5em;--_ui5-badge-font-weight:bold;--_ui5-badge-text-transform:uppercase;--_ui5-badge-cursor:default;--_ui5_badge_pointer_events:none;--ui5-badge-color-scheme-1-background:var(--sapLegendBackgroundColor1);--ui5-badge-color-scheme-1-hover-background:var(--ui5-badge-color-scheme-1-background);--ui5-badge-color-scheme-1-border:var(--sapAccentColor1);--ui5-badge-color-scheme-1-color:var(--sapAccentColor1);--ui5-badge-color-scheme-2-background:var(--sapLegendBackgroundColor2);--ui5-badge-color-scheme-2-hover-background:var(--ui5-badge-color-scheme-2-background);--ui5-badge-color-scheme-2-border:var(--sapAccentColor2);--ui5-badge-color-scheme-2-color:var(--sapAccentColor2);--ui5-badge-color-scheme-3-background:var(--sapLegendBackgroundColor3);--ui5-badge-color-scheme-3-hover-background:var(--ui5-badge-color-scheme-3-background);--ui5-badge-color-scheme-3-border:var(--sapAccentColor3);--ui5-badge-color-scheme-3-color:var(--sapAccentColor3);--ui5-badge-color-scheme-4-background:var(--sapLegendBackgroundColor5);--ui5-badge-color-scheme-4-hover-background:var(--ui5-badge-color-scheme-4-background);--ui5-badge-color-scheme-4-border:var(--sapAccentColor4);--ui5-badge-color-scheme-4-color:var(--sapAccentColor4);--ui5-badge-color-scheme-5-background:var(--sapLegendBackgroundColor20);--ui5-badge-color-scheme-5-hover-background:var(--ui5-badge-color-scheme-5-background);--ui5-badge-color-scheme-5-border:var(--sapAccentColor5);--ui5-badge-color-scheme-5-color:var(--sapAccentColor5);--ui5-badge-color-scheme-6-background:var(--sapLegendBackgroundColor6);--ui5-badge-color-scheme-6-hover-background:var(--ui5-badge-color-scheme-6-background);--ui5-badge-color-scheme-6-border:var(--sapAccentColor6);--ui5-badge-color-scheme-6-color:var(--sapAccentColor6);--ui5-badge-color-scheme-7-background:var(--sapLegendBackgroundColor7);--ui5-badge-color-scheme-7-hover-background:var(--ui5-badge-color-scheme-7-background);--ui5-badge-color-scheme-7-border:var(--sapAccentColor7);--ui5-badge-color-scheme-7-color:var(--sapAccentColor7);--ui5-badge-color-scheme-8-background:var(--sapLegendBackgroundColor18);--ui5-badge-color-scheme-8-hover-background:var(--ui5-badge-color-scheme-8-background);--ui5-badge-color-scheme-8-border:var(--sapLegendColor18);--ui5-badge-color-scheme-8-color:var(--sapLegendColor18);--ui5-badge-color-scheme-9-background:var(--sapLegendBackgroundColor10);--ui5-badge-color-scheme-9-hover-background:var(--ui5-badge-color-scheme-9-background);--ui5-badge-color-scheme-9-border:var(--sapAccentColor10);--ui5-badge-color-scheme-9-color:var(--sapAccentColor10);--ui5-badge-color-scheme-10-background:var(--sapLegendBackgroundColor9);--ui5-badge-color-scheme-10-hover-background:var(--ui5-badge-color-scheme-10-background);--ui5-badge-color-scheme-10-border:var(--sapAccentColor9);--ui5-badge-color-scheme-10-color:var(--sapAccentColor9);--_ui5_busy_indicator_color:var(--sapContent_IconColor);--_ui5_busy_indicator_focus_outline:var(--sapContent_FocusWidth) var(--sapContent_FocusStyle) var(--sapContent_FocusColor);--_ui5_busy_indicator_focus_border_radius:0px;--_ui5_button_base_min_width:2.5rem;--_ui5_button_base_min_compact_width:2rem;--_ui5_button_base_height:2.5rem;--_ui5_button_compact_height:1.625rem;--_ui5_button_border_radius:var(--sapButton_BorderCornerRadius);--_ui5_button_base_padding:0.6875rem;--_ui5_button_compact_padding:0.4375rem;--_ui5_button_base_icon_margin:0.563rem;--_ui5_button_icon_font_size:1.375rem;--_ui5_button_outline:1px dotted var(--sapContent_FocusColor);--_ui5_button_emphasized_outline:1px dotted var(--sapContent_FocusColor);--_ui5_button_outline_offset:-0.1875rem;--_ui5_button_emphasized_font_weight:normal;--_ui5_button_text_shadow:var(--sapContent_TextShadow);--_ui5_button_focus_offset:1px;--_ui5_button_focus_width:1px;--_ui5_button_focus_color:var(--sapContent_FocusColor);--_ui5_button_focus_outline_focus_color:var(--sapContent_ContrastFocusColor);--_ui5_button_positive_border_focus_hover_color:var(--sapContent_FocusColor);--_ui5_button_positive_focus_border_color:var(--sapButton_Accept_BorderColor);--_ui5_button_negative_focus_border_color:var(--sapButton_Reject_BorderColor);--_ui5_button_attention_focus_border_color:var(--sapButton_Negative_BorderColor);--_ui5_button_emphasized_focused_border_color:var(--sapButton_Emphasized_BorderColor);--_ui5_button_fontFamily:\"72override\",var(--sapFontFamily);--_ui5_button_emphasized_focused_border_radius:0;--_ui5_button_transparent_hover:transparent;--_ui5_button_base_min_width:2.25rem;--_ui5_button_base_height:2.25rem;--_ui5_button_base_padding:0.5625rem;--_ui5_button_base_icon_only_padding:0.5625rem;--_ui5_button_base_icon_margin:0.375rem;--_ui5_button_icon_font_size:1rem;--_ui5_button_emphasized_font_weight:bold;--_ui5_button_text_shadow:none;--_ui5_button_emphasized_focused_border:0.0625rem dotted var(--sapContent_ContrastFocusColor);--_ui5_button_emphasized_outline:1px solid var(--sapContent_FocusColor);--_ui5_card_box_shadow:var(--sapContent_Shadow0);--_ui5_card_hover_box_shadow:var(--_ui5_card_box_shadow);--_ui5_card_border_color:var(--sapTile_BorderColor);--_ui5_card_border-radius:.25rem;--_ui5_card_content_padding:1rem;--_ui5_card_header_hover_bg:var(--sapList_Hover_Background);--_ui5_card_header_active_bg:var(--_ui5_card_header_hover_bg);--_ui5_card_header_border_color:var(--sapTile_SeparatorColor);--_ui5_card_header_focus_border:var(--sapContent_FocusWidth) var(--sapContent_FocusStyle) var(--sapContent_FocusColor);--_ui5_card_header_focus_radius:0px;--_ui5_card_header_focus_bottom_radius:0px;--_ui5_card_header_focus_offset:1px;--_ui5_card_header_title_font_family:\"72override\",var(--sapFontFamily);--_ui5_card_header_title_font_size:var(--sapFontHeader5Size);--_ui5_card_header_title_font_weight:normal;--ui5_carousel_button_size:2.5rem;--ui5_carousel_height:0.25rem;--ui5_carousel_width:0.25rem;--ui5_carousel_margin:0 0.375rem;--ui5_carousel_border:1px solid var(--sapContent_ForegroundBorderColor);--ui5_carousel_dot_border:none;--ui5_carousel_dot_background:var(--sapContent_NonInteractiveIconColor);--_ui5_checkbox_wrapper_padding:.8125rem;--_ui5_checkbox_width_height:3rem;--_ui5_checkbox_box_shadow:none;--_ui5_checkbox_transition:unset;--_ui5_checkbox_focus_border:none;--_ui5_checkbox_border_radius:0;--_ui5_checkbox_hover_background:var(--sapField_Hover_Background);--_ui5_checkbox_active_background:var(--sapField_Hover_Background);--_ui5_checkbox_checkmark_warning_color:var(--sapField_TextColor);--_ui5_checkbox_checkmark_color:var(--sapSelectedColor);--_ui5_checkbox_focus_position:.6875rem;--_ui5_checkbox_focus_outline:var(--sapContent_FocusWidth) var(--sapContent_FocusStyle) var(--sapContent_FocusColor);--_ui5_checkbox_focus_border_radius:0;--_ui5_checkbox_outer_hover_background:transparent;--_ui5_checkbox_inner_width_height:1.375rem;--_ui5_checkbox_inner_border:solid .125rem var(--sapField_BorderColor);--_ui5_checkbox_inner_hover_border_color:var(--sapField_HoverBorderColor);--_ui5_checkbox_inner_hover_checked_border_color:var(--sapField_HoverBorderColor);--_ui5_checkbox_inner_selected_border_color:var(--sapField_BorderColor);--_ui5_checkbox_inner_disabled_border_color:var(--sapField_BorderColor);--_ui5_checkbox_inner_active_border_color:var(--sapField_BorderColor);--_ui5_checkbox_inner_border_radius:0;--_ui5_checkbox_inner_error_border:0.125rem solid var(--sapField_InvalidColor);--_ui5_checkbox_inner_warning_border:0.125rem solid var(--sapField_WarningColor);--_ui5_checkbox_inner_information_border:0.125rem solid var(--sapField_InformationColor);--_ui5_checkbox_inner_information_box_shadow:none;--_ui5_checkbox_inner_warning_box_shadow:none;--_ui5_checkbox_inner_error_box_shadow:none;--_ui5_checkbox_inner_success_box_shadow:none;--_ui5_checkbox_inner_default_box_shadow:none;--_ui5_checkbox_inner_warning_background_hover:var(--sapField_WarningBackground);--_ui5_checkbox_inner_error_background_hover:var(--sapField_InvalidBackground);--_ui5_checkbox_inner_success_background_hover:var(--sapField_SuccessBackground);--_ui5_checkbox_inner_information_background_hover:var(--sapField_InformationBackground);--_ui5_checkbox_inner_success_border:var(--sapField_BorderWidth) solid var(--sapField_SuccessColor);--_ui5_checkbox_inner_readonly_border:0.125rem solid var(--sapField_ReadOnly_BorderColor);--_ui5_checkbox_inner_background:var(--sapField_Background);--_ui5_checkbox_wrapped_focus_padding:.375rem;--_ui5_checkbox_wrapped_content_margin_top:.125rem;--_ui5_checkbox_wrapped_focus_left_top_bottom_position:.5625rem;--_ui5_checkbox_compact_wrapper_padding:.5rem;--_ui5_checkbox_compact_width_height:2rem;--_ui5_checkbox_compact_inner_size:1rem;--_ui5_checkbox_compact_focus_position:.375rem;--_ui5_checkbox_compact_wrapped_label_margin_top:-1px;--_ui5_checkbox_label_color:var(--sapContent_LabelColor);--_ui5_checkbox_label_offset_left:var(--_ui5_checkbox_wrapper_padding);--_ui5_checkbox_label_offset_right:0;--_ui5_checkbox_disabled_label_color:var(--sapContent_LabelColor);--_ui5_checkbox_default_focus_border:none;--_ui5_checkbox_focus_outline_display:block;--_ui5_checkbox_wrapper_padding:.6875rem;--_ui5_checkbox_width_height:2.75rem;--_ui5_checkbox_inner_border:.0625rem solid var(--sapField_BorderColor);--_ui5_checkbox_focus_position:0.5625rem;--_ui5_checkbox_inner_border_radius:.125rem;--_ui5_checkbox_wrapped_content_margin_top:0;--_ui5_checkbox_wrapped_focus_padding:.5rem;--_ui5_checkbox_inner_readonly_border:1px solid var(--sapField_ReadOnly_BorderColor);--_ui5_checkbox_compact_wrapped_label_margin_top:-0.125rem;--_ui5_color-palette-item-container-sides-padding:0.3125rem;--_ui5_color-palette-item-container-rows-padding:0.6875rem;--_ui5_color-palette-item-focus-height:1.5rem;--_ui5_color-palette-item-container-padding:var(--_ui5_color-palette-item-container-sides-padding) var(--_ui5_color-palette-item-container-rows-padding);--_ui5_color-palette-item-hover-margin:0;--_ui5_color-palette-row-height:9.5rem;--_ui5_color-palette-button-height:3rem;--_ui5_color-palette-item-before-focus-color:0.0625rem solid #fff;--_ui5_color-palette-item-before-focus-offset:0.0625rem;--_ui5_color-palette-item-after-focus-color:0.0625rem dotted #000;--_ui5_color-palette-item-after-focus-offset:0.0625rem;--_ui5_color-palette-item-border-radius:0;--_ui5_color_picker_slider_handle_box_shadow:0.0625rem solid var(--sapField_BorderColor);--_ui5_color_picker_slider_handle_border:0.125rem solid var(--sapField_BorderColor);--_ui5_color_picker_slider_handle_outline_hover:0.125rem solid var(--sapButton_Hover_BorderColor);--_ui5_color_picker_slider_handle_outline_focus:0.0625rem dotted var(--sapContent_FocusColor);--_ui5_color_picker_slider_handle_margin_top:0.0625rem;--_ui5_color_picker_slider_handle_focus_margin_top:0.0625rem;--_ui5_datepicker_icon_border:none;--_ui5-datepicker_border_radius:0;--_ui5-datepicker-hover-background:var(--sapField_Hover_Background);--_ui5-datepicker_icon_border_radius:0;--_ui5_daypicker_item_box_shadow:inset 0 0 0 0.0625rem var(--sapContent_Selected_ForegroundColor);--_ui5_daypicker_item_margin:2px;--_ui5_daypicker_item_border:none;--_ui5_daypicker_item_selected_border_color:var(--sapList_Background);--_ui5_daypicker_daynames_container_height:2rem;--_ui5_daypicker_weeknumbers_container_padding_top:2rem;--_ui5_daypicker_item_othermonth_background_color:var(--sapList_Background);--_ui5_daypicker_item_othermonth_color:var(--sapContent_LabelColor);--_ui5_daypicker_item_othermonth_hover_color:var(--sapContent_LabelColor);--_ui5_daypicker_item_border_radius:0;--_ui5_daypicker_item_now_inner_border_radius:0;--_ui5_daypicker_dayname_color:var(--sapContent_LabelColor);--_ui5_daypicker_weekname_color:var(--sapContent_LabelColor);--_ui5_daypicker_item_outline_width:1px;--_ui5_daypicker_item_outline_offset:1px;--_ui5_daypicker_item_now_selected_outline_offset:2px;--_ui5_daypicker_item_now_focus_after_width:calc(100% - 0.25rem);--_ui5_daypicker_item_now_focus_after_height:calc(100% - 0.25rem);--_ui5_daypicker_item_now_selected_focus_after_width:calc(100% - 0.375rem);--_ui5_daypicker_item_now_selected_focus_after_height:calc(100% - 0.375rem);--_ui5_daypicker_item_selected_background:transparent;--_ui5_daypicker_item_selected_box_shadow:var(--_ui5_daypicker_item_box_shadow),var(--_ui5_daypicker_item_box_shadow);--_ui5_daypicker_item_selected_daytext_hover_background:transparent;--_ui5_daypicker_item_outline_focus_after:none;--_ui5_daypicker_item_border_radius_focus_after:none;--_ui5_daypicker_item_border_focus_after:var(--_ui5_daypicker_item_outline_width) dotted var(--sapContent_FocusColor);--_ui5_daypicker_item_width_focus_after:calc(100% - 0.25rem);--_ui5_daypicker_item_height_focus_after:calc(100% - 0.25rem);--_ui5_daypicker_item_now_border:0.125rem solid var(--sapLegend_CurrentDateTime);--_ui5_daypicker_item_now_outline:none;--_ui5_daypicker_item_now_outline_offset:none;--_ui5_daypicker_item_now_outline_offset_focus_after:var(--_ui5_daypicker_item_now_outline_offset);--_ui5_daypicker_item_selected_between_border:5%;--_ui5_daypicker_item_selected_between_background:transparent;--_ui5_daypicker_item_selected_between_text_background:var(--sapList_SelectionBackgroundColor);--_ui5_daypicker_item_selected_between_text_font:inherit;--_ui5_daypicker_item_selected_between_hover_background:inherit;--_ui5_daypicker_item_now_box_shadow:inset 0 0 0 0.0625rem var(--_ui5_daypicker_item_selected_border_color);--_ui5_daypicker_item_selected_text_outline:none;--_ui5_daypicker_item_border_radius:0.25rem;--_ui5_daypicker_item_now_inner_border_radius:0.125rem;--_ui5_dialog_resize_handle_color:var(--sapButton_Lite_TextColor);--_ui5_dialog_header_focus_width:0.0625rem;--_ui5_dialog_header_focus_offset:-0.1875rem;--_ui5_dialog_outline:var(--_ui5_dialog_header_focus_width) var(--sapContent_FocusStyle) var(--sapContent_FocusColor);--_ui5_dialog_header_border_radius:0px;--_ui5_dialog_resize_handle_right:-0.25rem;--_ui5_dialog_resize_handle_bottom:-0.0625rem;--ui5-group-header-listitem-background-color:var(--sapList_GroupHeaderBackground);--_ui5_input_width:13.125rem;--_ui5_input_height:2.5rem;--_ui5_input_compact_height:1.625rem;--_ui5-input-hover-border:1px solid var(--sapField_Hover_BorderColor);--_ui5-input-hover-box-shadow:none;--_ui5-input-focus-box-shadow:none;--_ui5-input-background-color:var(--sapField_Background);--_ui5-input-border-radius:var(--sapField_BorderCornerRadius);--_ui5-input-border:2px solid transparent;--_ui5-input-placeholder-style:italic;--_ui5-input-placeholder-color:var(--sapField_PlaceholderTextColor);--_ui5-input-bottom-border-height:0;--_ui5-input-bottom-border-color:transparent;--_ui5-input-focused-border-color:var(--sapField_Hover_BorderColor);--_ui5-input-focus-outline:var(--_ui5_input_focus_border_width) dotted var(--sapContent_FocusColor);--_ui5-input-focus-outline-offset:-3px;--_ui5_input_state_border_width:0.125rem;--_ui5-input-information_border_width:0.125rem;--_ui5_input_error_font_weight:normal;--_ui5_input_focus_border_width:1px;--_ui5_input_error_warning_border_style:solid;--_ui5_input_error_warning_font_style:inherit;--_ui5_input_disabled_color:var(--sapContent_DisabledTextColor);--_ui5_input_disabled_font_weight:normal;--_ui5_input_disabled_border_color:var(--sapField_ReadOnly_BorderColor);--_ui5-input-disabled-background:var(--sapField_ReadOnly_Background);--_ui5_input_readonly_border_color:var(--sapField_ReadOnly_BorderColor);--_ui5-input-readonly-background:var(--sapField_ReadOnly_Background);--_ui5_input_icon_padding:0.625rem .6875rem;--_ui5_input_disabled_opacity:0.5;--_ui5_input_icon_min_width:2.375rem;--_ui5_input_compact_min_width:2rem;--_ui5-input-value-state-outline:var(--_ui5_input_focus_border_width) dotted var(--sapContent_FocusColor);--_ui5-input-value-state-outline-offset:-4px;--_ui5-input-transition:none;--_ui5-input-value-state-icon-display:none;--_ui5-input-focused-value-state-error-background:var(--sapField_InvalidBackground);--_ui5-input-focused-value-state-warning-background:var(--sapField_WarningBackground);--_ui5-input-focused-value-state-success-background:var(--sapField_SuccessBackground);--_ui5-input-focused-value-state-information-background:var(--sapField_InformationBackground);--_ui5-input-value-state-error-border-color:var(--sapField_InvalidColor);--_ui5-input-focused-value-state-error-border-color:var(--sapField_InvalidColor);--_ui5-input-value-state-warning-border-color:var(--sapField_WarningColor);--_ui5-input-focused-value-state-warning-border-color:var(--sapField_WarningColor);--_ui5-input-value-state-success-border-color:var(--sapField_SuccessColor);--_ui5-input-focused-value-state-success-border-color:var(--sapField_SuccessColor);--_ui5-input-value-state-success-border-width:1px;--_ui5-input-value-state-information-border-color:var(--sapField_InformationColor);--_ui5-input-focused-value-state-information-border-color:var(--sapField_InformationColor);--_ui5-input-value-state-information-border-width:1px;--_ui5-input-background-image:none;--_ui5-input-information-background-image:none;--_ui5-input-success-background-image:none;--_ui5-input-error-background-image:none;--_ui5-input-warning-background-image:none;--_ui5_input_readonly_icon_display:none;--_ui5_input_height:2.25rem;--_ui5-input-border:1px solid var(--sapField_BorderColor);--_ui5_input_disabled_opacity:0.4;--_ui5_input_icon_padding:.5625rem .6875rem;--_ui5_input_icon_color:var(--sapContent_IconColor);--_ui5_input_icon_pressed_color:var(--sapButton_Active_TextColor);--_ui5_input_icon_pressed_bg:var(--sapButton_Selected_Background);--_ui5_input_icon_hover_bg:var(--sapButton_Lite_Hover_Background);--_ui5_input_icon_border_radius:0;--_ui5_input_icon_box_shadow:none;--_ui5_input_icon_border:1px solid transparent;--_ui5_input_icon_margin:0;--_ui5_link_opacity:0.5;--_ui5_link_border:0.0625rem dotted transparent;--_ui5_link_border_focus:0.0625rem dotted var(--sapContent_FocusColor);--_ui5_link_focus_border-radius:0;--_ui5_link_opacity:0.4;--_ui5_link_text_decoration:none;--_ui5_link_hover_text_decoration:underline;--ui5_list_footer_text_color:var(--sapPageFooter_TextColor);--ui5_list_footer_text_color:var(--sapTextColor);--ui5-listitem-background-color:var(--sapList_Background);--ui5-listitem-border-bottom:1px solid var(--sapList_BorderColor);--ui5-listitem-selected-border-bottom:1px solid var(--sapList_SelectionBorderColor);--ui5-listitem-active-border-color:var(--sapContent_ContrastFocusColor);--_ui5_listitembase_focus_width:1px;--_ui5-listitembase_disabled_opacity:0.5;--_ui5_product_switch_item_border:none;--_ui5_monthpicker_item_border_radius:0;--_ui5_monthpicker_item_border:none;--_ui5_monthpicker_item_margin:1px;--_ui5_monthpicker_item_focus_after_width:calc(100% - 0.375rem);--_ui5_monthpicker_item_focus_after_height:calc(100% - 0.375rem);--_ui5_monthpicker_item_focus_after_border:1px dotted var(--sapContent_FocusColor);--_ui5_monthpicker_item_focus_after_offset:2px;--_ui5_monthpicker_item_focus_after_border_radius:0;--_ui5_monthpicker_item_selected_text_color:var(--sapContent_ContrastTextColor);--_ui5_monthpicker_item_selected_background_color:var(--sapSelectedColor);--_ui5_monthpicker_item_selected_hover_color:var(--sapContent_Selected_Background);--_ui5_monthpicker_item_selected_box_shadow:none;--_ui5_monthpicker_item_focus_after_outline:none;--_ui5_monthpicker_item_selected_font_wieght:inherit;--_ui5_monthpicker_item_border_radius:0.25rem;--_ui5_message_strip_icon_width:2.5rem;--_ui5_message_strip_border_radius:0.1875rem;--_ui5_message_strip_success_border_color:var(--sapSuccessBorderColor);--_ui5_message_strip_error_border_color:var(--sapErrorBorderColor);--_ui5_message_strip_warning_border_color:var(--sapWarningBorderColor);--_ui5_message_strip_information_border_color:var(--sapInformationBorderColor);--_ui5_message_strip_button_border_width:0;--_ui5_message_strip_button_border_style:none;--_ui5_message_strip_button_border_color:transparent;--_ui5_message_strip_button_border_radius:0;--_ui5_message_strip_padding:0.4375rem 2.5rem 0.4375rem 2.5rem;--_ui5_message_strip_padding_no_icon:0.4375rem 2.5rem 0.4375rem 1rem;--_ui5_message_strip_button_height:1.625rem;--_ui5_message_strip_border_width:1px;--_ui5_message_strip_close_button_border:none;--_ui5_message_strip_close_button_size:1.625rem;--_ui5_message_strip_icon_top:0.4375rem;--_ui5_message_strip_focus_width:1px;--_ui5_message_strip_focus_offset:-2px;--_ui5_panel_focus_border:var(--sapContent_FocusWidth) var(--sapContent_FocusStyle) var(--sapContent_FocusColor);--_ui5_panel_header_height:3rem;--_ui5_panel_button_root_width:3rem;--_ui5_panel_background_color:var(--sapGroup_TitleBackground);--_ui5_panel_border_radius:0px;--_ui5_panel_border_radius_expanded:0;--_ui5_panel_border_bottom:1px solid var(--sapGroup_TitleBorderColor);--_ui5_panel_outline_offset:-3px;--_ui5_panel_title_font_weight:normal;--_ui5_panel_header_height:2.75rem;--_ui5_panel_button_root_width:2.75rem;--_ui5_popup_content_padding:.4375em;--_ui5_popup_viewport_margin:10px;--_ui5-popup-border-radius:0.25rem;--_ui5_popup_header_shadow:var(--sapContent_Shadow0);--_ui5_popup_footer_border_top:1px solid var(--sapPageFooter_BorderColor);--_ui5_popup_header_footer_font_weight:400;--_ui5_progress_indicator_background_none:var(--sapField_Background);--_ui5_progress_indicator_background_error:var(--sapField_Background);--_ui5_progress_indicator_background_warning:var(--sapField_Background);--_ui5_progress_indicator_background_success:var(--sapField_Background);--_ui5_progress_indicator_background_information:var(--sapField_Background);--_ui5_progress_indicator_value_state_none:var(--sapNeutralElementColor);--_ui5_progress_indicator_value_state_error:var(--sapNegativeElementColor);--_ui5_progress_indicator_value_state_warning:var(--sapCriticalElementColor);--_ui5_progress_indicator_value_state_success:var(--sapPositiveElementColor);--_ui5_progress_indicator_value_state_information:var(--sapInformativeElementColor);--_ui5_progress_indicator_border_color_error:var(--sapField_BorderColor);--_ui5_progress_indicator_border_color_warning:var(--sapField_BorderColor);--_ui5_progress_indicator_border_color_success:var(--sapField_BorderColor);--_ui5_progress_indicator_border_color_information:var(--sapField_BorderColor);--_ui5_progress_indicator_color:var(--sapTextColor);--_ui5_progress_indicator_bar_color:var(--sapContent_ContrastTextColor);--_ui5_progress_indicator_border:0.0625rem solid var(--sapField_BorderColor);--_ui5_progress_indicator_bar_border_max:none;--_ui5_progress_indicator_icon_visibility:none;--_ui5_radio_button_min_width:2.75rem;--_ui5_radio_button_min_width_compact:2rem;--_ui5_radio_button_hover_fill:var(--sapField_Hover_Background);--_ui5_radio_button_border_width:1px;--_ui5_radio_button_checked_fill:var(--sapSelectedColor);--_ui5_radio_button_checked_error_fill:var(--sapField_InvalidColor);--_ui5_radio_button_checked_warning_fill:var(--sapField_TextColor);--_ui5_radio_button_warning_error_border_dash:0;--_ui5_radio_button_outer_ring_color:var(--sapField_BorderColor);--_ui5_radio_button_outer_ring_width:1;--_ui5_radio_button_outer_ring_bg:var(--sapField_Background);--_ui5_radio_button_outer_ring_hover_color:var(--sapField_Hover_BorderColor);--_ui5_radio_button_outer_ring_active_color:var(--sapField_Hover_BorderColor);--_ui5_radio_button_outer_ring_checked_hover_color:var(--sapField_Hover_BorderColor);--_ui5_radio_button_outer_ring_padding:0 0.625rem;--_ui5_radio_button_outer_ring_padding_with_label:0 0.625rem;--_ui5_radio_button_outer_ring_padding_rtl:0 0.625rem;--_ui5_radio_button_border_radius:0;--_ui5_radio_button_border:none;--_ui5_radio_button_focus_border:none;--_ui5_radio_button_focus_outline:block;--_ui5_radio_button_hover_shadow:none;--_ui5_radio_button_transition:none;--_ui5_radio_button_hover_background:inherit;--_ui5_radio_button_color:var(--sapField_BorderColor);--_ui5_radio_button_label_offset:1px;--_ui5_radio_button_label_color:var(--sapContent_LabelColor);--_ui5_radio_button_items_align:unset;--_ui5_radio_button_inner_width:initial;--_ui5_radio_button_border_readonly_focus_style:var(--sapContent_FocusStyle);--_ui5_segmented_btn_inner_border:0.0625rem solid var(--sapButton_Selected_BorderColor);--_ui5_segmented_btn_inner_border_odd_child:0;--_ui5_segmented_btn_inner_pressed_border_odd_child:0;--_ui5_segmented_btn_border_radius:0.35rem;--_ui5_segmented_btn_inner_border_radius:0;--_ui5_segmented_btn_background_color:transparent;--_ui5_select_disabled_background:var(--sapField_Background);--_ui5_select_disabled_border_color:var(--sapField_BorderColor);--_ui5_select_state_error_warning_border_style:solid;--_ui5_select_state_error_warning_border_width:0.125rem;--_ui5_select_hover_icon_left_border:1px solid transparent;--_ui5_select_rtl_hover_icon_left_border:none;--_ui5_select_rtl_hover_icon_right_border:none;--_ui5_select_focus_width:1px;--_ui5_select_label_olor:var(--sapField_TextColor);--_ui5_switch_height:2.75rem;--_ui5_switch_width:3.875rem;--_ui5_switch_no_label_width:3.25rem;--_ui5_switch_no_label_width_horizon:3.875rem;--_ui5_switch_root_outline_top_bottom:0.25rem;--_ui5_switch_root_outline_left_right:-0.125rem;--_ui5_switch_root_outline_top_bottom_horizon:0.3125rem;--_ui5_switch_root_outline_left_right_horizon:-0.0625rem;--_ui5_switch_root_outline_top_bottom_hcb:0.1875rem;--_ui5_switch_root_outline_left_right_hcb:-0.1875rem;--_ui5_switch_compact_height:2rem;--_ui5_switch_compact_width:3.5rem;--_ui5_switch_compact_no_label_width:2.5rem;--_ui5_switch_compact_no_label_width_horizon:3.5rem;--_ui5_switch_compact_root_outline_top_bottom:0.0625rem;--_ui5_switch_compact_root_outline_left_right:-0.125rem;--_ui5_switch_compact_root_outline_top_bottom_horizon:0.125em;--_ui5_switch_compact_root_outline_left_right_horizon:-0.125rem;--_ui5_switch_compact_root_outline_top_bottom_hcb:0;--_ui5_switch_compact_root_outline_left_right_hcb:-0.1875rem;--_ui5_switch_foucs_border_size:1px;--_ui5_switch_focus_outline:var(--_ui5_switch_foucs_border_size) dotted var(--sapContent_FocusColor);--_ui5_switch_root_after_boreder:var(--_ui5_switch_outline) dotted var(--sapContent_FocusColor);--_ui5-switch-root-border-radius:0;--_ui5-switch-root-box-shadow:none;--_ui5_switch_root_after_outline:none;--_ui5-switch-focus:\"\";--_ui5_switch_semantic_button_background:var(--sapButton_Background);--_ui5_switch_track_height:1.375rem;--_ui5_switch_track_no_label_height:1.25rem;--_ui5_switch_track_no_label_height_horizont:var(--_ui5_switch_track_height);--_ui5-switch-track-border:1px solid;--_ui5-switch-track-border_color:var(--sapContent_ForegroundBorderColor);--_ui5-switch_handle-off-hover_box_shadow:none;--_ui5-switch_handle-on-hover_box_shadow:none;--_ui5_switch_track_semantic_success_backgroud_color:var(--sapSuccessBackground);--_ui5_switch_track_semantic_error_backgroud_color:var(----sapErrorBackground);--_ui5_switch_track_semantic_border_color:var(--sapSuccessBorderColor);--_ui5_switch_track_semantic_not_checked_border_color:var(--sapErrorBorderColor);--_ui5_switch_track_semantic_checked_hover_border_color:var(--sapSuccessBorderColor);--_ui5_switch_track_semantic_hover_border_color:var(--sapErrorBorderColor);--_ui5_switch_handle_hover_border_color:var(--sapButton_Hover_BorderColor);--_ui5_switch_track_hover_border_color:var(--_ui5_switch_track_checked_border_color);--_ui5_switch_track_hover_background_color:var(--sapButton_Track_Background);--_ui5_switch_track_hover_checked_background_color:var(--sapButton_Track_Selected_Background);--_ui5-switch_track-on-hover-background:var(--_ui5-switch_track-on-background);--_ui5_switch_track_border_radius:0.75rem;--_ui5-switch_track-off-background:var(--sapButton_Track_Background);--_ui5-switch_track-on-background:var(--sapButton_Track_Selected_Background);--_ui5-switch_track-off-hover-color:var(--_ui5-switch_track-off-background);--_ui5-switch-track-transition:none;--_ui5_switch_disabled_opacity:.4;--_ui5_switch_track_disabled_checked_bg:var(--_ui5_switch_track_checked_bg);--_ui5_switch_track_disabled_border_color:var(--sapContent_ForegroundBorderColor);--_ui5_switch_track_disabled_semantic_checked_bg:var(--sapSuccessBackground);--_ui5_switch_track_disabled_semantic_checked_border_color:var(--sapSuccessBorderColor);--_ui5_switch_track_disabled_semantic_bg:var(--sapErrorBackground);--_ui5_switch_track_disabled_semantic_border_color:var(--sapErrorBorderColor);--_ui5-switch-track-icon-display:none;--_ui5_switch_handle_width:2rem;--_ui5_switch_handle_height:2rem;--_ui5_switch_handle_border_width:1px;--_ui5_switch_handle_border_radius:1rem;--_ui5_switch_handle_bg:var(--sapButton_TokenBackground);--_ui5_switch_handle_checked_bg:var(--sapButton_Selected_Background);--_ui5_switch_handle_checked_border_color:var(--sapButton_Selected_BorderColor);--_ui5_switch_handle_semantic_hover_bg:var(--sapErrorBackground);--_ui5_switch_handle_semantic_checked_hover_bg:var(--sapSuccessBackground);--_ui5_switch_handle_semantic_hover_border_color:var(--sapErrorBorderColor);--_ui5_switch_handle_semantic_checked_hover_border_color:var(--sapSuccessBorderColor);--_ui5_switch_handle_compact_width:1.625rem;--_ui5_switch_handle_compact_height:1.625rem;--_ui5-switch-handle-border:var(--_ui5_switch_handle_border_width) solid var(--sapContent_ForegroundBorderColor);--_ui5-switch-handle-left:-1px;--_ui5_switch_handle_disabled_bg:var(--_ui5_switch_handle_bg);--_ui5_switch_handle_disabled_checked_bg:var(--_ui5_switch_handle_checked_bg);--_ui5_switch_handle_disabled_border_color:var(--sapContent_ForegroundBorderColor);--_ui5_switch_handle_disabled_semantic_checked_bg:var(--sapButton_Background);--_ui5_switch_handle_disabled_semantic_checked_border_color:var(--sapSuccessBorderColor);--_ui5_switch_handle_disabled_semantic_border_color:var(--sapErrorBorderColor);--_ui5-switch-handle-icon-display:none;--_ui5-switch-slider-texts-display:inline;--_ui5_switch_text_on_semantic_color:var(--sapPositiveElementColor);--_ui5_switch_text_off_semantic_color:var(--sapNegativeElementColor);--_ui5_switch_text_disabled_color:var(--sapTextColor);--_ui5_tc_header_height_text_only:var(--_ui5_tc_item_text_only_height);--_ui5_tc_header_height_text_with_additional_text:var(--_ui5_tc_item_text_only_with_additional_text_height);--_ui5_tc_header_box_shadow:var(--sapContent_HeaderShadow);--_ui5_tc_header_border_bottom:0.125rem solid var(--sapObjectHeader_Background);--_ui5_tc_headeritem_padding:0 1rem;--_ui5_tc_headerItem_color:var(--sapContent_LabelColor);--_ui5_tc_headerItem_text_hover_color:var(--_ui5_tc_headerItem_color);--_ui5_tc_headeritem_text_selected_color:var(--sapSelectedColor);--_ui5_tc_headeritem_text_selected_hover_color:var(--sapSelectedColor);--_ui5_tc_headeritem_text_font_weight:normal;--_ui5_tc_headeritem_additional_text_font_weight:normal;--_ui5_tc_headerItem_neutral_color:var(--sapNeutralColor);--_ui5_tc_headerItem_positive_color:var(--sapPositiveColor);--_ui5_tc_headerItem_negative_color:var(--sapNegativeColor);--_ui5_tc_headerItem_critical_color:var(--sapCriticalColor);--_ui5_tc_headerItem_neutral_border_color:var(--_ui5_tc_headerItem_neutral_color);--_ui5_tc_headerItem_positive_border_color:var(--_ui5_tc_headerItem_positive_color);--_ui5_tc_headerItem_negative_border_color:var(--_ui5_tc_headerItem_negative_color);--_ui5_tc_headerItem_critical_border_color:var(--_ui5_tc_headerItem_critical_color);--_ui5_tc_headerItem_neutral_selected_border_color:var(--_ui5_tc_headerItem_neutral_color);--_ui5_tc_headerItem_positive_selected_border_color:var(--_ui5_tc_headerItem_positive_color);--_ui5_tc_headerItem_negative_selected_border_color:var(--_ui5_tc_headerItem_negative_color);--_ui5_tc_headerItem_critical_selected_border_color:var(--_ui5_tc_headerItem_critical_color);--_ui5_tc_headerItem_transition:none;--_ui5_tc_headerItem_hover_border_visibility:hidden;--_ui5_tc_headerItem_focus_offset:0px;--_ui5_tc_headerItemContent_border_radius:0.125rem 0.125rem 0 0;--_ui5_tc_headerItemContent_border_bottom:0.125rem solid var(--sapSelectedColor);--_ui5_tc_headerItemContent_border_bg:transparent;--_ui5_tc_headerItem_neutral_border_bg:transparent;--_ui5_tc_headerItem_positive_border_bg:transparent;--_ui5_tc_headerItem_negative_border_bg:transparent;--_ui5_tc_headerItem_critical_border_bg:transparent;--_ui5_tc_headerItem_hover_border_bg:transparent;--_ui5_tc_headerItem_hover_selected_hover_border_bg:transparent;--_ui5_tc_headerItemContent_border_height:0;--_ui5_tc_headerItemContent_offset:1rem;--_ui5_tc_headerItemContent_focus_offset:1rem;--_ui5_tc_headerItem_focus_border:var(--sapContent_FocusWidth) var(--sapContent_FocusStyle) var(--sapContent_FocusColor);--_ui5_tc_headerItemContent_padding:0;--_ui5_tc_headerItemContent_focus_border:none;--_ui5_tc_headerItemContent_default_focus_border:none;--_ui5_tc_headerItemContent_focus_border_radius:0;--_ui5_tc_headerItemSemanticIcon_display:none;--_ui5_tc_headerItem_focus_border_radius:0px;--_ui5_tc_overflowItem_neutral_color:var(--sapNeutralColor);--_ui5_tc_overflowItem_positive_color:var(--sapPositiveColor);--_ui5_tc_overflowItem_negative_color:var(--sapNegativeColor);--_ui5_tc_overflowItem_critical_color:var(--sapCriticalColor);--_ui5_tc_overflowItem_focus_border:0px;--_ui5_tc_headerItemIcon_border:1px solid var(--sapHighlightColor);--_ui5_tc_headerItemIcon_color:var(--sapHighlightColor);--_ui5_tc_headerItemIcon_selected_background:var(--sapHighlightColor);--_ui5_tc_headerItemIcon_selected_color:var(--sapGroup_ContentBackground);--_ui5_tc_headerItemIcon_positive_selected_background:var(--sapPositiveColor);--_ui5_tc_headerItemIcon_negative_selected_background:var(--sapNegativeColor);--_ui5_tc_headerItemIcon_critical_selected_background:var(--sapCriticalColor);--_ui5_tc_headerItemIcon_neutral_selected_background:var(--sapNeutralColor);--_ui5_tc_headerItemIcon_semantic_selected_color:var(--sapGroup_ContentBackground);--_ui5_tc_content_border_bottom:0.125rem solid var(--sapObjectHeader_BorderColor);--_ui5_tc_headerItem_focus_border_offset:-2px;--_ui5_tc_headerItemIcon_focus_border_radius:0}.sapUiSizeCompact,.ui5-content-density-compact,:root,[data-ui5-compact-size]{--_ui5_tc_header_height:var(--_ui5_tc_item_height)}:root{--_ui5_tc_header_border_bottom:0.0625rem solid var(--sapObjectHeader_Background);--_ui5_tc_headerItemContent_border_bottom:0.1875rem solid var(--sapSelectedColor);--_ui5_tc_overflowItem_default_color:var(--sapHighlightColor);--_ui5_tc_overflowItem_current_color:CurrentColor;--_ui5_tc_content_border_bottom:0.0625rem solid var(--sapObjectHeader_BorderColor);--_ui5_textarea_focus_after_width:1px;--_ui5_textarea_warning_border_style:solid;--_ui5_textarea_state_border_width:0.125rem;--_ui5_textarea_background_image:none;--_ui5_textarea_error_background_image:none;--_ui5_textarea_warning_background_image:none;--_ui5_textarea_information_background_image:none;--_ui_textarea_success_background_image:none;--_ui5_textarea_focus_box_shadow:none;--_ui5_textarea_value_state_warning_focus_box_shadow:none;--_ui5_textarea_value_state_error_focus_box_shadow:none;--_ui5_textarea_value_state_success_focus_box_shadow:none;--_ui5_textarea_hover_box_shadow:none;--_ui5_textarea_inner_border_width:1px;--_ui5_textarea_success_border_width:1px;--_ui5_textarea_focus_outline:var(--_ui5_textarea_focus_after_width) dotted var(--sapContent_FocusColor);--_ui5_textarea_value_state_focus_outline:var(--_ui5_input_focus_border_width) dotted var(--sapContent_FocusColor);--_ui5_textarea_after_element_display:none;--_ui5_textarea_placeholder_font_style:italic;--_ui5-time_picker_border_radius:0;--_ui5_time_picker_border:0.0625rem solid transparent;--_ui5_toast_vertical_offset:3rem;--_ui5_toast_horizontal_offset:2rem;--_ui5_toast_background:var(--sapList_Background);--_ui5_toast_shadow:var(--sapContent_Shadow2);--_ui5_wheelslider_item_text_size:var(--sapFontSize);--_ui5_wheelslider_selected_item_hover_background_color:var(--sapList_BorderColor);--_ui5_wheelslider_label_text_size:var(--sapFontSmallSize);--_ui5_wheelslider_selection_frame_margin_top:calc(var(--_ui5_wheelslider_item_height)*2);--_ui5_wheelslider_mobile_selection_frame_margin_top:calc(var(--_ui5_wheelslider_item_height)*4);--_ui5_wheelslider_label_text_color:var(--sapContent_LabelColor);--_ui5_wheelslider_height:240px;--_ui5_wheelslider_mobile_height:432px;--_ui5_wheelslider_item_width:48px;--_ui5_wheelslider_item_height:46px;--_ui5_wheelslider_arrows_visibility:hidden;--_ui_wheelslider_item_expanded_hover_color:var(--sapList_Hover_Background);--_ui5_wheelslider_item_background_color:var(--sapLegend_WorkingBackground);--_ui5_wheelslider_item_text_color:var(--sapTextColor);--_ui_wheelslider_item_hover_color:var(--sapButton_Emphasized_Hover_BorderColor);--_ui5_wheelslider_item_border_color:var(--sapList_Background);--_ui5_wheelslider_item_hovered_border_color:var(--sapList_Background);--_ui5_wheelslider_collapsed_item_text_color:var(--_ui5_wheelslider_item_border_color);--_ui5_wheelslider_selected_item_background_color:var(--sapContent_Selected_Background);--_ui5_wheelslider_selected_item_hover_background_color:var(--sapButton_Emphasized_Hover_BorderColor);--_ui5_wheelslider_active_item_background_color:var(--sapContent_Selected_Background);--_ui5_wheelslider_active_item_text_color:var(--sapContent_Selected_TextColor);--_ui5_wheelslider_selection_frame_color:var(--sapList_SelectionBorderColor);--_ui_wheelslider_item_border_radius:var(--_ui5_button_border_radius);--_ui5_toggle_button_pressed_focussed:var(--sapButton_Selected_BorderColor);--_ui5_toggle_button_pressed_focussed_hovered:var(--sapButton_Selected_BorderColor);--_ui5_toggle_button_selected_positive_text_color:var(--sapButton_Selected_TextColor);--_ui5_toggle_button_selected_negative_text_color:var(--sapButton_Selected_TextColor);--_ui5_toggle_button_selected_attention_text_color:var(--sapButton_Selected_TextColor);--_ui5_toggle_button_emphasized_pressed_focussed_hovered:var(--sapContent_FocusColor);--_ui5_yearpicker_item_selected_focus:var(--sapContent_Selected_Background);--_ui5_yearpicker_item_selected_hover_color:var(--sapContent_Selected_Background);--_ui5_yearpicker_item_border:none;--_ui5_yearpicker_item_border_radius:0;--_ui5_yearpicker_item_margin:1px;--_ui5_yearpicker_item_focus_after_width:calc(100% - 0.375rem);--_ui5_yearpicker_item_focus_after_height:calc(100% - 0.375rem);--_ui5_yearpicker_item_focus_after_border:1px dotted var(--sapContent_FocusColor);--_ui5_yearpicker_item_focus_after_offset:2px;--_ui5_yearpicker_item_focus_after_border_radius:0;--_ui5_yearpicker_item_selected_background_color:var(--sapSelectedColor);--_ui5_yearpicker_item_selected_text_color:var(--sapContent_ContrastTextColor);--_ui5_yearpicker_item_selected_box_shadow:none;--_ui5_yearpicker_item_focus_after_outline:none;--_ui5_yearpicker_item_border_radius:0.25rem;--_ui5_calendar_header_arrow_button_border:none;--_ui5_calendar_header_arrow_button_border_radius:0.25rem;--_ui5_calendar_header_middle_button_width:6.25rem;--_ui5_calendar_header_middle_button_flex:1 1 auto;--_ui5_calendar_header_middle_button_focus_border_radius:0.25rem;--_ui5_calendar_header_middle_button_focus_border:none;--_ui5_calendar_header_middle_button_focus_after_display:block;--_ui5_calendar_header_middle_button_focus_after_width:calc(100% - 0.25rem);--_ui5_calendar_header_middle_button_focus_after_height:calc(100% - 0.25rem);--_ui5_calendar_header_middle_button_focus_after_top_offset:1px;--_ui5_calendar_header_middle_button_focus_after_left_offset:1px;--_ui5_calendar_header_button_background_color:none;--_ui5_calendar_header_arrow_button_box_shadow:none;--_ui5_calendar_header_middle_button_focus_background:transparent;--_ui5_calendar_header_middle_button_focus_outline:none;--_ui5_calendar_header_middle_button_focus_active_outline:none;--_ui5_calendar_header_middle_button_focus_active_background:var(--sapButton_Active_Background);--_ui5_calendar_header_middle_button_focus_after_border:1px dotted var(--sapContent_FocusColor);--_ui5_calendar_header_middle_button_focus_after_width:calc(100% - 0.375rem);--_ui5_calendar_header_middle_button_focus_after_height:calc(100% - 0.375rem);--_ui5_calendar_header_middle_button_focus_after_top_offset:0.125rem;--_ui5_calendar_header_middle_button_focus_after_left_offset:0.125rem;--ui5_table_bottom_border:1px solid var(--sapList_BorderColor);--ui5_table_header_row_outline_width:1px;--ui5_table_multiselect_column_width:2.75rem;--ui5_table_header_row_font_weight:normal;--ui5_table_row_outline_width:1px;--_ui5_load_more_padding:0;--_ui5_load_more_border:1px top solid transparent;--_ui5_load_more_border_radius:none;--_ui5_load_more_outline_width:1px;--ui5_title_level_1Size:1.625rem;--ui5_title_level_2Size:1.375rem;--ui5_title_level_3Size:1.250rem;--ui5_title_level_4Size:1.125rem;--ui5_title_level_5Size:1rem;--ui5_title_level_6Size:0.875rem;--_ui5_token_background:var(--sapButton_Background);--_ui5_token_border_radius:0.125rem;--_ui5_token_text_color:var(--sapButton_TextColor);--_ui5_token_hover_background:var(--sapButton_Hover_Background);--_ui5_token_hover_border_color:var(--sapButton_Hover_BorderColor);--_ui5_token_top_margin:0;--_ui5_token_bottom_margin:0;--_ui5_token_selected_focus_outline:var(--_ui5_token_focus_outline_width) dotted var(--sapContent_ContrastFocusColor);--_ui5_token_focus_outline:var(--_ui5_token_focus_outline_width) dotted var(--sapContent_FocusColor);--_ui5_token_selected_hover_background:var(--sapButton_Selected_Hover_Background);--_ui5_token_selected_hover_border_color:var(--sapButton_Selected_Hover_BorderColor);--_ui5_token_selected_box_shadow:none;--_ui5_token_focused_border:1px solid var(--sapButton_TokenBorderColor);--_ui5_token_focused_selected_border:1px solid var(--sapButton_Selected_BorderColor);--_ui5_token_background:var(--sapButton_TokenBackground);--_ui5_token_border_radius:0.25rem;--_ui5_token_focus_outline_width:0.0625rem;--_ui5_token_text_color:var(--sapTextColor);--_ui5_token_icon_color:var(--sapContent_IconColor);--_ui5_tokenizer_n_more_indicator_font_weight:normal;--_ui5_tokenizer_n_more_indicator_color:var(--sapField_TextColor);--_ui5_value_state_message_border:none;--_ui5_value_state_message_focus_border_radius:0;--_ui5_input_value_state_icon_display:none;--_ui5_value_state_message_padding:0.5rem;--_ui5_value_state_header_padding:.5625rem 1rem;--_ui5-multi_combobox_token_margin_top:3px;--_ui5-multi_combobox_token_margin_top:1px;--_ui5_slider_progress_container_background:var(--sapField_BorderColor);--_ui5_slider_progress_container_dot_display:none;--_ui5_slider_progress_container_dot_background:var(--sapField_BorderColor);--_ui5_slider_progress_border:none;--_ui5_slider_inner_height:0.25rem;--_ui5_slider_outer_height:1.6875rem;--_ui5_slider_progress_border_radius:0.25rem;--_ui5_slider_progress_background:var(--sapActiveColor);--_ui5_slider_handle_icon_display:none;--_ui5_slider_handle_height:1.625rem;--_ui5_slider_handle_width:1.625rem;--_ui5_slider_handle_border:solid 0.125rem var(--sapField_BorderColor);--_ui5_slider_handle_border_radius:1rem;--_ui5_slider_handle_box_shadow:none;--_ui5_slider_handle_box_shadow_focus:none;--_ui5_slider_handle_background:var(--sapButton_Background);--_ui5_range_slider_handle_background:#fff;--_ui5_slider_handle_top:-0.825rem;--_ui5_slider_handle_margin_left:-0.9725rem;--_ui5_slider_handle_hover_background:var(--sapButton_Hover_Background);--_ui5_slider_handle_hover_border:0.125rem solid var(--sapButton_Hover_BorderColor);--_ui5_slider_handle_outline:0.0625rem dotted var(--sapContent_FocusColor);--_ui5_slider_handle_focus_border:var(--_ui5_slider_handle_hover_border);--_ui5_slider_handle_active_border:var(--_ui5_slider_handle_hover_border);--_ui5_slider_handle_focused_top:var(--_ui5_slider_handle_top);--_ui5_slider_handle_focused_margin_left:var(--_ui5_slider_handle_margin_left);--_ui5_slider_handle_outline_offset:0.075rem;--_ui5_slider_icon_left:0.5rem;--_ui5_slider_icon_top:0.125rem;--_ui5_range_slider_handle_hover_background:rgba(var(--sapButton_Background),0.25);--_ui5_range_slider_handle_hover_icon_display:none;--_ui5_slider_progress_outline:0.0625rem dotted var(--sapContent_FocusColor);--_ui5_slider_progress_outline_offset:-0.8125rem;--_ui5_slider_tickmark_top:-0.375rem;--_ui5_slider_disabled_opacity:0.4;--_ui5_slider_tooltip_fontsize:var(--sapFontSmallSize);--_ui5_slider_tooltip_color:var(--sapContent_LabelColor);--_ui5_slider_tooltip_background:var(--sapField_Background);--_ui5_slider_tooltip_border_radius:var(--sapElement_BorderCornerRadius);--_ui5_slider_tooltip_border_color:var(--sapField_BorderColor);--_ui5_slider_tooltip_border:0.0625rem solid var(--_ui5_slider_tooltip_border_color);--_ui5_slider_tooltip_box_shadow:none;--_ui5_slider_tooltip_padding:0.4125rem;--_ui5_slider_tooltip_height:1rem;--_ui5_slider_tooltip_min_width:2rem;--_ui5_slider_tooltip_bottom:2rem;--_ui5_slider_label_fontsize:var(--sapFontSmallSize);--_ui5_slider_label_color:var(--sapContent_LabelColor);--_ui5_range_slider_progress_focus_display:none;--_ui5_range_slider_progress_focus_top:-1.063rem;--_ui5_range_slider_progress_focus_left:-1.438rem;--_ui5_range_slider_progress_focus_padding:0 1.375rem 0 1.438rem;--_ui5_range_slider_progress_focus_height:2rem;--_ui5_range_slider_legacy_progress_focus_display:block;--_ui5_slider_inner_min_width:4rem;--_ui5_suggestions_item_focus_border_radius:0;--_ui5_step_input_input_error_background_color:var(--sapField_InvalidBackground);--_ui5-step_input_button_state_hover_background_color:var(--sapField_Background);--_ui5_step_input_border_style:1px solid var(--sapField_BorderColor);--_ui5_step_input_border_style_hover:1px solid var(--sapField_Hover_BorderColor);--_ui5_step_input_button_background_color:var(--sapField_Background);--_ui5_step_input_input_border:1px solid transparent;--_ui5_step_input_input_margin_top:-0.0625rem;--_ui5_step_input_button_display:inline-block;--_ui5_step_input_button_left:0;--_ui5_step_input_button_right:0;--_ui5_step_input_input_border_focused_after:var(--_ui5_input_focus_border_width) dotted var(--sapContent_FocusColor);--_ui5_step_input_input_border_top_bottom_focused_after:0.0625rem;--_ui5_step_input_input_border_radius_focused_after:0;--_ui5_step_input_input_information_border_color_focused_after:var(--sapField_BorderColor);--_ui5_step_input_input_warning_border_color_focused_after:var(--sapField_BorderColor);--_ui5_step_input_input_success_border_color_focused_after:var(--sapField_BorderColor);--_ui5_step_input_input_error_border_color_focused_after:var(--sapField_BorderColor);--_ui5_step_input_disabled_button_background:var(--sapField_ReadOnly_Background);--_ui5_step_input_border_color_hover:var(--sapField_Hover_Background);--_ui5_step_input_border_hover:1px solid var(--sapField_Hover_BorderColor);--_ui5_input_input_background_color:var(--sapField_InvalidBackground)}"};
+
+registerThemePropertiesLoader("@ui5/webcomponents-theming", "sap_fiori_3", () => defaultThemeBase);
 registerThemePropertiesLoader("@ui5/webcomponents", "sap_fiori_3", () => defaultTheme);
-var iconCss = ":host([hidden]){display:none}:host([invalid]){display:none}:host(:not([hidden]).ui5_hovered){opacity:.7}:host{display:inline-block;width:1rem;height:1rem;color:var(--sapContent_NonInteractiveIconColor);fill:currentColor;outline:none}:host([interactive][focused]) .ui5-icon-root{outline:1px dotted var(--sapContent_FocusColor)}.ui5-icon-root{display:flex;outline:none;vertical-align:top}:host(:not([dir=ltr])) .ui5-icon-root[dir=rtl]{transform:scaleX(-1);transform-origin:center}";
+var iconCss = {packageName:"@ui5/webcomponents",fileName:"themes/Icon.css",content:":host{-webkit-tap-highlight-color:rgba(0,0,0,0)}:host([hidden]){display:none}:host([invalid]){display:none}:host(:not([hidden]).ui5_hovered){opacity:.7}:host{display:inline-block;width:1rem;height:1rem;color:var(--sapContent_NonInteractiveIconColor);fill:currentColor;outline:none}:host([interactive][focused]) .ui5-icon-root{outline:1px dotted var(--sapContent_FocusColor)}.ui5-icon-root{display:flex;outline:none;vertical-align:top}:host(:not([dir=ltr])) .ui5-icon-root[dir=rtl]{transform:scaleX(-1);transform-origin:center}"};
 
 const ICON_NOT_FOUND = "ICON_NOT_FOUND";
+const PRESENTATION_ROLE = "presentation";
 
 /**
  * @public
@@ -3642,6 +3793,7 @@ const ICON_NOT_FOUND = "ICON_NOT_FOUND";
 const metadata$1 = {
 	tag: "ui5-icon",
 	languageAware: true,
+	themeAware: true,
 	properties: /** @lends sap.ui.webcomponents.main.Icon.prototype */ {
 		/**
 		 * Defines if the icon is interactive (focusable and pressable)
@@ -3720,6 +3872,7 @@ const metadata$1 = {
 
 		/**
 		 * Defines the aria hidden state of the component.
+		 * Note: If the role is presentation the default value of aria-hidden will be true.
 		 * @private
 		 * @since 1.0.0-rc.15
 		 */
@@ -3829,7 +3982,7 @@ class Icon extends UI5Element$1 {
 	}
 
 	static get template() {
-		return main;
+		return block0;
 	}
 
 	static get styles() {
@@ -3870,12 +4023,10 @@ class Icon extends UI5Element$1 {
 		}
 	}
 
-	_onclick(event) {
-		if (this.interactive) {
-			// prevent the native event and fire custom event to ensure the noConfict "ui5-click" is fired
-			event.stopPropagation();
-			this.fireEvent("click");
-		}
+	_onClickHandler(event) {
+		// prevent the native event and fire custom event to ensure the noConfict "ui5-click" is fired
+		event.stopPropagation();
+		this.fireEvent("click");
 	}
 
 	get _dir() {
@@ -3892,6 +4043,10 @@ class Icon extends UI5Element$1 {
 
 	get effectiveAriaHidden() {
 		if (this.ariaHidden === "") {
+			if (this.isDecorative) {
+				return true;
+			}
+
 			return;
 		}
 
@@ -3900,6 +4055,10 @@ class Icon extends UI5Element$1 {
 
 	get tabIndex() {
 		return this.interactive ? "0" : "-1";
+	}
+
+	get isDecorative() {
+		return this.effectiveAccessibleRole === PRESENTATION_ROLE;
 	}
 
 	get effectiveAccessibleRole() {
@@ -3911,7 +4070,7 @@ class Icon extends UI5Element$1 {
 			return "button";
 		}
 
-		return this.effectiveAccessibleName ? "img" : "presentation";
+		return this.effectiveAccessibleName ? "img" : PRESENTATION_ROLE;
 	}
 
 	static createGlobalStyle() {
@@ -3962,13 +4121,12 @@ class Icon extends UI5Element$1 {
 		this.ltr = iconData.ltr;
 		this.packageName = iconData.packageName;
 
+		this._onclick = this.interactive ? this._onClickHandler.bind(this) : undefined;
+
 		if (this.accessibleName) {
 			this.effectiveAccessibleName = this.accessibleName;
 		} else if (this.accData) {
-			if (!getI18nBundleData$1(this.packageName)) {
-				await fetchI18nBundle$1(this.packageName);
-			}
-			const i18nBundle = getI18nBundle$1(this.packageName);
+			const i18nBundle = await getI18nBundle$1(this.packageName);
 			this.effectiveAccessibleName = i18nBundle.getText(this.accData) || undefined;
 		}
 	}
@@ -3988,9 +4146,9 @@ Icon.define();
 
 const ARIA_LABEL_CARD_CONTENT = {key: "ARIA_LABEL_CARD_CONTENT", defaultText: "Card Content"};const ARIA_ROLEDESCRIPTION_CARD = {key: "ARIA_ROLEDESCRIPTION_CARD", defaultText: "Card"};
 
-registerThemePropertiesLoader("@ui5/webcomponents-theme-base", "sap_fiori_3", () => defaultThemeBase);
+registerThemePropertiesLoader("@ui5/webcomponents-theming", "sap_fiori_3", () => defaultThemeBase);
 registerThemePropertiesLoader("@ui5/webcomponents", "sap_fiori_3", () => defaultTheme);
-var cardCss = ".ui5-hidden-text{position:absolute;clip:rect(1px,1px,1px,1px);user-select:none;left:-1000px;top:-1000px;pointer-events:none}:host(:not([hidden])){display:inline-block;width:100%}.ui5-card-root{width:100%;height:100%;color:var(--sapGroup_TitleTextColor);background:var(--sapTile_Background);box-shadow:var(--_ui5_card_box_shadow);border-radius:.25rem;border:1px solid var(--_ui5_card_border_color);overflow:hidden;font-family:\"72override\",var(--sapFontFamily);font-size:var(--sapFontSize);box-sizing:border-box}.ui5-card-root.ui5-card--nocontent{height:auto}.ui5-card-root.ui5-card--nocontent .ui5-card-header-root{border-bottom:none}.ui5-card-root .ui5-card-header-root{display:block;border-bottom:1px solid var(--_ui5_card_header_border_color)}";
+var cardCss = {packageName:"@ui5/webcomponents",fileName:"themes/Card.css",content:".ui5-hidden-text{position:absolute;clip:rect(1px,1px,1px,1px);user-select:none;left:-1000px;top:-1000px;pointer-events:none;font-size:0}:host(:not([hidden])){display:inline-block;width:100%}.ui5-card-root{width:100%;height:100%;color:var(--sapGroup_TitleTextColor);background:var(--sapTile_Background);box-shadow:var(--_ui5_card_box_shadow);border-radius:var(--_ui5_card_border-radius);border:1px solid var(--_ui5_card_border_color);overflow:hidden;font-family:\"72override\",var(--sapFontFamily);font-size:var(--sapFontSize);box-sizing:border-box}.ui5-card-root:hover{box-shadow:var(--_ui5_card_hover_box_shadow)}.ui5-card-root.ui5-card--nocontent{height:auto}.ui5-card-root.ui5-card--nocontent .ui5-card-header-root{border-bottom:none}.ui5-card--nocontent ::slotted([ui5-card-header]){--_ui5_card_header_focus_bottom_radius:var(--_ui5_card_header_focus_radius)}.ui5-card-root .ui5-card-header-root{display:block;border-bottom:1px solid var(--_ui5_card_header_border_color)}"};
 
 /**
  * @public
@@ -4017,7 +4175,7 @@ const metadata = {
 		 * <br><br>
 		 * <b>Note:</b> Use <code>ui5-card-header</code> for the intended design.
 		 * @type {HTMLElement[]}
-         * @since 1.0.0-rc.15
+		 * @since 1.0.0-rc.15
 		 * @slot content
 		 * @public
 		 */
@@ -4027,6 +4185,31 @@ const metadata = {
 	},
 	properties: /** @lends sap.ui.webcomponents.main.Card.prototype */ {
 
+		/**
+		 * Defines the accessible name of the component, which is used as the name of the card region and should be unique per card.
+		 * <b>Note:</b> <code>accessibleName</code> should be always set, unless <code>accessibleNameRef</code> is set.
+		 *
+		 *
+		 * @type {String}
+		 * @defaultvalue ""
+		 * @public
+		 * @since 1.0.0-rc.16
+		 */
+		accessibleName: {
+			type: String,
+		},
+
+		/**
+		 * Defines the IDs of the elements that label the component.
+		 *
+		 * @type {String}
+		 * @defaultvalue ""
+		 * @public
+		 * @since 1.0.0-rc.16
+		 */
+		accessibleNameRef: {
+			type: String,
+		},
 	},
 	events: /** @lends sap.ui.webcomponents.main.Card.prototype */ {
 
@@ -4060,14 +4243,9 @@ const metadata = {
  * @extends sap.ui.webcomponents.base.UI5Element
  * @tagname ui5-card
  * @public
+ * @appenddocs CardHeader
  */
 class Card extends UI5Element {
-	constructor() {
-		super();
-
-		this.i18nBundle = getI18nBundle("@ui5/webcomponents");
-	}
-
 	static get metadata() {
 		return metadata;
 	}
@@ -4077,7 +4255,7 @@ class Card extends UI5Element {
 	}
 
 	static get template() {
-		return main$1;
+		return block0$1;
 	}
 
 	static get styles() {
@@ -4091,26 +4269,18 @@ class Card extends UI5Element {
 		};
 	}
 
-	get hasHeader() {
+	get _hasHeader() {
 		return !!this.header.length;
 	}
 
-	get ariaCardRoleDescription() {
-		return this.i18nBundle.getText(ARIA_ROLEDESCRIPTION_CARD);
+	get _getAriaLabel() {
+		const effectiveAriaLabelText = getEffectiveAriaLabelText(this),
+			effectiveAriaLabel = effectiveAriaLabelText ? ` ${effectiveAriaLabelText}` : "";
+		return Card.i18nBundle.getText(ARIA_ROLEDESCRIPTION_CARD) + effectiveAriaLabel;
 	}
 
-	get ariaCardContentLabel() {
-		return this.i18nBundle.getText(ARIA_LABEL_CARD_CONTENT);
-	}
-
-	get ariaLabelledByCard() {
-		let labels;
-		if (this.hasHeader) {
-			labels = this.header[0].hasAttribute("title-text") ? `${this._id}--header-title ${this._id}-desc` : `${this._id}-desc`;
-		} else {
-			labels = `${this._id}-desc`;
-		}
-		return labels;
+	get _ariaCardContentLabel() {
+		return Card.i18nBundle.getText(ARIA_LABEL_CARD_CONTENT);
 	}
 
 	static get dependencies() {
@@ -4118,7 +4288,7 @@ class Card extends UI5Element {
 	}
 
 	static async onDefine() {
-		await fetchI18nBundle("@ui5/webcomponents");
+		Card.i18nBundle = await getI18nBundle("@ui5/webcomponents");
 	}
 }
 

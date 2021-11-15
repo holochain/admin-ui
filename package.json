@@ -21,7 +21,7 @@
     "@material/mwc-icon-button": "^0.25.1",
     "@material/mwc-snackbar": "^0.25.1",
     "@shoelace-style/shoelace": "^2.0.0-beta.51",
-    "@ui5/webcomponents": "^1.0.0-rc.15",
+    "@ui5/webcomponents": "^1.0.1",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0-0",
     "vuex": "^4.0.0-0"

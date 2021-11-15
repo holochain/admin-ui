@@ -8,6 +8,10 @@ Versioning](https://semver.org/spec/v2.0.0.html).
 
 <!-- ## [Unreleased] -->
 
+## [2.6.0] - 2021-08-02
+
+- Add TS externs. ([#457](https://github.com/webcomponents/polyfills/pull/457))
+
 ## [2.5.0] - 2020-10-21
 
 - Polyfill `Element#matches`.

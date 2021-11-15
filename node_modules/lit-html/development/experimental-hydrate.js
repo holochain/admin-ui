@@ -3,10 +3,10 @@
  * Copyright 2019 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-import { noChange, _Σ } from './lit-html.js';
+import { noChange, _$LH } from './lit-html.js';
 import { PartType } from './directive.js';
 import { isPrimitive, isSingleExpression, isTemplateResult, } from './directive-helpers.js';
-const { _TemplateInstance: TemplateInstance, _isIterable: isIterable, _resolveDirective: resolveDirective, _ChildPart: ChildPart, _ElementPart: ElementPart, } = _Σ;
+const { _TemplateInstance: TemplateInstance, _isIterable: isIterable, _resolveDirective: resolveDirective, _ChildPart: ChildPart, _ElementPart: ElementPart, } = _$LH;
 /**
  * hydrate() operates on a container with server-side rendered content and
  * restores the client side data structures needed for lit-html updates such as
@@ -50,8 +50,9 @@ const { _TemplateInstance: TemplateInstance, _isIterable: isIterable, _resolveDi
  */
 export const hydrate = (rootValue, container, options = {}) => {
     // TODO(kschaaf): Do we need a helper for _$litPart$ ("part for node")?
+    // This property needs to remain unminified.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if (container._$litPart$ !== undefined) {
+    if (container['_$litPart$'] !== undefined) {
         throw new Error('container already contains a live render');
     }
     // Since render() creates a ChildPart to render into, we'll always have
@@ -97,8 +98,9 @@ export const hydrate = (rootValue, container, options = {}) => {
         }
     }
     console.assert(rootPart !== undefined, 'there should be exactly one root part in a render container');
+    // This property needs to remain unminified.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    container._$litPart$ = rootPart;
+    container['_$litPart$'] = rootPart;
 };
 const openChildPart = (rootValue, marker, stack, options) => {
     let value;

@@ -3,16 +3,17 @@ import litRender from "@ui5/webcomponents-base/dist/renderer/LitRenderer.js";
 import UI5Element from "@ui5/webcomponents-base/dist/UI5Element.js";
 import { isChrome } from "@ui5/webcomponents-base/dist/Device.js";
 import { getFirstFocusableElement, getLastFocusableElement } from "@ui5/webcomponents-base/dist/util/FocusableElements.js";
-import createStyleInHead from "@ui5/webcomponents-base/dist/util/createStyleInHead.js";
+import { hasStyle, createStyle } from "@ui5/webcomponents-base/dist/ManagedStyles.js";
 import { isTabPrevious } from "@ui5/webcomponents-base/dist/Keys.js";
 import { getNextZIndex, getFocusedElement, isFocusedElementWithinNode } from "@ui5/webcomponents-base/dist/util/PopupUtils.js";
 import PopupTemplate from "./generated/templates/PopupTemplate.lit.js";
 import PopupBlockLayer from "./generated/templates/PopupBlockLayerTemplate.lit.js";
-import { getOpenedPopups, addOpenedPopup, removeOpenedPopup } from "./popup-utils/OpenedPopupsRegistry.js";
+import { addOpenedPopup, removeOpenedPopup } from "./popup-utils/OpenedPopupsRegistry.js";
 
 // Styles
 import styles from "./generated/themes/Popup.css.js";
 import staticAreaStyles from "./generated/themes/PopupStaticAreaStyles.css.js";
+import globalStyles from "./generated/themes/PopupGlobal.css.js";
 
 /**
  * @public
@@ -141,26 +142,15 @@ const metadata = {
 	},
 };
 
-let customBlockingStyleInserted = false;
-
 const createBlockingStyle = () => {
-	if (customBlockingStyleInserted) {
-		return;
+	if (!hasStyle("data-ui5-popup-scroll-blocker")) {
+		createStyle(globalStyles, "data-ui5-popup-scroll-blocker");
 	}
-
-	createStyleInHead(`
-		.ui5-popup-scroll-blocker {
-			width: 100%;
-			height: 100%;
-			position: fixed;
-			overflow: hidden;
-		}
-	`, { "data-ui5-popup-scroll-blocker": "" });
-
-	customBlockingStyleInserted = true;
 };
 
 createBlockingStyle();
+
+const bodyScrollingBlockers = new Set();
 
 /**
  * @class
@@ -228,7 +218,7 @@ class Popup extends UI5Element {
 
 	onExitDOM() {
 		if (this.isOpen()) {
-			Popup.unblockBodyScrolling();
+			Popup.unblockBodyScrolling(this);
 			this._removeOpenedPopup();
 		}
 	}
@@ -248,7 +238,13 @@ class Popup extends UI5Element {
 	 * Temporarily removes scrollbars from the body
 	 * @protected
 	 */
-	static blockBodyScrolling() {
+	static blockBodyScrolling(popup) {
+		bodyScrollingBlockers.add(popup);
+
+		if (bodyScrollingBlockers.size !== 1) {
+			return;
+		}
+
 		if (window.pageYOffset > 0) {
 			document.body.style.top = `-${window.pageYOffset}px`;
 		}
@@ -259,7 +255,13 @@ class Popup extends UI5Element {
 	 * Restores scrollbars on the body, if needed
 	 * @protected
 	 */
-	static unblockBodyScrolling() {
+	static unblockBodyScrolling(popup) {
+		bodyScrollingBlockers.delete(popup);
+
+		if (bodyScrollingBlockers.size !== 0) {
+			return;
+		}
+
 		document.body.classList.remove("ui5-popup-scroll-blocker");
 		window.scrollTo(0, -parseFloat(document.body.style.top));
 		document.body.style.top = "";
@@ -392,7 +394,7 @@ class Popup extends UI5Element {
 			// create static area item ref for block layer
 			this.getStaticAreaItemDomRef();
 			this._blockLayerHidden = false;
-			Popup.blockBodyScrolling();
+			Popup.blockBodyScrolling(this);
 		}
 
 		this._zIndex = getNextZIndex();
@@ -435,12 +437,9 @@ class Popup extends UI5Element {
 			return;
 		}
 
-		const openedPopups = getOpenedPopups();
 		if (this.isModal) {
 			this._blockLayerHidden = true;
-			if (openedPopups.length === 1) {
-				Popup.unblockBodyScrolling();
-			}
+			Popup.unblockBodyScrolling(this);
 		}
 
 		this.hide();

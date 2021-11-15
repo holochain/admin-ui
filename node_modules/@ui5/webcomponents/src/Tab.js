@@ -2,7 +2,6 @@ import UI5Element from "@ui5/webcomponents-base/dist/UI5Element.js";
 import litRender from "@ui5/webcomponents-base/dist/renderer/LitRenderer.js";
 import executeTemplate from "@ui5/webcomponents-base/dist/renderer/executeTemplate.js";
 import SemanticColor from "./types/SemanticColor.js";
-import TabLayout from "./types/TabLayout.js";
 import TabContainer from "./TabContainer.js";
 import Icon from "./Icon.js";
 import CustomListItem from "./CustomListItem.js";
@@ -104,16 +103,6 @@ const metadata = {
 		},
 
 		/**
-		 * Defines the stable selector that you can use via getStableDomRef method.
-		 * @public
-		 * @type {string}
-		 * @since 1.0.0-rc.8
-		 */
-		stableDomRef: {
-			type: String,
-		},
-
-		/**
 		 * Specifies if the component is selected.
 		 *
 		 * @type {boolean}
@@ -180,6 +169,16 @@ class Tab extends UI5Element {
 		];
 	}
 
+	get displayText() {
+		let text = this.text;
+
+		if (this._isInline && this.additionalText) {
+			text += ` (${this.additionalText})`;
+		}
+
+		return text;
+	}
+
 	get isSeparator() {
 		return false;
 	}
@@ -190,6 +189,22 @@ class Tab extends UI5Element {
 
 	get overflowPresentation() {
 		return executeTemplate(this.constructor.overflowTemplate, this);
+	}
+
+	get stableDomRef() {
+		return `${this._id}-stable-dom-ref`;
+	}
+
+	/**
+	 * Returns the DOM reference of the tab that is placed in the header.
+	 * <b>Note:</b> If you need a DOM ref to the tab content please use the <code>getDomRef</code> method.
+	 *
+	 * @function
+	 * @public
+	 * @since 1.0.0-rc.16
+	 */
+	getTabInStripDomRef() {
+		return this._getTabInStripDomRef;
 	}
 
 	getFocusDomRef() {
@@ -255,8 +270,12 @@ class Tab extends UI5Element {
 			classes.push("ui5-tab-strip-item--disabled");
 		}
 
-		if (this.tabLayout === TabLayout.Inline) {
+		if (this._isInline) {
 			classes.push("ui5-tab-strip-item--inline");
+		}
+
+		if (this.additionalText) {
+			classes.push("ui5-tab-strip-item--withAddionalText");
 		}
 
 		if (!this.icon && !this._mixedMode) {

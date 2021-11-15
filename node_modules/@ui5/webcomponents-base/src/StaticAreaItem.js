@@ -3,6 +3,7 @@ import updateShadowRoot from "./updateShadowRoot.js";
 import { renderFinished } from "./Render.js";
 import getEffectiveContentDensity from "./util/getEffectiveContentDensity.js";
 import { getEffectiveScopingSuffixForTag } from "./CustomElementsScope.js";
+import getEffectiveDir from "./locale/getEffectiveDir.js";
 
 /**
  *
@@ -33,6 +34,7 @@ class StaticAreaItem extends HTMLElement {
 	update() {
 		if (this._rendered) {
 			this._updateContentDensity();
+			this._updateDirection();
 			updateShadowRoot(this.ownerElement, true);
 		}
 	}
@@ -51,6 +53,15 @@ class StaticAreaItem extends HTMLElement {
 		}
 	}
 
+	_updateDirection() {
+		const dir = getEffectiveDir(this.ownerElement);
+		if (dir) {
+			this.setAttribute("dir", dir);
+		} else {
+			this.removeAttribute("dir");
+		}
+	}
+
 	/**
 	 * @protected
 	 * Returns reference to the DOM element where the current fragment is added.
@@ -63,15 +74,6 @@ class StaticAreaItem extends HTMLElement {
 		}
 		await renderFinished(); // Wait for the content of the ui5-static-area-item to be rendered
 		return this.shadowRoot;
-	}
-
-	/**
-	 * @protected
-	 * @param refName
-	 * @returns {Element}
-	 */
-	getStableDomRef(refName) {
-		return this.shadowRoot.querySelector(`[data-ui5-stable=${refName}]`);
 	}
 
 	static getTag() {

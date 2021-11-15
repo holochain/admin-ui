@@ -9,7 +9,7 @@ import { isTabNext, isSpace, isEnter } from "@ui5/webcomponents-base/dist/Keys.j
 import Integer from "@ui5/webcomponents-base/dist/types/Integer.js";
 import NavigationMode from "@ui5/webcomponents-base/dist/types/NavigationMode.js";
 import { getEffectiveAriaLabelText } from "@ui5/webcomponents-base/dist/util/AriaLabelHelper.js";
-import { fetchI18nBundle, getI18nBundle } from "@ui5/webcomponents-base/dist/i18nBundle.js";
+import { getI18nBundle } from "@ui5/webcomponents-base/dist/i18nBundle.js";
 import debounce from "@ui5/webcomponents-base/dist/util/debounce.js";
 import isElementInView from "@ui5/webcomponents-base/dist/util/isElementInView.js";
 import ListMode from "./types/ListMode.js";
@@ -24,9 +24,15 @@ import ListTemplate from "./generated/templates/ListTemplate.lit.js";
 import listCss from "./generated/themes/List.css.js";
 
 // Texts
-import { LOAD_MORE_TEXT } from "./generated/i18n/i18n-defaults.js";
+import {
+	LOAD_MORE_TEXT, ARIA_LABEL_LIST_SELECTABLE,
+	ARIA_LABEL_LIST_MULTISELECTABLE,
+	ARIA_LABEL_LIST_DELETABLE,
+} from "./generated/i18n/i18n-defaults.js";
 
 const INFINITE_SCROLL_DEBOUNCE_RATE = 250; // ms
+
+const PAGE_UP_DOWN_SIZE = 10;
 
 /**
  * @public
@@ -91,7 +97,7 @@ const metadata = {
 		},
 
 		/**
-		 * Determines whether the list items are indented.
+		 * Determines whether the component is indented.
 		 *
 		 * @type {boolean}
 		 * @defaultvalue false
@@ -169,7 +175,7 @@ const metadata = {
 		 * @since 1.0.0-rc.13
 		 * @public
 		 */
-		 growing: {
+		growing: {
 			type: ListGrowingMode,
 			defaultValue: ListGrowingMode.None,
 		},
@@ -199,7 +205,7 @@ const metadata = {
 		},
 
 		/**
-		 * Sets the accessible aria name of the component.
+		 * Defines the accessible name of the component.
 		 *
 		 * @type {String}
 		 * @defaultvalue ""
@@ -211,7 +217,7 @@ const metadata = {
 		},
 
 		/**
-		 * Receives id(or many ids) of the elements that label the input
+		 * Defines the IDs of the elements that label the input.
 		 *
 		 * @type {String}
 		 * @defaultvalue ""
@@ -226,24 +232,21 @@ const metadata = {
 		/**
 		 * Defines the accessible role of the component.
 		 * <br><br>
-		 * <b>Note:</b> If you use notification list items,
-		 * it's recommended to set <code>accessible-role="list"</code> for better accessibility.
-		 *
 		 * @public
 		 * @type {String}
-		 * @defaultvalue "listbox"
+		 * @defaultvalue "list"
 		 * @since 1.0.0-rc.15
 		 */
-		 accessibleRole: {
+		accessibleRole: {
 			type: String,
-			defaultValue: "listbox",
+			defaultValue: "list",
 		},
 
 		/**
 		 * Defines if the entire list is in view port.
 		 * @private
 		 */
-		 _inViewport: {
+		_inViewport: {
 			type: Boolean,
 		},
 
@@ -251,7 +254,7 @@ const metadata = {
 		 * Defines the active state of the <code>More</code> button.
 		 * @private
 		 */
-		 _loadMoreActive: {
+		_loadMoreActive: {
 			type: Boolean,
 		},
 	},
@@ -358,7 +361,7 @@ const metadata = {
  * The <code>ui5-list</code> component allows displaying a list of items, advanced keyboard
  * handling support for navigating between items, and predefined modes to improve the development efficiency.
  * <br><br>
- * The <code>ui5-list</code> is а container for the available list items:
+ * The <code>ui5-list</code> is a container for the available list items:
  * <ul>
  * <li><code>ui5-li</code></li>
  * <li><code>ui5-li-custom</code></li>
@@ -428,7 +431,7 @@ class List extends UI5Element {
 	}
 
 	static async onDefine() {
-		await fetchI18nBundle("@ui5/webcomponents");
+		List.i18nBundle = await getI18nBundle("@ui5/webcomponents");
 	}
 
 	static get dependencies() {
@@ -463,7 +466,6 @@ class List extends UI5Element {
 		this.addEventListener("ui5-_focus-requested", this.focusUploadCollectionItem.bind(this));
 
 		this._handleResize = this.checkListInViewport.bind(this);
-		this.i18nBundle = getI18nBundle("@ui5/webcomponents");
 
 		// Indicates the List bottom most part has been detected by the IntersectionObserver
 		// for the first time.
@@ -508,6 +510,10 @@ class List extends UI5Element {
 		return `${this._id}-header`;
 	}
 
+	get modeLabelID() {
+		return `${this._id}-modeLabel`;
+	}
+
 	get listEndDOM() {
 		return this.shadowRoot.querySelector(".ui5-list-end-marker");
 	}
@@ -520,6 +526,19 @@ class List extends UI5Element {
 		return !this.hasData && this.noDataText;
 	}
 
+	get isDelete() {
+		return this.mode === ListMode.Delete;
+	}
+
+	get isSingleSelect() {
+		return [
+			ListMode.SingleSelect,
+			ListMode.SingleSelectBegin,
+			ListMode.SingleSelectEnd,
+			ListMode.SingleSelectAuto,
+		].includes(this.mode);
+	}
+
 	get isMultiSelect() {
 		return this.mode === ListMode.MultiSelect;
 	}
@@ -528,12 +547,35 @@ class List extends UI5Element {
 		if (this.accessibleNameRef || this.accessibleName) {
 			return undefined;
 		}
+		const ids = [];
 
-		return this.shouldRenderH1 ? this.headerID : undefined;
+		if (this.isMultiSelect || this.isSingleSelect || this.isDelete) {
+			ids.push(this.modeLabelID);
+		}
+
+		if (this.shouldRenderH1) {
+			ids.push(this.headerID);
+		}
+
+		return ids.length ? ids.join(" ") : undefined;
 	}
 
-	get ariaLabelТxt() {
+	get ariaLabelTxt() {
 		return getEffectiveAriaLabelText(this);
+	}
+
+	get ariaLabelModeText() {
+		if (this.isMultiSelect) {
+			return List.i18nBundle.getText(ARIA_LABEL_LIST_MULTISELECTABLE);
+		}
+		if (this.isSingleSelect) {
+			return List.i18nBundle.getText(ARIA_LABEL_LIST_SELECTABLE);
+		}
+		if (this.isDelete) {
+			return List.i18nBundle.getText(ARIA_LABEL_LIST_DELETABLE);
+		}
+
+		return undefined;
 	}
 
 	get grows() {
@@ -554,7 +596,7 @@ class List extends UI5Element {
 	}
 
 	get _growingButtonText() {
-		return this.i18nBundle.getText(LOAD_MORE_TEXT);
+		return List.i18nBundle.getText(LOAD_MORE_TEXT);
 	}
 
 	get busyIndPosition() {
@@ -575,6 +617,7 @@ class List extends UI5Element {
 
 	initItemNavigation() {
 		this._itemNavigation = new ItemNavigation(this, {
+			skipItemsSize: PAGE_UP_DOWN_SIZE, // PAGE_UP and PAGE_DOWN will skip trough 10 items
 			navigationMode: NavigationMode.Vertical,
 			getItemsCallback: () => this.getEnabledItems(),
 		});
@@ -690,9 +733,6 @@ class List extends UI5Element {
 	}
 
 	_onkeydown(event) {
-		if (isSpace(event)) {
-			event.preventDefault(); // prevent scroll
-		}
 		if (isTabNext(event)) {
 			this._handleTabNext(event);
 		}
