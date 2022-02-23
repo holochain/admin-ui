@@ -1,4 +1,4 @@
-import { AdminWebsocket } from "@holochain/conductor-api";
+import { AdminWebsocket } from "@holochain/client";
 import { App } from "vue";
 import { Store } from "vuex";
 import "@material/mwc-button";

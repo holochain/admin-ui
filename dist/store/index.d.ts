@@ -1,5 +1,5 @@
 import { Module } from "vuex";
-import { AdminWebsocket, InstalledAppInfo } from "@holochain/conductor-api";
+import { AdminWebsocket, InstalledAppInfo } from "@holochain/client";
 export interface HcAdminState {
     installedApps: {
         loading: boolean;

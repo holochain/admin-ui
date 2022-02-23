@@ -1,4 +1,4 @@
-import { AppBundle } from "@holochain/conductor-api";
+import { AppBundle } from "@holochain/client";
 import { Plugin } from "vue";
 
 declare const HcAdminPlugin: Plugin & {

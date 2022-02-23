@@ -1,4 +1,4 @@
-import { AdminWebsocket } from "@holochain/conductor-api";
+import { AdminWebsocket } from "@holochain/client";
 import { App } from "vue";
 import { Store } from "vuex";
 import InstalledApps from "./components/InstalledApps.vue"; // @ is an alias to /src

@@ -1,5 +1,5 @@
 import { deserializeHash, serializeHash } from "@holochain-open-dev/core-types";
-import { InstalledAppInfo } from "@holochain/conductor-api";
+import { InstalledAppInfo } from "@holochain/client";
 import "@shoelace-style/shoelace/dist/themes/light.css";
 import "@shoelace-style/shoelace/dist/components/tag/tag.js";
 declare const _default: import("vue").DefineComponent<{}, {}, {

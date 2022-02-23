@@ -203,7 +203,7 @@ import { defineComponent } from "vue";
 import { ActionTypes } from "../store/actions";
 import { ADMIN_UI_MODULE } from "../constants";
 import { deserializeHash, serializeHash } from "@holochain-open-dev/core-types";
-import { DisabledAppReason, InstalledAppInfo } from "@holochain/conductor-api";
+import { DisabledAppReason, InstalledAppInfo } from "@holochain/client";
 import "@shoelace-style/shoelace/dist/themes/light.css";
 import "@shoelace-style/shoelace/dist/components/tag/tag.js";
 
