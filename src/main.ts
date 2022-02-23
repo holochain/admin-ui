@@ -1,7 +1,7 @@
 import { createApp } from "vue";
 import { createStore } from "vuex";
 import App from "./App.vue";
-import { AdminWebsocket, AppWebsocket } from "@holochain/conductor-api";
+import { AdminWebsocket, AppWebsocket } from "@holochain/client";
 import HcAdminPlugin from "./index";
 
 async function setup() {

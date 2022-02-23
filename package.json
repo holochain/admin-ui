@@ -13,8 +13,8 @@
     "publish-to-branch": "npm run build && rimraf node_modules && gh-pages -d ./ -b build && npm i"
   },
   "dependencies": {
-    "@holochain-open-dev/core-types": "0.1.1",
-    "@holochain/conductor-api": "0.2.4",
+    "@holochain-open-dev/core-types": "^0.2.0",
+    "@holochain/client": "^0.3.2",
     "@material/mwc-button": "^0.25.1",
     "@material/mwc-circular-progress": "^0.25.1",
     "@material/mwc-dialog": "^0.25.1",
